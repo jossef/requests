@@ -33,5 +33,18 @@ void main() {
       expect(body, isNotNull);
       expect(body, isMap);
     });
+
+    test('remove cookies', () async {
+      String url = "https://jsonplaceholder.typicode.com/posts/1";
+      String hostname = Requests.getHostname(url);
+      expect("jsonplaceholder.typicode.com", hostname);
+      await Requests.clearStoredCookies(hostname);
+      await Requests.setStoredCookies(hostname, {'session': 'bla'});
+      var cookies = await Requests.getStoredCookies(hostname);
+      expect(cookies.keys.length, 1);
+      await Requests.clearStoredCookies(hostname);
+      cookies = await Requests.getStoredCookies(hostname);
+      expect(cookies.keys.length, 0);
+    });
   });
 }

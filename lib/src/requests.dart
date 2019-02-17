@@ -37,7 +37,7 @@ class Requests {
   }
 
   static Future<Map> _constructRequestHeaders(String hostname, Map<String, String> customHeaders) async {
-    var cookies = await _getStoredCookies(hostname);
+    var cookies = await getStoredCookies(hostname);
     String cookie = cookies.keys.map((key) => "$key=${cookies[key]}").join("; ");
     Map<String, String> requestHeaders = Map();
     requestHeaders['cookie'] = cookie;
@@ -48,7 +48,7 @@ class Requests {
     return requestHeaders;
   }
 
-  static Future<Map<String, String>> _getStoredCookies(String hostname) async {
+  static Future<Map<String, String>> getStoredCookies(String hostname) async {
     try {
       String hostnameHash = Common.hashStringSHA256(hostname);
       String cookiesJson = await Common.storageGet('cookies-$hostnameHash');
@@ -60,10 +60,20 @@ class Requests {
     }
   }
 
-  static Future _setStoredCookies(String hostname, Map<String, String> cookies) async {
+  static Future setStoredCookies(String hostname, Map<String, String> cookies) async {
     String hostnameHash = Common.hashStringSHA256(hostname);
     String cookiesJson = Common.toJson(cookies);
     await Common.storageSet('cookies-$hostnameHash', cookiesJson);
+  }
+
+  static Future clearStoredCookies(String hostname) async {
+    String hostnameHash = Common.hashStringSHA256(hostname);
+    await Common.storageSet('cookies-$hostnameHash', null);
+  }
+
+  static String getHostname(String url) {
+    var uri = Uri.parse(url);
+    return uri.host;
   }
 
   static Future<dynamic> _handleHttpResponse(String url, String hostname, http.Response response, bool json, bool persistCookies) async {
@@ -91,9 +101,9 @@ class Requests {
     if (persistCookies) {
       var responseCookies = _extractResponseCookies(response.headers);
       if (responseCookies.isNotEmpty) {
-        var storedCookies = await _getStoredCookies(hostname);
+        var storedCookies = await getStoredCookies(hostname);
         storedCookies.addAll(responseCookies);
-        await _setStoredCookies(hostname, storedCookies);
+        await setStoredCookies(hostname, storedCookies);
       }
     }
 
@@ -105,27 +115,27 @@ class Requests {
   }
 
   static Future<dynamic> head(String url, {headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_HEAD, url, headers: headers, timeoutSeconds: timeoutSeconds, json: json);
+    return _httpRequest(HTTP_METHOD_HEAD, url, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
   }
 
   static Future<dynamic> get(String url, {headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_GET, url, headers: headers, timeoutSeconds: timeoutSeconds, json: json);
+    return _httpRequest(HTTP_METHOD_GET, url, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
   }
 
   static Future<dynamic> patch(String url, {headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_PATCH, url, headers: headers, timeoutSeconds: timeoutSeconds, json: json);
+    return _httpRequest(HTTP_METHOD_PATCH, url, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
   }
 
   static Future<dynamic> delete(String url, {headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_DELETE, url, headers: headers, timeoutSeconds: timeoutSeconds, json: json);
+    return _httpRequest(HTTP_METHOD_DELETE, url, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
   }
 
   static Future<dynamic> post(String url, {body, headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_POST, url, body: body, headers: headers, timeoutSeconds: timeoutSeconds, json: json);
+    return _httpRequest(HTTP_METHOD_POST, url, body: body, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
   }
 
   static Future<dynamic> put(String url, {body, headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_PUT, url, body: body, headers: headers, timeoutSeconds: timeoutSeconds, json: json);
+    return _httpRequest(HTTP_METHOD_PUT, url, body: body, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
   }
 
   static Future<dynamic> _httpRequest(String method, String url, {body, headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) async {

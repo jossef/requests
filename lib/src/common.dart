@@ -6,13 +6,12 @@ import 'package:crypto/crypto.dart';
 class Common {
   const Common();
 
-
-  static Future storageSet(String key, String value) async {
+  static storageSet(String key, String value) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.setString(key, value);
   }
 
-  static Future storageGet(String key) async {
+  static storageGet(String key) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
     return sharedPreferences.getString(key);
   }
