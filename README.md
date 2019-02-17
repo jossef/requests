@@ -11,7 +11,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  requests: ^1.0.1
+  requests: ^1.0.2
 ```
 
 ## Usage
