@@ -84,7 +84,7 @@ class Requests {
     dynamic parseException;
 
     try {
-      responseBody = utf8.decode(response.bodyBytes);
+      responseBody = utf8.decode(response.bodyBytes, allowMalformed: true);
     } catch (e) {
       parseException = e;
     }
