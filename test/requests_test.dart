@@ -1,5 +1,4 @@
 import 'package:requests/requests.dart';
-import 'package:requests/src/common.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/test.dart';
 
