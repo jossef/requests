@@ -35,7 +35,7 @@ HTTP get, body as parsed json
 dynamic body = await Requests.get("https://mydomain.com/api/v1/foo", json: true);
 ```
 
-HTTP post, body is json, result is json
+HTTP post, body is map or a list (being sent as application/x-www-form-urlencoded, until stated otherwise in `bodyEncoding` parameter), result is json
 
 ```dart
 dynamic body = await Requests.post("https://mydomain.com/api/v1/foo", json: true, body: {"foo":"bar"} );
