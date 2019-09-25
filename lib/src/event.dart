@@ -4,7 +4,7 @@ class Event {
   StreamController<dynamic> _streamController;
 
   Event() {
-    this._streamController = new StreamController<dynamic>.broadcast(sync: true);
+    this._streamController = StreamController<dynamic>.broadcast(sync: true);
   }
 
   Stream<dynamic> _getStream() {

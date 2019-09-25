@@ -21,7 +21,7 @@ class Common {
   }
 
   static String toJson(dynamic object) {
-    var encoder = new JsonEncoder.withIndent("     ");
+    var encoder = JsonEncoder.withIndent("     ");
     return encoder.convert(object);
   }
 
