@@ -7,12 +7,19 @@ import 'dart:core';
 import 'common.dart';
 import 'event.dart';
 
-enum RequestBodyEncoding {
-  JSON,
-  FormURLEncoded
-}
+enum RequestBodyEncoding { JSON, FormURLEncoded }
 
-final Logger log = new Logger('requests');
+final Logger log = Logger('requests');
+
+class Response {
+  final dynamic _data;
+  final int _code;
+  final bool _ok;
+  Response(this._data, this._code, this._ok);
+  get data => _data;
+  get ok => _ok;
+  get code => _code;
+}
 
 class Requests {
   const Requests();
@@ -26,7 +33,15 @@ class Requests {
   static const String HTTP_METHOD_HEAD = "head";
   static const int DEFAULT_TIMEOUT_SECONDS = 10;
 
-  static Set _cookiesKeysToIgnore = Set.from(["SameSite", "Path", "Domain", "Max-Age", "Expires", "Secure", "HttpOnly"]);
+  static Set _cookiesKeysToIgnore = Set.from([
+    "SameSite",
+    "Path",
+    "Domain",
+    "Max-Age",
+    "Expires",
+    "Secure",
+    "HttpOnly"
+  ]);
 
   static Map<String, String> _extractResponseCookies(responseHeaders) {
     Map<String, String> cookies = {};
@@ -34,7 +49,12 @@ class Requests {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
         cookie.split(",").forEach((String one) {
-          cookie.split(";").map((x) => x.trim().split("=")).where((x) => x.length == 2).where((x) => !_cookiesKeysToIgnore.contains(x[0])).forEach((x) => cookies[x[0]] = x[1]);
+          cookie
+              .split(";")
+              .map((x) => x.trim().split("="))
+              .where((x) => x.length == 2)
+              .where((x) => !_cookiesKeysToIgnore.contains(x[0]))
+              .forEach((x) => cookies[x[0]] = x[1]);
         });
         break;
       }
@@ -43,9 +63,11 @@ class Requests {
     return cookies;
   }
 
-  static Future<Map> _constructRequestHeaders(String hostname, Map<String, String> customHeaders) async {
+  static Future<Map> _constructRequestHeaders(
+      String hostname, Map<String, String> customHeaders) async {
     var cookies = await getStoredCookies(hostname);
-    String cookie = cookies.keys.map((key) => "$key=${cookies[key]}").join("; ");
+    String cookie =
+        cookies.keys.map((key) => "$key=${cookies[key]}").join("; ");
     Map<String, String> requestHeaders = Map();
     requestHeaders['cookie'] = cookie;
 
@@ -62,12 +84,14 @@ class Requests {
       var cookies = Common.fromJson(cookiesJson);
       return Map<String, String>.from(cookies);
     } catch (e) {
-      log.shout("problem reading stored cookies. fallback with empty cookies $e");
-      return new Map<String, String>();
+      log.shout(
+          "problem reading stored cookies. fallback with empty cookies $e");
+      return Map<String, String>();
     }
   }
 
-  static Future setStoredCookies(String hostname, Map<String, String> cookies) async {
+  static Future setStoredCookies(
+      String hostname, Map<String, String> cookies) async {
     String hostnameHash = Common.hashStringSHA256(hostname);
     String cookiesJson = Common.toJson(cookies);
     await Common.storageSet('cookies-$hostnameHash', cookiesJson);
@@ -83,22 +107,35 @@ class Requests {
     return uri.host;
   }
 
-  static Future<dynamic> _handleHttpResponse(String url, String hostname, http.Response response, bool json, bool persistCookies) async {
+  static Future<dynamic> _handleHttpResponse(
+      String url,
+      String hostname,
+      http.Response response,
+      bool json,
+      bool persistCookies,
+      shouldThrow,
+      dataOnly) async {
     int statusCode = response.statusCode;
-    dynamic responseBody = "";
+    bool hasClientOrServerError = (400 <= statusCode) && (statusCode < 600);
+    dynamic responseContent = "";
     dynamic parseException;
 
     try {
-      responseBody = utf8.decode(response.bodyBytes, allowMalformed: true);
+      responseContent = utf8.decode(response.bodyBytes, allowMalformed: true);
     } catch (e) {
       parseException = e;
     }
 
-    bool hasError = (400 <= statusCode) && (statusCode < 600);
-    if (hasError) {
-      var errorEvent = {"statusCode": statusCode, "url": url, "response": responseBody};
+    if (json) responseContent = Common.fromJson(responseContent);
+
+    if (hasClientOrServerError && shouldThrow) {
+      var errorEvent = {
+        "statusCode": statusCode,
+        "url": url,
+        "response": responseContent
+      };
       onError.publish(errorEvent);
-      throw Exception("Invalid HTTP status code $statusCode for url $url");
+      throw Response(responseContent, statusCode, !hasClientOrServerError);
     }
 
     if (parseException != null) {
@@ -114,38 +151,132 @@ class Requests {
       }
     }
 
-    if (json) {
-      return Common.fromJson(responseBody);
-    }
-
-    return responseBody;
+    return dataOnly
+        ? responseContent
+        : Response(responseContent, statusCode, hasClientOrServerError);
   }
 
-  static Future<dynamic> head(String url, {headers, bodyEncoding, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_HEAD, url, bodyEncoding: bodyEncoding, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
+  static Future<dynamic> head(String url,
+      {headers,
+      bodyEncoding,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      json = false,
+      persistCookies = true,
+      shouldThrow = true,
+      dataOnly = true}) {
+    return _httpRequest(HTTP_METHOD_HEAD, url,
+        bodyEncoding: bodyEncoding,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        json: json,
+        persistCookies: persistCookies,
+        shouldThrow: shouldThrow,
+        dataOnly: dataOnly);
   }
 
-  static Future<dynamic> get(String url, {headers, bodyEncoding, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_GET, url, bodyEncoding: bodyEncoding, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
+  static Future<dynamic> get(String url,
+      {headers,
+      bodyEncoding,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      json = false,
+      persistCookies = true,
+      shouldThrow = true,
+      dataOnly = true}) {
+    return _httpRequest(HTTP_METHOD_GET, url,
+        bodyEncoding: bodyEncoding,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        json: json,
+        persistCookies: persistCookies,
+        shouldThrow: shouldThrow,
+        dataOnly: dataOnly);
   }
 
-  static Future<dynamic> patch(String url, {headers, bodyEncoding, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_PATCH, url, bodyEncoding: bodyEncoding, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
+  static Future<dynamic> patch(String url,
+      {headers,
+      bodyEncoding,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      json = false,
+      persistCookies = true,
+      shouldThrow = true,
+      dataOnly = true}) {
+    return _httpRequest(HTTP_METHOD_PATCH, url,
+        bodyEncoding: bodyEncoding,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        json: json,
+        persistCookies: persistCookies,
+        shouldThrow: shouldThrow,
+        dataOnly: dataOnly);
   }
 
-  static Future<dynamic> delete(String url, {headers, bodyEncoding, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_DELETE, url, bodyEncoding: bodyEncoding, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
+  static Future<dynamic> delete(String url,
+      {headers,
+      bodyEncoding,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      json = false,
+      persistCookies = true,
+      shouldThrow = true,
+      dataOnly = true}) {
+    return _httpRequest(HTTP_METHOD_DELETE, url,
+        bodyEncoding: bodyEncoding,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        json: json,
+        persistCookies: persistCookies,
+        shouldThrow: shouldThrow,
+        dataOnly: dataOnly);
   }
 
-  static Future<dynamic> post(String url, {body, bodyEncoding, headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_POST, url, bodyEncoding: bodyEncoding, body: body, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
+  static Future<dynamic> post(String url,
+      {body,
+      bodyEncoding,
+      headers,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      json = false,
+      persistCookies = true,
+      shouldThrow = true,
+      dataOnly = true}) {
+    return _httpRequest(HTTP_METHOD_POST, url,
+        bodyEncoding: bodyEncoding,
+        body: body,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        json: json,
+        persistCookies: persistCookies,
+        shouldThrow: shouldThrow,
+        dataOnly: dataOnly);
   }
 
-  static Future<dynamic> put(String url, {body, bodyEncoding, headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_PUT, url, bodyEncoding: bodyEncoding, body: body, headers: headers, timeoutSeconds: timeoutSeconds, json: json, persistCookies: persistCookies);
+  static Future<dynamic> put(String url,
+      {body,
+      bodyEncoding,
+      headers,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      json = false,
+      persistCookies = true,
+      shouldThrow = true,
+      dataOnly = true}) {
+    return _httpRequest(HTTP_METHOD_PUT, url,
+        bodyEncoding: bodyEncoding,
+        body: body,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        json: json,
+        persistCookies: persistCookies,
+        shouldThrow: shouldThrow,
+        dataOnly: dataOnly);
   }
 
-  static Future<dynamic> _httpRequest(String method, String url, {body, bodyEncoding = RequestBodyEncoding.FormURLEncoded, headers, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, json = false, persistCookies = true}) async {
+  static Future<dynamic> _httpRequest(String method, String url,
+      {body,
+      bodyEncoding = RequestBodyEncoding.FormURLEncoded,
+      headers,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      json = false,
+      persistCookies = true,
+      shouldThrow = true,
+      dataOnly = true}) async {
     var client = http.Client();
     var uri = Uri.parse(url);
     String hostname = uri.host;
@@ -162,7 +293,7 @@ class Requests {
 
         if (bodyEncoding == RequestBodyEncoding.JSON) {
           contentTypeHeader = "application/json";
-        } else if(bodyEncoding == RequestBodyEncoding.FormURLEncoded) {
+        } else if (bodyEncoding == RequestBodyEncoding.FormURLEncoded) {
           contentTypeHeader = "application/x-www-form-urlencoded";
         }
 
@@ -170,7 +301,8 @@ class Requests {
         // contentTypeHeader = "application/json";
       }
 
-      if (contentTypeHeader != null && !Common.hasKeyIgnoreCase(headers, "content-type")) {
+      if (contentTypeHeader != null &&
+          !Common.hasKeyIgnoreCase(headers, "content-type")) {
         headers["content-type"] = contentTypeHeader;
       }
     }
@@ -197,10 +329,11 @@ class Requests {
         future = client.patch(uri, body: bodyString, headers: headers);
         break;
       default:
-        throw new Exception('unsupported http method $method"');
+        throw Exception('unsupported http method $method"');
     }
 
     var response = await future.timeout(Duration(seconds: timeoutSeconds));
-    return await _handleHttpResponse(url, hostname, response, json, persistCookies);
+    return await _handleHttpResponse(
+        url, hostname, response, json, persistCookies, shouldThrow, dataOnly);
   }
 }
