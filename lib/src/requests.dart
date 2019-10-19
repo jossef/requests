@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:http/http.dart' as http;
+import 'package:http/io_client.dart' as io_client;
 import 'package:logging/logging.dart';
 import 'dart:convert';
 import 'dart:core';
 import 'common.dart';
 import 'event.dart';
+import 'dart:io';
 
 enum RequestBodyEncoding { JSON, FormURLEncoded }
 
@@ -140,56 +142,110 @@ class Requests {
     return response;
   }
 
-  static Future<Response> head(String url, {headers, bodyEncoding = DEFAULT_BODY_ENCODING, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_HEAD, url, bodyEncoding: bodyEncoding, headers: headers, timeoutSeconds: timeoutSeconds, persistCookies: persistCookies);
-  }
-
-  static Future<Response> get(String url, {headers, bodyEncoding = DEFAULT_BODY_ENCODING, timeoutSeconds = DEFAULT_TIMEOUT_SECONDS, persistCookies = true}) {
-    return _httpRequest(HTTP_METHOD_GET, url, bodyEncoding: bodyEncoding, headers: headers, timeoutSeconds: timeoutSeconds, persistCookies: persistCookies);
-  }
-
-  static Future<Response> patch(
-    String url, {
+  static Future<Response> head(String url, {
     headers,
     bodyEncoding = DEFAULT_BODY_ENCODING,
     timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
     persistCookies = true,
-  }) {
-    return _httpRequest(HTTP_METHOD_PATCH, url, bodyEncoding: bodyEncoding, headers: headers, timeoutSeconds: timeoutSeconds, persistCookies: persistCookies);
+    verify = true}) {
+    return _httpRequest(
+        HTTP_METHOD_HEAD,
+        url, bodyEncoding: bodyEncoding,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        persistCookies: persistCookies,
+        verify: verify);
   }
 
-  static Future<Response> delete(
-    String url, {
+  static Future<Response> get(String url, {
     headers,
     bodyEncoding = DEFAULT_BODY_ENCODING,
     timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
     persistCookies = true,
-  }) {
-    return _httpRequest(HTTP_METHOD_DELETE, url, bodyEncoding: bodyEncoding, headers: headers, timeoutSeconds: timeoutSeconds, persistCookies: persistCookies);
+    verify = true}) {
+    return _httpRequest(
+        HTTP_METHOD_GET,
+        url,
+        bodyEncoding: bodyEncoding,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        persistCookies: persistCookies,
+        verify: verify);
   }
 
-  static Future<Response> post(
-    String url, {
+  static Future<Response> patch(String url, {
+    headers,
+    bodyEncoding = DEFAULT_BODY_ENCODING,
+    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+    persistCookies = true,
+    verify = true
+  }) {
+    return _httpRequest(
+        HTTP_METHOD_PATCH,
+        url,
+        bodyEncoding: bodyEncoding,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        persistCookies: persistCookies,
+        verify: verify);
+  }
+
+  static Future<Response> delete(String url, {
+    headers,
+    bodyEncoding = DEFAULT_BODY_ENCODING,
+    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+    persistCookies = true,
+    verify = true
+  }) {
+    return _httpRequest(
+        HTTP_METHOD_DELETE,
+        url, bodyEncoding: bodyEncoding,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        persistCookies: persistCookies,
+        verify: verify);
+  }
+
+  static Future<Response> post(String url, {
     json,
     body,
     bodyEncoding = DEFAULT_BODY_ENCODING,
     headers,
     timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
     persistCookies = true,
+    verify = true
   }) {
-    return _httpRequest(HTTP_METHOD_POST, url, bodyEncoding: bodyEncoding, json: json, body: body, headers: headers, timeoutSeconds: timeoutSeconds, persistCookies: persistCookies);
+    return _httpRequest(
+        HTTP_METHOD_POST,
+        url,
+        bodyEncoding: bodyEncoding,
+        json: json,
+        body: body,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        persistCookies: persistCookies,
+        verify: verify);
   }
 
-  static Future<Response> put(
-    String url, {
+  static Future<Response> put(String url, {
     json,
     body,
     bodyEncoding = DEFAULT_BODY_ENCODING,
     headers,
     timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
     persistCookies = true,
+    verify = true
   }) {
-    return _httpRequest(HTTP_METHOD_PUT, url, bodyEncoding: bodyEncoding, json: json, body: body, headers: headers, timeoutSeconds: timeoutSeconds, persistCookies: persistCookies);
+    return _httpRequest(
+        HTTP_METHOD_PUT,
+        url,
+        bodyEncoding: bodyEncoding,
+        json: json,
+        body: body,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        persistCookies: persistCookies,
+        verify: verify);
   }
 
   static Future<Response> _httpRequest(
@@ -201,8 +257,20 @@ class Requests {
     headers,
     timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
     persistCookies = true,
+    verify = true
   }) async {
-    var client = http.Client();
+    http.Client client;
+    if (!verify){
+      // Ignore SSL errors
+      var ioClient = HttpClient();
+      ioClient.badCertificateCallback = (_, __, ___) => true;
+      client = io_client.IOClient(ioClient);
+    }
+    else{
+      // The default client validates SSL certificates and fail if invalid
+      client = http.Client();
+    }
+
     var uri = Uri.parse(url);
     String hostname = uri.host;
     headers = await _constructRequestHeaders(hostname, headers);

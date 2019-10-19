@@ -43,13 +43,12 @@ void main() {
     });
 
     test('json http post', () async {
-      var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users",
-          json: {
-            "userId": 10,
-            "id": 91,
-            "title": "aut amet sed",
-            "body": "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
-          });
+      var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users", json: {
+        "userId": 10,
+        "id": 91,
+        "title": "aut amet sed",
+        "body": "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
+      });
 
       r.raiseForStatus();
 
@@ -125,6 +124,22 @@ void main() {
         return;
       }
       throw Exception('Expected request error');
+    });
+
+    test('ssl should fail due to expired certificate', () async {
+      try {
+        var r = await Requests.get('https://expired.badssl.com/');
+        r.raiseForStatus();
+      } on Exception catch (e) {
+        return;
+      }
+
+      throw Exception('Expected ssl error');
+    });
+
+    test('ssl allow invalid', () async {
+      var r = await Requests.get('https://expired.badssl.com/', verify: false);
+      r.raiseForStatus();
     });
   });
 }
