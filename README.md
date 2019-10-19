@@ -1,8 +1,8 @@
 # flutter http json with cookies
 
-a flutter library to do modern http requests with cookies(inspired by python's [requests](https://github.com/requests/requests) module).
+a flutter library that helps with http requests and stored cookies (inspired by python's [requests](https://github.com/psf/requests) module).
 
-server side cookies (via response header `SET-COOKIE`) are stored using the assistance of `shared_preferences`. Stored cookies will be send seemlessly on the next http requests you make to the same domain (simple implementation, similar to a web browser)
+server side cookies (via response header `SET-COOKIE`) are stored using the assistance of `shared_preferences`. Stored cookies will be send seamlessly on the next http requests you make to the same domain (simple implementation, similar to a web browser)
 
 
 ## Install
@@ -11,7 +11,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  requests: ^2.0.1
+  requests: ^3.0.1
 ```
 
 ## Usage
