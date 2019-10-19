@@ -272,7 +272,12 @@ class Requests {
     }
 
     var uri = Uri.parse(url);
-    String hostname = uri.host;
+
+    if (uri.scheme != 'http' && uri.scheme != 'https'){
+      throw ArgumentError("invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')");
+    }
+
+    String hostname = "${uri.host}:${uri.port}";
     headers = await _constructRequestHeaders(hostname, headers);
     String bodyString = "";
 

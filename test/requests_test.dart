@@ -141,5 +141,10 @@ void main() {
       var r = await Requests.get('https://expired.badssl.com/', verify: false);
       r.raiseForStatus();
     });
+
+    test('http test custom port', () async {
+      var r = await Requests.get('http://portquiz.net:8080/');
+      r.raiseForStatus();
+    });
   });
 }
