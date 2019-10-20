@@ -36,8 +36,12 @@ class Response {
     throwForStatus();
   }
 
+  List<int> bytes() {
+    return _rawResponse.bodyBytes;
+  }
+
   String content() {
-    return utf8.decode(_rawResponse.bodyBytes, allowMalformed: true);
+    return utf8.decode(bytes(), allowMalformed: true);
   }
 
   dynamic json() {
@@ -120,7 +124,7 @@ class Requests {
 
   static String getHostname(String url) {
     var uri = Uri.parse(url);
-    return uri.host;
+    return "${uri.host}:${uri.port}";
   }
 
   static Future<Response> _handleHttpResponse(String hostname, http.Response rawResponse, bool persistCookies) async {
@@ -277,7 +281,7 @@ class Requests {
       throw ArgumentError("invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')");
     }
 
-    String hostname = "${uri.host}:${uri.port}";
+    String hostname = getHostname(url);
     headers = await _constructRequestHeaders(hostname, headers);
     String bodyString = "";
 

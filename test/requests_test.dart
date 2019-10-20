@@ -63,8 +63,7 @@ void main() {
             "id": 91,
             "title": "aut amet sed",
             "body": "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
-          },
-          bodyEncoding: RequestBodyEncoding.JSON);
+          });
       r.raiseForStatus();
 
       dynamic body = r.json();
