@@ -286,7 +286,7 @@ class Requests {
 
     String hostname = getHostname(url);
     headers = await _constructRequestHeaders(hostname, headers);
-    String bodyString = "";
+    dynamic bodyString = "";
 
     if (body != null && json != null) {
       throw ArgumentError('cannot use both "json" and "body" choose only one.');
