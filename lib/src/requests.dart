@@ -28,7 +28,8 @@ class Response {
 
   throwForStatus() {
     if (!success) {
-      throw HTTPException("Invalid HTTP status code $statusCode for url ${url}", this);
+      throw HTTPException(
+          "Invalid HTTP status code $statusCode for url ${url}", this);
     }
   }
 
@@ -68,9 +69,18 @@ class Requests {
   static const String HTTP_METHOD_HEAD = "head";
   static const int DEFAULT_TIMEOUT_SECONDS = 10;
 
-  static const RequestBodyEncoding DEFAULT_BODY_ENCODING = RequestBodyEncoding.FormURLEncoded;
+  static const RequestBodyEncoding DEFAULT_BODY_ENCODING =
+      RequestBodyEncoding.FormURLEncoded;
 
-  static Set _cookiesKeysToIgnore = Set.from(["SameSite", "Path", "Domain", "Max-Age", "Expires", "Secure", "HttpOnly"]);
+  static Set _cookiesKeysToIgnore = Set.from([
+    "SameSite",
+    "Path",
+    "Domain",
+    "Max-Age",
+    "Expires",
+    "Secure",
+    "HttpOnly"
+  ]);
 
   static Map<String, String> _extractResponseCookies(responseHeaders) {
     Map<String, String> cookies = {};
@@ -78,7 +88,12 @@ class Requests {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
         cookie.split(",").forEach((String one) {
-          cookie.split(";").map((x) => x.trim().split("=")).where((x) => x.length == 2).where((x) => !_cookiesKeysToIgnore.contains(x[0])).forEach((x) => cookies[x[0]] = x[1]);
+          cookie
+              .split(";")
+              .map((x) => x.trim().split("="))
+              .where((x) => x.length == 2)
+              .where((x) => !_cookiesKeysToIgnore.contains(x[0]))
+              .forEach((x) => cookies[x[0]] = x[1]);
         });
         break;
       }
@@ -87,9 +102,11 @@ class Requests {
     return cookies;
   }
 
-  static Future<Map> _constructRequestHeaders(String hostname, Map<String, String> customHeaders) async {
+  static Future<Map> _constructRequestHeaders(
+      String hostname, Map<String, String> customHeaders) async {
     var cookies = await getStoredCookies(hostname);
-    String cookie = cookies.keys.map((key) => "$key=${cookies[key]}").join("; ");
+    String cookie =
+        cookies.keys.map((key) => "$key=${cookies[key]}").join("; ");
     Map<String, String> requestHeaders = Map();
     requestHeaders['cookie'] = cookie;
 
@@ -106,12 +123,14 @@ class Requests {
       var cookies = Common.fromJson(cookiesJson);
       return Map<String, String>.from(cookies);
     } catch (e) {
-      log.shout("problem reading stored cookies. fallback with empty cookies $e");
+      log.shout(
+          "problem reading stored cookies. fallback with empty cookies $e");
       return Map<String, String>();
     }
   }
 
-  static Future setStoredCookies(String hostname, Map<String, String> cookies) async {
+  static Future setStoredCookies(
+      String hostname, Map<String, String> cookies) async {
     String hostnameHash = Common.hashStringSHA256(hostname);
     String cookiesJson = Common.toJson(cookies);
     await Common.storageSet('cookies-$hostnameHash', cookiesJson);
@@ -127,7 +146,8 @@ class Requests {
     return "${uri.host}:${uri.port}";
   }
 
-  static Future<Response> _handleHttpResponse(String hostname, http.Response rawResponse, bool persistCookies) async {
+  static Future<Response> _handleHttpResponse(
+      String hostname, http.Response rawResponse, bool persistCookies) async {
     if (persistCookies) {
       var responseCookies = _extractResponseCookies(rawResponse.headers);
       if (responseCookies.isNotEmpty) {
@@ -146,30 +166,13 @@ class Requests {
     return response;
   }
 
-  static Future<Response> head(String url, {
-    headers,
-    bodyEncoding = DEFAULT_BODY_ENCODING,
-    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-    persistCookies = true,
-    verify = true}) {
-    return _httpRequest(
-        HTTP_METHOD_HEAD,
-        url, bodyEncoding: bodyEncoding,
-        headers: headers,
-        timeoutSeconds: timeoutSeconds,
-        persistCookies: persistCookies,
-        verify: verify);
-  }
-
-  static Future<Response> get(String url, {
-    headers,
-    bodyEncoding = DEFAULT_BODY_ENCODING,
-    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-    persistCookies = true,
-    verify = true}) {
-    return _httpRequest(
-        HTTP_METHOD_GET,
-        url,
+  static Future<Response> head(String url,
+      {headers,
+      bodyEncoding = DEFAULT_BODY_ENCODING,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      persistCookies = true,
+      verify = true}) {
+    return _httpRequest(HTTP_METHOD_HEAD, url,
         bodyEncoding: bodyEncoding,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
@@ -177,16 +180,13 @@ class Requests {
         verify: verify);
   }
 
-  static Future<Response> patch(String url, {
-    headers,
-    bodyEncoding = DEFAULT_BODY_ENCODING,
-    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-    persistCookies = true,
-    verify = true
-  }) {
-    return _httpRequest(
-        HTTP_METHOD_PATCH,
-        url,
+  static Future<Response> get(String url,
+      {headers,
+      bodyEncoding = DEFAULT_BODY_ENCODING,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      persistCookies = true,
+      verify = true}) {
+    return _httpRequest(HTTP_METHOD_GET, url,
         bodyEncoding: bodyEncoding,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
@@ -194,34 +194,43 @@ class Requests {
         verify: verify);
   }
 
-  static Future<Response> delete(String url, {
-    headers,
-    bodyEncoding = DEFAULT_BODY_ENCODING,
-    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-    persistCookies = true,
-    verify = true
-  }) {
-    return _httpRequest(
-        HTTP_METHOD_DELETE,
-        url, bodyEncoding: bodyEncoding,
+  static Future<Response> patch(String url,
+      {headers,
+      bodyEncoding = DEFAULT_BODY_ENCODING,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      persistCookies = true,
+      verify = true}) {
+    return _httpRequest(HTTP_METHOD_PATCH, url,
+        bodyEncoding: bodyEncoding,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
         persistCookies: persistCookies,
         verify: verify);
   }
 
-  static Future<Response> post(String url, {
-    json,
-    body,
-    bodyEncoding = DEFAULT_BODY_ENCODING,
-    headers,
-    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-    persistCookies = true,
-    verify = true
-  }) {
-    return _httpRequest(
-        HTTP_METHOD_POST,
-        url,
+  static Future<Response> delete(String url,
+      {headers,
+      bodyEncoding = DEFAULT_BODY_ENCODING,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      persistCookies = true,
+      verify = true}) {
+    return _httpRequest(HTTP_METHOD_DELETE, url,
+        bodyEncoding: bodyEncoding,
+        headers: headers,
+        timeoutSeconds: timeoutSeconds,
+        persistCookies: persistCookies,
+        verify: verify);
+  }
+
+  static Future<Response> post(String url,
+      {json,
+      body,
+      bodyEncoding = DEFAULT_BODY_ENCODING,
+      headers,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      persistCookies = true,
+      verify = true}) {
+    return _httpRequest(HTTP_METHOD_POST, url,
         bodyEncoding: bodyEncoding,
         json: json,
         body: body,
@@ -231,18 +240,15 @@ class Requests {
         verify: verify);
   }
 
-  static Future<Response> put(String url, {
-    json,
-    body,
-    bodyEncoding = DEFAULT_BODY_ENCODING,
-    headers,
-    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-    persistCookies = true,
-    verify = true
-  }) {
-    return _httpRequest(
-        HTTP_METHOD_PUT,
-        url,
+  static Future<Response> put(String url,
+      {json,
+      body,
+      bodyEncoding = DEFAULT_BODY_ENCODING,
+      headers,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      persistCookies = true,
+      verify = true}) {
+    return _httpRequest(HTTP_METHOD_PUT, url,
         bodyEncoding: bodyEncoding,
         json: json,
         body: body,
@@ -252,33 +258,30 @@ class Requests {
         verify: verify);
   }
 
-  static Future<Response> _httpRequest(
-    String method,
-    String url, {
-    json,
-    body,
-    bodyEncoding = DEFAULT_BODY_ENCODING,
-    headers,
-    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-    persistCookies = true,
-    verify = true
-  }) async {
+  static Future<Response> _httpRequest(String method, String url,
+      {json,
+      body,
+      bodyEncoding = DEFAULT_BODY_ENCODING,
+      headers,
+      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      persistCookies = true,
+      verify = true}) async {
     http.Client client;
-    if (!verify){
+    if (!verify) {
       // Ignore SSL errors
       var ioClient = HttpClient();
       ioClient.badCertificateCallback = (_, __, ___) => true;
       client = io_client.IOClient(ioClient);
-    }
-    else{
+    } else {
       // The default client validates SSL certificates and fail if invalid
       client = http.Client();
     }
 
     var uri = Uri.parse(url);
 
-    if (uri.scheme != 'http' && uri.scheme != 'https'){
-      throw ArgumentError("invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')");
+    if (uri.scheme != 'http' && uri.scheme != 'https') {
+      throw ArgumentError(
+          "invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')");
     }
 
     String hostname = getHostname(url);
@@ -296,13 +299,12 @@ class Requests {
 
     if (body != null) {
       String contentTypeHeader;
+      bodyString = body;
       if (body is String) {
-        bodyString = body;
         contentTypeHeader = "text/plain";
       } else if (body is Map || body is List) {
-        bodyString = Common.toJson(body);
-
         if (bodyEncoding == RequestBodyEncoding.JSON) {
+          bodyString = Common.toJson(body);
           contentTypeHeader = "application/json";
         } else if (bodyEncoding == RequestBodyEncoding.FormURLEncoded) {
           contentTypeHeader = "application/x-www-form-urlencoded";
@@ -311,7 +313,8 @@ class Requests {
         }
       }
 
-      if (contentTypeHeader != null && !Common.hasKeyIgnoreCase(headers, "content-type")) {
+      if (contentTypeHeader != null &&
+          !Common.hasKeyIgnoreCase(headers, "content-type")) {
         headers["content-type"] = contentTypeHeader;
       }
     }
