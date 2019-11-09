@@ -46,4 +46,12 @@ class Common {
     var digest = sha256.convert(bytes);
     return toHexString(digest.bytes);
   }
+
+  static String encodeMap(Map data) {
+    return data.keys.map((key) {
+      var k = Uri.encodeComponent(key.toString());
+      var v = Uri.encodeComponent(data[key].toString());
+      return "${k}=${v}";
+    }).join("&");
+  }
 }

@@ -1,8 +1,7 @@
-![banner-01](https://user-images.githubusercontent.com/1287098/67152735-969fd300-f2e5-11e9-9aa5-b73652ac502e.png)
+![banner-01](https://user-images.githubusercontent.com/1287098/68531964-ccead400-0320-11ea-93a6-fa83b9183dd8.png)
 
-# Flutter HTTP client + json + cookies.
 
-a flutter library to simply call HTTP requests (inspired by python [requests](https://github.com/psf/requests) module). It comes with JSON support and a lightweight implementation to store cookies like a browser.
+a flutter library to make HTTP requests (inspired by python [requests](https://github.com/psf/requests) module). It comes with JSON support and a lightweight implementation to store cookies like a browser.
 
 ### Cookies, huh?
 Server side cookies (via response header `SET-COOKIE`) are stored using the assistance of `shared_preferences`. Stored cookies will be send seamlessly on the next http requests you make to the same domain (simple implementation, similar to a web browser)
@@ -14,7 +13,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  requests: ^3.0.1
+  requests: ^3.0.3
 ```
 
 ## Usage
@@ -61,7 +60,7 @@ just like in python's request module, the `Response` object has this functionall
  
  ### Class Methods
 
-- `.getHostnam(url)` - returns the hostname of the given url
+- `.getHostname(url)` - returns the hostname of the given url
 - `.clearStoredCookies(hostname)` - clears the stored cookies for the hostname
 - `.setStoredCookies(hostname, Map<String, String>)` - set the stored cookies for the hostname
 - `.getStoredCookies(hostname)` - returns a Map<String, String> of the stored cookies for the hostname

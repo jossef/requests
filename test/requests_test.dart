@@ -82,7 +82,7 @@ void main() {
     test('remove cookies', () async {
       String url = "$PLACEHOLDER_PROVIDER/api/users/1";
       String hostname = Requests.getHostname(url);
-      expect("reqres.in", hostname);
+      expect("reqres.in:443", hostname);
       await Requests.clearStoredCookies(hostname);
       await Requests.setStoredCookies(hostname, {'session': 'bla'});
       var cookies = await Requests.getStoredCookies(hostname);
