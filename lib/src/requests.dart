@@ -215,12 +215,16 @@ class Requests {
 
   static Future<Response> delete(String url,
       {headers,
+      json,
+      body,
       bodyEncoding = DEFAULT_BODY_ENCODING,
       timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       persistCookies = true,
       verify = true}) {
     return _httpRequest(HTTP_METHOD_DELETE, url,
         bodyEncoding: bodyEncoding,
+        json: json,
+        body: body,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
         persistCookies: persistCookies,

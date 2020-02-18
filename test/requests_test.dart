@@ -56,6 +56,11 @@ void main() {
       expect(body, isNotNull);
     });
 
+    test('json http delete', () async {
+      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10");
+      r.raiseForStatus();
+    });
+
     test('json http post as a form and as a JSON', () async {
       var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users",
           json: {
