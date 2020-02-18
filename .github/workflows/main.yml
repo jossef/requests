@@ -1,0 +1,11 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Publish Dart/Flutter package
+      uses: sakebook/actions-flutter-pub-publisher@v1.2.1
