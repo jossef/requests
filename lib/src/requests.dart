@@ -300,7 +300,7 @@ class Requests {
 
     String hostname = getHostname(url);
     headers = await _constructRequestHeaders(hostname, headers);
-    dynamic requestBody;
+    String requestBody;
 
     if (body != null && json != null) {
       throw ArgumentError('cannot use both "json" and "body" choose only one.');
@@ -343,7 +343,11 @@ class Requests {
         future = client.put(uri, body: requestBody, headers: headers);
         break;
       case HTTP_METHOD_DELETE:
-        future = client.delete(uri, headers: headers);
+        
+        final request = http.Request("DELETE", uri);
+        requestBody != null ? request.body = requestBody : null;
+        request.headers.addAll(headers);
+        future = client.send(request);
         break;
       case HTTP_METHOD_POST:
         future = client.post(uri, body: requestBody, headers: headers);
@@ -359,6 +363,9 @@ class Requests {
     }
 
     var response = await future.timeout(Duration(seconds: timeoutSeconds));
+    if(response is http.StreamedResponse){
+      response = await http.Response.fromStream(response);  
+    }
     return await _handleHttpResponse(hostname, response, persistCookies);
   }
 }
