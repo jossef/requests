@@ -62,7 +62,7 @@ void main() {
     });
 
     test('json http delete with request body', () async {
-      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10", body: {"something":"something"}, headers: {"Content-Type": "application/json"},);
+      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10", json: {"something":"something"},);
       // I didnt know a better way to test it, since I dont know your mock api...
       expect(r, isA<Response>());
     });
