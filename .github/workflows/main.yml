@@ -1,11 +1,20 @@
-name: CI
+name: Publish to this package to the flutter store
 
-on: [push]
+on:
+  release:
+    types: [published]
 
 jobs:
-  build:
+  publish:
+
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Publish Dart/Flutter package
-      uses: sakebook/actions-flutter-pub-publisher@v1.2.1
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Publish
+        uses: sakebook/actions-flutter-pub-publisher@v1.2.1
+        with:
+          credential: ${{ secrets.CREDENTIAL_JSON }}
+          flutter_package: true
+          skip_test: true
