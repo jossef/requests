@@ -61,6 +61,12 @@ void main() {
       r.raiseForStatus();
     });
 
+    test('json http delete with request body', () async {
+      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10", json: {"something":"something"},);
+      // I didnt know a better way to test it, since I dont know your mock api...
+      r.raiseForStatus();
+    });
+
     test('json http post as a form and as a JSON', () async {
       var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users",
           json: {
