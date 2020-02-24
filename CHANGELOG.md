@@ -10,6 +10,6 @@
 
 - fix: parse json only if requested
 
-## 3.0.4
+## 3.0.5
 
 - fix: added body in patch and delete methods 
