@@ -1,0 +1,13 @@
+name: Quality Assurance
+
+on: [push]
+
+jobs:
+  quality-assurance:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Running analyze
+        run: flutter analyze .
+      - name: Running tests
+        run: flutter test .
