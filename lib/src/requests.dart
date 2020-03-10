@@ -277,9 +277,6 @@ class Requests {
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
       bool verify = true}) async {
-    assert(!(body != null && json != null),
-        'cannot use both "json" and "body" choose only one.');
-
     http.Client client;
     if (!verify) {
       // Ignore SSL errors
@@ -293,14 +290,18 @@ class Requests {
 
     var uri = Uri.parse(url);
 
-    assert(
-        !(uri.scheme != 'http' && uri.scheme != 'https'),
-        ArgumentError(
-            "invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')"));
+    if (uri.scheme != 'http' && uri.scheme != 'https') {
+      throw ArgumentError(
+          "invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')");
+    }
 
     String hostname = getHostname(url);
     headers = await _constructRequestHeaders(hostname, headers);
     String requestBody;
+
+    if (body != null && json != null) {
+      throw ArgumentError('cannot use both "json" and "body" choose only one.');
+    }
 
     if (queryParameters != null) {
       uri.replace(queryParameters: queryParameters);
