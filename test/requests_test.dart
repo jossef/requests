@@ -2,6 +2,13 @@ import 'package:requests/requests.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:test/test.dart";
 
+void _validateBasicWorkingRequest(Response r) {
+  expect(r.statusCode, isA<int>());
+  expect(r.hasError, isA<bool>());
+  expect(r.success, isA<bool>());
+  r.raiseForStatus();
+}
+
 void main() {
   group('A group of tests', () {
     const PLACEHOLDER_PROVIDER = 'https://reqres.in';
@@ -11,9 +18,9 @@ void main() {
 
     test('plain http get', () async {
       var r = await Requests.get("https://google.com");
-      r.raiseForStatus();
       dynamic body = r.content();
       expect(body, isNotNull);
+      _validateBasicWorkingRequest(r);
     });
 
     test('json http get list of objects', () async {
@@ -24,6 +31,7 @@ void main() {
 
       expect(body, isNotNull);
       expect(body['data'], isList);
+      _validateBasicWorkingRequest(r);
     });
 
     test('FormURLEncoded http post', () async {
@@ -37,10 +45,9 @@ void main() {
           },
           bodyEncoding: RequestBodyEncoding.FormURLEncoded);
 
-      r.raiseForStatus();
-
       dynamic body = r.json();
       expect(body, isNotNull);
+      _validateBasicWorkingRequest(r);
     });
 
     test('json http post', () async {
@@ -52,24 +59,14 @@ void main() {
             "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
       });
 
-      r.raiseForStatus();
-
       dynamic body = r.json();
       expect(body, isNotNull);
+      _validateBasicWorkingRequest(r);
     });
 
     test('json http delete', () async {
       var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10");
-      r.raiseForStatus();
-    });
-
-    test('json http delete with request body', () async {
-      var r = await Requests.delete(
-        "$PLACEHOLDER_PROVIDER/api/users/10",
-        json: {"something": "something"},
-      );
-      // I didnt know a better way to test it, since I dont know your mock api...
-      r.raiseForStatus();
+      _validateBasicWorkingRequest(r);
     });
 
     test('json http post as a form and as a JSON', () async {
@@ -80,19 +77,19 @@ void main() {
         "body":
             "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
       });
-      r.raiseForStatus();
 
       dynamic body = r.json();
       expect(body["userId"], 10);
+      _validateBasicWorkingRequest(r);
     });
 
     test('json http get object', () async {
       var r = await Requests.get("$PLACEHOLDER_PROVIDER/api/users/2");
-      r.raiseForStatus();
 
       dynamic body = r.json();
       expect(body, isNotNull);
       expect(body, isMap);
+      _validateBasicWorkingRequest(r);
     });
 
     test('remove cookies', () async {
@@ -111,14 +108,12 @@ void main() {
     test('response as Response object', () async {
       var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
           body: {"name": "morpheus"});
-      r.raiseForStatus();
       var content = r.content();
       var json = r.json();
 
-      expect(r.success, isA<bool>());
+      _validateBasicWorkingRequest(r);
       expect(content, isNotNull);
       expect(json, isNotNull);
-      expect(r.statusCode, isA<int>());
     });
 
     test('throw error', () async {
@@ -160,7 +155,7 @@ void main() {
     });
 
     test('http test custom port', () async {
-      var r = await Requests.get('http://portquiz.net:8080/');
+      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10", port: 8080);
       r.raiseForStatus();
     });
   });

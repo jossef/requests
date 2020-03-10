@@ -163,13 +163,15 @@ class Requests {
   }
 
   static Future<Response> head(String url,
-      {headers,
-      bodyEncoding = DEFAULT_BODY_ENCODING,
-      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-      persistCookies = true,
-      verify = true}) {
+      {Map<String, String> headers,
+      int port,
+      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      bool persistCookies = true,
+      bool verify = true}) {
     return _httpRequest(HttpMethod.HEAD, url,
         bodyEncoding: bodyEncoding,
+        port: port,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
         persistCookies: persistCookies,
@@ -177,13 +179,15 @@ class Requests {
   }
 
   static Future<Response> get(String url,
-      {headers,
-      bodyEncoding = DEFAULT_BODY_ENCODING,
-      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-      persistCookies = true,
-      verify = true}) {
+      {Map<String, String> headers,
+      int port,
+      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      bool persistCookies = true,
+      bool verify = true}) {
     return _httpRequest(HttpMethod.GET, url,
         bodyEncoding: bodyEncoding,
+        port: port,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
         persistCookies: persistCookies,
@@ -191,15 +195,17 @@ class Requests {
   }
 
   static Future<Response> patch(String url,
-      {headers,
-      json,
-      body,
-      bodyEncoding = DEFAULT_BODY_ENCODING,
-      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-      persistCookies = true,
-      verify = true}) {
+      {Map<String, String> headers,
+      int port,
+      Map<String, dynamic> json,
+      dynamic body,
+      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      bool persistCookies = true,
+      bool verify = true}) {
     return _httpRequest(HttpMethod.PATCH, url,
         bodyEncoding: bodyEncoding,
+        port: port,
         json: json,
         body: body,
         headers: headers,
@@ -209,17 +215,15 @@ class Requests {
   }
 
   static Future<Response> delete(String url,
-      {headers,
-      json,
-      body,
-      bodyEncoding = DEFAULT_BODY_ENCODING,
-      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-      persistCookies = true,
-      verify = true}) {
+      {Map<String, String> headers,
+      int port,
+      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      bool persistCookies = true,
+      bool verify = true}) {
     return _httpRequest(HttpMethod.DELETE, url,
         bodyEncoding: bodyEncoding,
-        json: json,
-        body: body,
+        port: port,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
         persistCookies: persistCookies,
@@ -227,16 +231,18 @@ class Requests {
   }
 
   static Future<Response> post(String url,
-      {json,
-      body,
-      bodyEncoding = DEFAULT_BODY_ENCODING,
-      headers,
-      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-      persistCookies = true,
-      verify = true}) {
+      {Map<String, dynamic> json,
+      int port,
+      dynamic body,
+      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+      Map<String, String> headers,
+      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      bool persistCookies = true,
+      bool verify = true}) {
     return _httpRequest(HttpMethod.POST, url,
         bodyEncoding: bodyEncoding,
         json: json,
+        port: port,
         body: body,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
@@ -246,17 +252,19 @@ class Requests {
 
   static Future<Response> put(
     String url, {
-    json,
-    body,
-    bodyEncoding = DEFAULT_BODY_ENCODING,
-    headers,
-    timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-    persistCookies = true,
-    verify = true,
+    int port,
+    Map<String, dynamic> json,
+    dynamic body,
+    RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+    Map<String, String> headers,
+    int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+    bool persistCookies = true,
+    bool verify = true,
   }) {
     return _httpRequest(
       HttpMethod.PUT,
       url,
+      port: port,
       bodyEncoding: bodyEncoding,
       json: json,
       body: body,
@@ -350,10 +358,7 @@ class Requests {
         future = client.put(uri, body: requestBody, headers: headers);
         break;
       case HttpMethod.DELETE:
-        final request = http.Request("DELETE", uri);
-        requestBody != null ? request.body = requestBody : null;
-        request.headers.addAll(headers);
-        future = client.send(request);
+        future = client.delete(uri, headers: headers);
         break;
       case HttpMethod.POST:
         future = client.post(uri, body: requestBody, headers: headers);
