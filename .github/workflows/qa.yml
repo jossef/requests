@@ -4,7 +4,7 @@ on: [push]
 
 jobs:
   quality-assurance:
-    name: Test on ${{ matrix.os }}
+    name: QA on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
