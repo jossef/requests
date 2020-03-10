@@ -11,13 +11,28 @@ void _validateBasicWorkingRequest(Response r) {
 
 void main() {
   group('A group of tests', () {
-    const PLACEHOLDER_PROVIDER = 'https://reqres.in';
+    final String PLACEHOLDER_PROVIDER = 'https://reqres.in';
+    final Map<String, dynamic> DEFAULT_QUERY_PARAMETER = {'id': '1'};
     setUp(() {
       SharedPreferences.setMockInitialValues({});
     });
 
     test('plain http get', () async {
       var r = await Requests.get("https://google.com");
+      dynamic body = r.content();
+      expect(body, isNotNull);
+      _validateBasicWorkingRequest(r);
+    });
+
+    test('plain http get with query parameters', () async {
+      var r = await Requests.get("https://google.com", queryParameters: DEFAULT_QUERY_PARAMETER);
+      dynamic body = r.content();
+      expect(body, isNotNull);
+      _validateBasicWorkingRequest(r);
+    });
+
+    test('plain http get with port 80', () async {
+      var r = await Requests.get("http://google.com", port: 80);
       dynamic body = r.content();
       expect(body, isNotNull);
       _validateBasicWorkingRequest(r);
@@ -159,12 +174,6 @@ void main() {
 
     test('ssl allow invalid', () async {
       var r = await Requests.get('https://expired.badssl.com/', verify: false);
-      r.raiseForStatus();
-    });
-
-    test('http test custom port', () async {
-      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10",
-          port: 8080);
       r.raiseForStatus();
     });
   });

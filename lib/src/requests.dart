@@ -180,6 +180,7 @@ class Requests {
 
   static Future<Response> get(String url,
       {Map<String, String> headers,
+      Map<String, dynamic> queryParameters,
       int port,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
@@ -187,6 +188,7 @@ class Requests {
       bool verify = true}) {
     return _httpRequest(HttpMethod.GET, url,
         bodyEncoding: bodyEncoding,
+        queryParameters: queryParameters,
         port: port,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
@@ -217,6 +219,7 @@ class Requests {
   static Future<Response> delete(String url,
       {Map<String, String> headers,
       Map<String, dynamic> json,
+      Map<String, dynamic> queryParameters,
       dynamic body,
       int port,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
@@ -225,6 +228,7 @@ class Requests {
       bool verify = true}) {
     return _httpRequest(HttpMethod.DELETE, url,
         bodyEncoding: bodyEncoding,
+        queryParameters: queryParameters,
         port: port,
         json: json,
         body: body,
@@ -316,11 +320,11 @@ class Requests {
     }
 
     if (queryParameters != null) {
-      uri.replace(queryParameters: queryParameters);
+      uri = uri.replace(queryParameters: queryParameters);
     }
 
     if (port != null) {
-      uri.replace(port: port);
+      uri = uri.replace(port: port);
     }
 
     if (json != null) {
