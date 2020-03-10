@@ -25,7 +25,8 @@ void main() {
     });
 
     test('plain http get with query parameters', () async {
-      var r = await Requests.get("https://google.com", queryParameters: DEFAULT_QUERY_PARAMETER);
+      var r = await Requests.get("https://google.com",
+          queryParameters: DEFAULT_QUERY_PARAMETER);
       dynamic body = r.content();
       expect(body, isNotNull);
       expect(r.url.toString(), contains('?id=1'));
