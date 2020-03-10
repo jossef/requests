@@ -163,7 +163,8 @@ void main() {
     });
 
     test('http test custom port', () async {
-      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10", port: 8080);
+      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10",
+          port: 8080);
       r.raiseForStatus();
     });
   });
