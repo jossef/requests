@@ -9,5 +9,9 @@ jobs:
     steps:
       - name: Running analyze
         run: flutter analyze .
+        with:
+          flutter_package: true
       - name: Running tests
         run: flutter test .
+        with:
+          flutter_package: true
