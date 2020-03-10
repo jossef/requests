@@ -271,13 +271,13 @@ class Requests {
       {json,
       body,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
-      queryParameters,
-      port,
-      headers,
-      timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-      persistCookies = true,
-      verify = true}) async {
-    assert(body != null && json != null, 'cannot use both "json" and "body" choose only one.');
+      Map <String, dynamic> queryParameters,
+      int port,
+      Map <String, String> headers,
+      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      bool persistCookies = true,
+      bool verify = true}) async {
+    assert(!(body != null && json != null), 'cannot use both "json" and "body" choose only one.');
 
     http.Client client;
     if (!verify) {
@@ -292,10 +292,8 @@ class Requests {
 
     var uri = Uri.parse(url);
 
-    if (uri.scheme != 'http' && uri.scheme != 'https') {
-      throw ArgumentError(
-          "invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')");
-    }
+    assert(!(uri.scheme != 'http' && uri.scheme != 'https'), ArgumentError(
+        "invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')"));
 
     String hostname = getHostname(url);
     headers = await _constructRequestHeaders(hostname, headers);
@@ -348,7 +346,6 @@ class Requests {
         future = client.put(uri, body: requestBody, headers: headers);
         break;
       case HttpMethod.DELETE:
-        
         final request = http.Request("DELETE", uri);
         requestBody != null ? request.body = requestBody : null;
         request.headers.addAll(headers);
@@ -363,14 +360,14 @@ class Requests {
       case HttpMethod.PATCH:
         future = client.patch(uri, body: requestBody, headers: headers);
         break;
-      default:
-        throw Exception('unsupported http method "$method"');
     }
 
     var response = await future.timeout(Duration(seconds: timeoutSeconds));
+
     if(response is http.StreamedResponse){
       response = await http.Response.fromStream(response);  
     }
+    
     return await _handleHttpResponse(hostname, response, persistCookies);
   }
 }
