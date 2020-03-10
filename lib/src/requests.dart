@@ -11,6 +11,7 @@ import 'common.dart';
 import 'event.dart';
 
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
+enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
 
 final Logger log = Logger('requests');
 
@@ -62,12 +63,6 @@ class Requests {
   const Requests();
 
   static final Event onError = Event();
-  static const String HTTP_METHOD_GET = "get";
-  static const String HTTP_METHOD_PUT = "put";
-  static const String HTTP_METHOD_PATCH = "patch";
-  static const String HTTP_METHOD_DELETE = "delete";
-  static const String HTTP_METHOD_POST = "post";
-  static const String HTTP_METHOD_HEAD = "head";
   static const int DEFAULT_TIMEOUT_SECONDS = 10;
 
   static const RequestBodyEncoding DEFAULT_BODY_ENCODING =
@@ -173,7 +168,7 @@ class Requests {
       timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       persistCookies = true,
       verify = true}) {
-    return _httpRequest(HTTP_METHOD_HEAD, url,
+    return _httpRequest(HttpMethod.HEAD, url,
         bodyEncoding: bodyEncoding,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
@@ -187,7 +182,7 @@ class Requests {
       timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       persistCookies = true,
       verify = true}) {
-    return _httpRequest(HTTP_METHOD_GET, url,
+    return _httpRequest(HttpMethod.GET, url,
         bodyEncoding: bodyEncoding,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
@@ -203,7 +198,7 @@ class Requests {
       timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       persistCookies = true,
       verify = true}) {
-    return _httpRequest(HTTP_METHOD_PATCH, url,
+    return _httpRequest(HttpMethod.PATCH, url,
         bodyEncoding: bodyEncoding,
         json: json,
         body: body,
@@ -221,7 +216,7 @@ class Requests {
       timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       persistCookies = true,
       verify = true}) {
-    return _httpRequest(HTTP_METHOD_DELETE, url,
+    return _httpRequest(HttpMethod.DELETE, url,
         bodyEncoding: bodyEncoding,
         json: json,
         body: body,
@@ -239,7 +234,7 @@ class Requests {
       timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       persistCookies = true,
       verify = true}) {
-    return _httpRequest(HTTP_METHOD_POST, url,
+    return _httpRequest(HttpMethod.POST, url,
         bodyEncoding: bodyEncoding,
         json: json,
         body: body,
@@ -260,7 +255,7 @@ class Requests {
     verify = true,
   }) {
     return _httpRequest(
-      HTTP_METHOD_PUT,
+      HttpMethod.PUT,
       url,
       bodyEncoding: bodyEncoding,
       json: json,
@@ -272,14 +267,18 @@ class Requests {
     );
   }
 
-  static Future<Response> _httpRequest(String method, String url,
+  static Future<Response> _httpRequest(HttpMethod method, String url,
       {json,
       body,
-      bodyEncoding = DEFAULT_BODY_ENCODING,
+      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+      queryParameters,
+      port,
       headers,
       timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       persistCookies = true,
       verify = true}) async {
+    assert(body != null && json != null, 'cannot use both "json" and "body" choose only one.');
+
     http.Client client;
     if (!verify) {
       // Ignore SSL errors
@@ -302,8 +301,12 @@ class Requests {
     headers = await _constructRequestHeaders(hostname, headers);
     String requestBody;
 
-    if (body != null && json != null) {
-      throw ArgumentError('cannot use both "json" and "body" choose only one.');
+    if(queryParameters != null) {
+      uri.replace(queryParameters: queryParameters);
+    }
+
+    if(port != null) {
+      uri.replace(port: port);
     }
 
     if (json != null) {
@@ -314,17 +317,19 @@ class Requests {
     if (body != null) {
       String contentTypeHeader;
 
-      if (bodyEncoding == RequestBodyEncoding.JSON) {
-        requestBody = Common.toJson(body);
-        contentTypeHeader = "application/json";
-      } else if (bodyEncoding == RequestBodyEncoding.FormURLEncoded) {
-        requestBody = Common.encodeMap(body);
-        contentTypeHeader = "application/x-www-form-urlencoded";
-      } else if (bodyEncoding == RequestBodyEncoding.PlainText) {
-        requestBody = body;
-        contentTypeHeader = "text/plain";
-      } else {
-        throw Exception('unsupported bodyEncoding "$bodyEncoding"');
+      switch (bodyEncoding){
+        case RequestBodyEncoding.JSON:
+          requestBody = Common.toJson(body);
+          contentTypeHeader = "application/json";
+          break;
+        case RequestBodyEncoding.FormURLEncoded:
+          requestBody = Common.encodeMap(body);
+          contentTypeHeader = "application/x-www-form-urlencoded";
+          break;
+        case RequestBodyEncoding.PlainText:
+          requestBody = body;
+          contentTypeHeader = "text/plain";
+          break;
       }
 
       if (contentTypeHeader != null &&
@@ -333,29 +338,29 @@ class Requests {
       }
     }
 
-    method = method.toLowerCase();
     Future future;
+
     switch (method) {
-      case HTTP_METHOD_GET:
+      case HttpMethod.GET:
         future = client.get(uri, headers: headers);
         break;
-      case HTTP_METHOD_PUT:
+      case HttpMethod.PUT:
         future = client.put(uri, body: requestBody, headers: headers);
         break;
-      case HTTP_METHOD_DELETE:
+      case HttpMethod.DELETE:
         
         final request = http.Request("DELETE", uri);
         requestBody != null ? request.body = requestBody : null;
         request.headers.addAll(headers);
         future = client.send(request);
         break;
-      case HTTP_METHOD_POST:
+      case HttpMethod.POST:
         future = client.post(uri, body: requestBody, headers: headers);
         break;
-      case HTTP_METHOD_HEAD:
+      case HttpMethod.HEAD:
         future = client.head(uri, headers: headers);
         break;
-      case HTTP_METHOD_PATCH:
+      case HttpMethod.PATCH:
         future = client.patch(uri, body: requestBody, headers: headers);
         break;
       default:
