@@ -32,7 +32,8 @@ void main() {
             "userId": 10,
             "id": 91,
             "title": "aut amet sed",
-            "body": "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
+            "body":
+                "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
           },
           bodyEncoding: RequestBodyEncoding.FormURLEncoded);
 
@@ -47,7 +48,8 @@ void main() {
         "userId": 10,
         "id": 91,
         "title": "aut amet sed",
-        "body": "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
+        "body":
+            "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
       });
 
       r.raiseForStatus();
@@ -62,19 +64,22 @@ void main() {
     });
 
     test('json http delete with request body', () async {
-      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10", json: {"something":"something"},);
+      var r = await Requests.delete(
+        "$PLACEHOLDER_PROVIDER/api/users/10",
+        json: {"something": "something"},
+      );
       // I didnt know a better way to test it, since I dont know your mock api...
       r.raiseForStatus();
     });
 
     test('json http post as a form and as a JSON', () async {
-      var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users",
-          json: {
-            "userId": 10,
-            "id": 91,
-            "title": "aut amet sed",
-            "body": "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
-          });
+      var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users", json: {
+        "userId": 10,
+        "id": 91,
+        "title": "aut amet sed",
+        "body":
+            "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
+      });
       r.raiseForStatus();
 
       dynamic body = r.json();
@@ -104,7 +109,8 @@ void main() {
     });
 
     test('response as Response object', () async {
-      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users', body: {"name": "morpheus"});
+      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
+          body: {"name": "morpheus"});
       r.raiseForStatus();
       var content = r.content();
       var json = r.json();
@@ -129,7 +135,8 @@ void main() {
 
     test('throw if both json and body used', () async {
       try {
-        await Requests.post('$PLACEHOLDER_PROVIDER/api/unknown/23', body: {}, json: {});
+        await Requests.post('$PLACEHOLDER_PROVIDER/api/unknown/23',
+            body: {}, json: {});
       } on ArgumentError catch (e) {
         return;
       }
