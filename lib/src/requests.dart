@@ -216,6 +216,8 @@ class Requests {
 
   static Future<Response> delete(String url,
       {Map<String, String> headers,
+      Map<String, dynamic> json,
+      dynamic body,
       int port,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
@@ -224,6 +226,8 @@ class Requests {
     return _httpRequest(HttpMethod.DELETE, url,
         bodyEncoding: bodyEncoding,
         port: port,
+        json: json,
+        body: body,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
         persistCookies: persistCookies,
@@ -358,7 +362,14 @@ class Requests {
         future = client.put(uri, body: requestBody, headers: headers);
         break;
       case HttpMethod.DELETE:
-        future = client.delete(uri, headers: headers);
+        final request = http.Request("DELETE", uri);
+        request.headers.addAll(headers);
+
+        if (requestBody != null) {
+          request.body = requestBody;
+        }
+
+        future = client.send(request);
         break;
       case HttpMethod.POST:
         future = client.post(uri, body: requestBody, headers: headers);

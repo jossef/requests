@@ -50,6 +50,14 @@ void main() {
       _validateBasicWorkingRequest(r);
     });
 
+    test('json http delete with request body', () async {
+      var r = await Requests.delete(
+        "$PLACEHOLDER_PROVIDER/api/users/10",
+        json: {"something": "something"},
+      );
+      _validateBasicWorkingRequest(r);
+    });
+
     test('json http post', () async {
       var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users", json: {
         "userId": 10,
