@@ -69,13 +69,13 @@ class Requests {
       RequestBodyEncoding.FormURLEncoded;
 
   static Set _cookiesKeysToIgnore = Set.from([
-    "SameSite",
-    "Path",
-    "Domain",
-    "Max-Age",
-    "Expires",
-    "Secure",
-    "HttpOnly"
+    "samesite",
+    "path",
+    "domain",
+    "max-age",
+    "expires",
+    "secure",
+    "httponly"
   ]);
 
   static Map<String, String> _extractResponseCookies(responseHeaders) {
@@ -84,11 +84,11 @@ class Requests {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
         cookie.split(",").forEach((String one) {
-          cookie
+          one
               .split(";")
               .map((x) => x.trim().split("="))
               .where((x) => x.length == 2)
-              .where((x) => !_cookiesKeysToIgnore.contains(x[0]))
+              .where((x) => !_cookiesKeysToIgnore.contains(x[0].toLowerCase()))
               .forEach((x) => cookies[x[0]] = x[1]);
         });
         break;
