@@ -2,11 +2,10 @@ import 'package:requests/requests.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:test/test.dart";
 
-void _validateBasicWorkingRequest(Response r) {
+void _validateResponse(Response r) {
   expect(r.statusCode, isA<int>());
   expect(r.hasError, isA<bool>());
   expect(r.success, isA<bool>());
-  r.raiseForStatus();
 }
 
 void main() {
@@ -19,36 +18,42 @@ void main() {
 
     test('plain http get', () async {
       var r = await Requests.get("https://google.com");
+      r.raiseForStatus();
       dynamic body = r.content();
       expect(body, isNotNull);
-      _validateBasicWorkingRequest(r);
+      _validateResponse(r);
     });
 
     test('plain http get with query parameters', () async {
       var r = await Requests.get("https://google.com",
           queryParameters: DEFAULT_QUERY_PARAMETER);
+      r.raiseForStatus();
       dynamic body = r.content();
       expect(body, isNotNull);
       expect(r.url.toString(), contains('?id=1'));
-      _validateBasicWorkingRequest(r);
+      _validateResponse(r);
     });
 
     test('plain http get with port 80', () async {
       var r = await Requests.get("http://google.com", port: 80);
+      r.raiseForStatus();
+      _validateResponse(r);
       dynamic body = r.content();
       expect(body, isNotNull);
-      _validateBasicWorkingRequest(r);
+    });
+
+    test('plain http get with port 8080', () async {
+      var r = await Requests.get('http://portquiz.net:8080/');
+      r.raiseForStatus();
     });
 
     test('json http get list of objects', () async {
       dynamic r = await Requests.get("$PLACEHOLDER_PROVIDER/api/users");
       r.raiseForStatus();
-
       dynamic body = r.json();
-
       expect(body, isNotNull);
       expect(body['data'], isList);
-      _validateBasicWorkingRequest(r);
+      _validateResponse(r);
     });
 
     test('FormURLEncoded http post', () async {
@@ -61,10 +66,10 @@ void main() {
                 "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
           },
           bodyEncoding: RequestBodyEncoding.FormURLEncoded);
-
+      r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
-      _validateBasicWorkingRequest(r);
+      _validateResponse(r);
     });
 
     test('json http delete with request body', () async {
@@ -72,7 +77,8 @@ void main() {
         "$PLACEHOLDER_PROVIDER/api/users/10",
         json: {"something": "something"},
       );
-      _validateBasicWorkingRequest(r);
+      r.raiseForStatus();
+      _validateResponse(r);
     });
 
     test('json http post', () async {
@@ -83,15 +89,16 @@ void main() {
         "body":
             "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
       });
-
+      r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
-      _validateBasicWorkingRequest(r);
+      _validateResponse(r);
     });
 
     test('json http delete', () async {
       var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10");
-      _validateBasicWorkingRequest(r);
+      r.raiseForStatus();
+      _validateResponse(r);
     });
 
     test('json http post as a form and as a JSON', () async {
@@ -102,19 +109,19 @@ void main() {
         "body":
             "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
       });
-
+      r.raiseForStatus();
       dynamic body = r.json();
       expect(body["userId"], 10);
-      _validateBasicWorkingRequest(r);
+      _validateResponse(r);
     });
 
     test('json http get object', () async {
       var r = await Requests.get("$PLACEHOLDER_PROVIDER/api/users/2");
-
+      r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
       expect(body, isMap);
-      _validateBasicWorkingRequest(r);
+      _validateResponse(r);
     });
 
     test('remove cookies', () async {
@@ -133,12 +140,12 @@ void main() {
     test('response as Response object', () async {
       var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
           body: {"name": "morpheus"});
+      r.raiseForStatus();
       var content = r.content();
       var json = r.json();
-
-      _validateBasicWorkingRequest(r);
       expect(content, isNotNull);
       expect(json, isNotNull);
+      _validateResponse(r);
     });
 
     test('throw error', () async {

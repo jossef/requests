@@ -5,9 +5,10 @@ homepage: https://github.com/jossef/requests
 authors:
 - Jossef Harush <jossef12@gmail.com>
 - Rick Stanley <rick-stanley@hotmail.com>
-- Rafael Carvalho Monteiro <rafael@qwkin.io>
 - Martin <https://github.com/genesiscz>
 - Frederik Pietzko <pietzkof@gmail.com>
+- Rafael Carvalho Monteiro <rafael@qwkin.io>
+- eggate <https://github.com/eggate>
 environment:
   sdk: ">=2.0.0 <3.0.0"
 dependencies:
