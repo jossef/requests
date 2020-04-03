@@ -83,14 +83,9 @@ class Requests {
     for (var key in responseHeaders.keys) {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
-        cookie.split(",").forEach((String one) {
-          one
-              .split(";")
-              .map((x) => x.trim().split("="))
-              .where((x) => x.length == 2)
-              .where((x) => !_cookiesKeysToIgnore.contains(x[0].toLowerCase()))
-              .forEach((x) => cookies[x[0]] = x[1]);
-        });
+        RegExp regExp = RegExp(r"([A-Za-z0-9_]*)=([A-Za-z0-9_=.]*)");
+        var matches = regExp.allMatches(cookie).toList();
+        cookies[matches[0].group(1)] = matches[0].group(2);
         break;
       }
     }
