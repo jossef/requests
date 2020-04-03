@@ -83,7 +83,7 @@ class Requests {
     for (var key in responseHeaders.keys) {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
-        RegExp regExp = RegExp(r"([A-Za-z0-9_]*)=([A-Za-z0-9_=.]*)");
+        RegExp regExp = RegExp(r"([A-Za-z0-9_]*)=([A-Za-z0-9_=.-]*)");
         var matches = regExp.allMatches(cookie).toList();
         cookies[matches[0].group(1)] = matches[0].group(2);
         break;
@@ -100,7 +100,6 @@ class Requests {
         cookies.keys.map((key) => "$key=${cookies[key]}").join("; ");
     Map<String, String> requestHeaders = Map();
     requestHeaders['cookie'] = cookie;
-
     if (customHeaders != null) {
       requestHeaders.addAll(customHeaders);
     }
