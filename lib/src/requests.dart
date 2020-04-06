@@ -68,16 +68,6 @@ class Requests {
   static const RequestBodyEncoding DEFAULT_BODY_ENCODING =
       RequestBodyEncoding.FormURLEncoded;
 
-  static Set _cookiesKeysToIgnore = Set.from([
-    "samesite",
-    "path",
-    "domain",
-    "max-age",
-    "expires",
-    "secure",
-    "httponly"
-  ]);
-
   static Map<String, String> _extractResponseCookies(responseHeaders) {
     Map<String, String> cookies = {};
     for (var key in responseHeaders.keys) {
@@ -85,7 +75,10 @@ class Requests {
         String cookie = responseHeaders[key];
         RegExp regExp = RegExp(r"([A-Za-z0-9_]*)=([A-Za-z0-9_=.-]*)");
         var matches = regExp.allMatches(cookie).toList();
-        cookies[matches[0].group(1)] = matches[0].group(2);
+        if (matches.isNotEmpty) {
+          // specifically take first match only
+          cookies[matches[0].group(1)] = matches[0].group(2);
+        }
         break;
       }
     }
