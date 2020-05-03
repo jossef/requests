@@ -1,6 +1,6 @@
 import 'package:requests/requests.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import "package:test/test.dart";
+import 'package:test/test.dart';
 
 void _validateResponse(Response r) {
   expect(r.statusCode, isA<int>());
@@ -17,7 +17,7 @@ void main() {
     });
 
     test('plain http get', () async {
-      var r = await Requests.get("https://google.com");
+      var r = await Requests.get('https://google.com');
       r.raiseForStatus();
       dynamic body = r.content();
       expect(body, isNotNull);
@@ -25,7 +25,7 @@ void main() {
     });
 
     test('plain http get with query parameters', () async {
-      var r = await Requests.get("https://google.com",
+      var r = await Requests.get('https://google.com',
           queryParameters: DEFAULT_QUERY_PARAMETER);
       r.raiseForStatus();
       dynamic body = r.content();
@@ -35,7 +35,7 @@ void main() {
     });
 
     test('plain http get with port 80', () async {
-      var r = await Requests.get("http://google.com", port: 80);
+      var r = await Requests.get('http://google.com', port: 80);
       r.raiseForStatus();
       _validateResponse(r);
       dynamic body = r.content();
@@ -48,7 +48,7 @@ void main() {
     });
 
     test('json http get list of objects', () async {
-      dynamic r = await Requests.get("$PLACEHOLDER_PROVIDER/api/users");
+      dynamic r = await Requests.get('$PLACEHOLDER_PROVIDER/api/users');
       r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
@@ -57,13 +57,13 @@ void main() {
     });
 
     test('FormURLEncoded http post', () async {
-      var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users",
+      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
           body: {
-            "userId": 10,
-            "id": 91,
-            "title": "aut amet sed",
-            "body":
-                "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
+            'userId': 10,
+            'id': 91,
+            'title': 'aut amet sed',
+            'body':
+                'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
           },
           bodyEncoding: RequestBodyEncoding.FormURLEncoded);
       r.raiseForStatus();
@@ -74,20 +74,20 @@ void main() {
 
     test('json http delete with request body', () async {
       var r = await Requests.delete(
-        "$PLACEHOLDER_PROVIDER/api/users/10",
-        json: {"something": "something"},
+        '$PLACEHOLDER_PROVIDER/api/users/10',
+        json: {'something': 'something'},
       );
       r.raiseForStatus();
       _validateResponse(r);
     });
 
     test('json http post', () async {
-      var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users", json: {
-        "userId": 10,
-        "id": 91,
-        "title": "aut amet sed",
-        "body":
-            "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
+      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users', json: {
+        'userId': 10,
+        'id': 91,
+        'title': 'aut amet sed',
+        'body':
+            'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
       });
       r.raiseForStatus();
       dynamic body = r.json();
@@ -96,27 +96,27 @@ void main() {
     });
 
     test('json http delete', () async {
-      var r = await Requests.delete("$PLACEHOLDER_PROVIDER/api/users/10");
+      var r = await Requests.delete('$PLACEHOLDER_PROVIDER/api/users/10');
       r.raiseForStatus();
       _validateResponse(r);
     });
 
     test('json http post as a form and as a JSON', () async {
-      var r = await Requests.post("$PLACEHOLDER_PROVIDER/api/users", json: {
-        "userId": 10,
-        "id": 91,
-        "title": "aut amet sed",
-        "body":
-            "libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat",
+      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users', json: {
+        'userId': 10,
+        'id': 91,
+        'title': 'aut amet sed',
+        'body':
+            'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
       });
       r.raiseForStatus();
       dynamic body = r.json();
-      expect(body["userId"], 10);
+      expect(body['userId'], 10);
       _validateResponse(r);
     });
 
     test('json http get object', () async {
-      var r = await Requests.get("$PLACEHOLDER_PROVIDER/api/users/2");
+      var r = await Requests.get('$PLACEHOLDER_PROVIDER/api/users/2');
       r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
@@ -125,9 +125,9 @@ void main() {
     });
 
     test('remove cookies', () async {
-      String url = "$PLACEHOLDER_PROVIDER/api/users/1";
+      String url = '$PLACEHOLDER_PROVIDER/api/users/1';
       String hostname = Requests.getHostname(url);
-      expect("reqres.in:443", hostname);
+      expect('reqres.in:443', hostname);
       await Requests.clearStoredCookies(hostname);
       await Requests.setStoredCookies(hostname, {'session': 'bla'});
       var cookies = await Requests.getStoredCookies(hostname);
@@ -139,7 +139,7 @@ void main() {
 
     test('response as Response object', () async {
       var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
-          body: {"name": "morpheus"});
+          body: {'name': 'morpheus'});
       r.raiseForStatus();
       var content = r.content();
       var json = r.json();

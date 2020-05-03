@@ -31,7 +31,7 @@ class Response {
   throwForStatus() {
     if (!success) {
       throw HTTPException(
-          "Invalid HTTP status code $statusCode for url ${url}", this);
+          'Invalid HTTP status code $statusCode for url ${url}', this);
     }
   }
 
@@ -69,13 +69,13 @@ class Requests {
       RequestBodyEncoding.FormURLEncoded;
 
   static Set _cookiesKeysToIgnore = Set.from([
-    "samesite",
-    "path",
-    "domain",
-    "max-age",
-    "expires",
-    "secure",
-    "httponly"
+    'samesite',
+    'path',
+    'domain',
+    'max-age',
+    'expires',
+    'secure',
+    'httponly'
   ]);
 
   static Map<String, String> _extractResponseCookies(responseHeaders) {
@@ -83,10 +83,10 @@ class Requests {
     for (var key in responseHeaders.keys) {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
-        cookie.split(",").forEach((String one) {
+        cookie.split(',').forEach((String one) {
           one
-              .split(";")
-              .map((x) => x.trim().split("="))
+              .split(';')
+              .map((x) => x.trim().split('='))
               .where((x) => x.length == 2)
               .where((x) => !_cookiesKeysToIgnore.contains(x[0].toLowerCase()))
               .forEach((x) => cookies[x[0]] = x[1]);
@@ -102,7 +102,7 @@ class Requests {
       String hostname, Map<String, String> customHeaders) async {
     var cookies = await getStoredCookies(hostname);
     String cookie =
-        cookies.keys.map((key) => "$key=${cookies[key]}").join("; ");
+        cookies.keys.map((key) => '$key=${cookies[key]}').join('; ');
     Map<String, String> requestHeaders = Map();
     requestHeaders['cookie'] = cookie;
 
@@ -120,7 +120,7 @@ class Requests {
       return Map<String, String>.from(cookies);
     } catch (e) {
       log.shout(
-          "problem reading stored cookies. fallback with empty cookies $e");
+          'problem reading stored cookies. fallback with empty cookies $e');
       return Map<String, String>();
     }
   }
@@ -139,7 +139,7 @@ class Requests {
 
   static String getHostname(String url) {
     var uri = Uri.parse(url);
-    return "${uri.host}:${uri.port}";
+    return '${uri.host}:${uri.port}';
   }
 
   static Future<Response> _handleHttpResponse(
@@ -155,7 +155,7 @@ class Requests {
     var response = Response(rawResponse);
 
     if (response.hasError) {
-      var errorEvent = {"response": response};
+      var errorEvent = {'response': response};
       onError.publish(errorEvent);
     }
 
@@ -346,21 +346,21 @@ class Requests {
       switch (bodyEncoding) {
         case RequestBodyEncoding.JSON:
           requestBody = Common.toJson(body);
-          contentTypeHeader = "application/json";
+          contentTypeHeader = 'application/json';
           break;
         case RequestBodyEncoding.FormURLEncoded:
           requestBody = Common.encodeMap(body);
-          contentTypeHeader = "application/x-www-form-urlencoded";
+          contentTypeHeader = 'application/x-www-form-urlencoded';
           break;
         case RequestBodyEncoding.PlainText:
           requestBody = body;
-          contentTypeHeader = "text/plain";
+          contentTypeHeader = 'text/plain';
           break;
       }
 
       if (contentTypeHeader != null &&
-          !Common.hasKeyIgnoreCase(headers, "content-type")) {
-        headers["content-type"] = contentTypeHeader;
+          !Common.hasKeyIgnoreCase(headers, 'content-type')) {
+        headers['content-type'] = contentTypeHeader;
       }
     }
 
@@ -374,7 +374,7 @@ class Requests {
         future = client.put(uri, body: requestBody, headers: headers);
         break;
       case HttpMethod.DELETE:
-        final request = http.Request("DELETE", uri);
+        final request = http.Request('DELETE', uri);
         request.headers.addAll(headers);
 
         if (requestBody != null) {
