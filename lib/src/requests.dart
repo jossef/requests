@@ -28,6 +28,10 @@ class Response {
 
   get url => _rawResponse.request.url;
 
+  get headers => _rawResponse.headers;
+
+  get contentType => _rawResponse.headers['content-type'];
+
   throwForStatus() {
     if (!success) {
       throw HTTPException(
