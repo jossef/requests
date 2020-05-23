@@ -29,6 +29,7 @@ class Response {
   get url => _rawResponse.request.url;
 
   Map<String, String> get headers => _rawResponse.headers;
+  get contentType => _rawResponse.headers['content-type'];
 
   throwForStatus() {
     if (!success) {
