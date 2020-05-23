@@ -33,7 +33,7 @@ class Response {
   throwForStatus() {
     if (!success) {
       throw HTTPException(
-          "Invalid HTTP status code $statusCode for url ${url}", this);
+          'Invalid HTTP status code $statusCode for url ${url}', this);
     }
   }
 
@@ -75,7 +75,8 @@ class Requests {
     for (var key in responseHeaders.keys) {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
-        RegExp regExp = RegExp(r"([A-Za-z0-9_]*)=([A-Za-z0-9_=.-]*)");
+
+        RegExp regExp = RegExp(r'([A-Za-z0-9_]*)=([A-Za-z0-9_=.-]*)');
         var matches = regExp.allMatches(cookie).toList();
         if (matches.isNotEmpty) {
           // specifically take first match only
@@ -92,7 +93,7 @@ class Requests {
       String hostname, Map<String, String> customHeaders) async {
     var cookies = await getStoredCookies(hostname);
     String cookie =
-        cookies.keys.map((key) => "$key=${cookies[key]}").join("; ");
+        cookies.keys.map((key) => '$key=${cookies[key]}').join('; ');
     Map<String, String> requestHeaders = Map();
     requestHeaders['cookie'] = cookie;
     if (customHeaders != null) {
@@ -109,7 +110,7 @@ class Requests {
       return Map<String, String>.from(cookies);
     } catch (e) {
       log.shout(
-          "problem reading stored cookies. fallback with empty cookies $e");
+          'problem reading stored cookies. fallback with empty cookies $e');
       return Map<String, String>();
     }
   }
@@ -128,7 +129,7 @@ class Requests {
 
   static String getHostname(String url) {
     var uri = Uri.parse(url);
-    return "${uri.host}:${uri.port}";
+    return '${uri.host}:${uri.port}';
   }
 
   static Future<Response> _handleHttpResponse(
@@ -144,7 +145,7 @@ class Requests {
     var response = Response(rawResponse);
 
     if (response.hasError) {
-      var errorEvent = {"response": response};
+      var errorEvent = {'response': response};
       onError.publish(errorEvent);
     }
 
@@ -335,21 +336,21 @@ class Requests {
       switch (bodyEncoding) {
         case RequestBodyEncoding.JSON:
           requestBody = Common.toJson(body);
-          contentTypeHeader = "application/json";
+          contentTypeHeader = 'application/json';
           break;
         case RequestBodyEncoding.FormURLEncoded:
           requestBody = Common.encodeMap(body);
-          contentTypeHeader = "application/x-www-form-urlencoded";
+          contentTypeHeader = 'application/x-www-form-urlencoded';
           break;
         case RequestBodyEncoding.PlainText:
           requestBody = body;
-          contentTypeHeader = "text/plain";
+          contentTypeHeader = 'text/plain';
           break;
       }
 
       if (contentTypeHeader != null &&
-          !Common.hasKeyIgnoreCase(headers, "content-type")) {
-        headers["content-type"] = contentTypeHeader;
+          !Common.hasKeyIgnoreCase(headers, 'content-type')) {
+        headers['content-type'] = contentTypeHeader;
       }
     }
 
@@ -363,7 +364,7 @@ class Requests {
         future = client.put(uri, body: requestBody, headers: headers);
         break;
       case HttpMethod.DELETE:
-        final request = http.Request("DELETE", uri);
+        final request = http.Request('DELETE', uri);
         request.headers.addAll(headers);
 
         if (requestBody != null) {
