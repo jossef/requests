@@ -44,7 +44,7 @@ void main() {
     });
 
     test('plain http get with port 8080', () async {
-      var r = await Requests.get('http://portquiz.net:8080/');
+      var r = await Requests.get('http://portquiz.net:8080/', timeoutSeconds: 30);
       r.raiseForStatus();
     });
 
@@ -67,6 +67,21 @@ void main() {
                                         'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
                                       },
                                       bodyEncoding: RequestBodyEncoding.FormURLEncoded);
+      r.raiseForStatus();
+      dynamic body = r.json();
+      expect(body, isNotNull);
+      _validateResponse(r);
+    });
+
+    test('http post a list of object', () async {
+      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
+                                      json: [{
+                                        'userId': 10,
+                                        'id': 91,
+                                        'title': 'aut amet sed',
+                                        'body':
+                                        'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+                                      }]);
       r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
@@ -165,7 +180,7 @@ void main() {
       try {
         await Requests.post('$PLACEHOLDER_PROVIDER/api/unknown/23',
                                 body: {}, json: {});
-      } on ArgumentError catch (e) {
+      } on ArgumentError catch (_) {
         return;
       }
       throw Exception('Expected request error');
@@ -175,7 +190,7 @@ void main() {
       try {
         var r = await Requests.get('https://expired.badssl.com/');
         r.raiseForStatus();
-      } on Exception catch (e) {
+      } on Exception catch (_) {
         return;
       }
 
