@@ -12,7 +12,6 @@ void _validateResponse(Response r) {
 void main() {
   group('A group of tests', () {
     final String PLACEHOLDER_PROVIDER = 'https://reqres.in';
-    final Map<String, dynamic> DEFAULT_QUERY_PARAMETER = {'id': '1'};
     setUp(() {
       SharedPreferences.setMockInitialValues({});
     });
@@ -26,8 +25,7 @@ void main() {
     });
 
     test('plain http get with query parameters', () async {
-      var r = await Requests.get('https://google.com',
-                                     queryParameters: DEFAULT_QUERY_PARAMETER);
+      var r = await Requests.get('https://google.com', queryParameters: {'id': 1, 'name': null});
       r.raiseForStatus();
       dynamic body = r.content();
       expect(body, isNotNull);

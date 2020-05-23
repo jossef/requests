@@ -328,7 +328,9 @@ class Requests {
     }
 
     if (queryParameters != null) {
-      uri = uri.replace(queryParameters: queryParameters);
+      Map<String, String> stringQueryParameters = Map();
+      queryParameters.forEach((key, value) => stringQueryParameters[key] = value?.toString());
+      uri = uri.replace(queryParameters: stringQueryParameters);
     }
 
     if (port != null) {
