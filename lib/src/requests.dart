@@ -28,6 +28,8 @@ class Response {
 
   get url => _rawResponse.request.url;
 
+  Map<String, String> get headers => _rawResponse.headers;
+
   throwForStatus() {
     if (!success) {
       throw HTTPException(
@@ -68,29 +70,18 @@ class Requests {
   static const RequestBodyEncoding DEFAULT_BODY_ENCODING =
       RequestBodyEncoding.FormURLEncoded;
 
-  static Set _cookiesKeysToIgnore = Set.from([
-    'samesite',
-    'path',
-    'domain',
-    'max-age',
-    'expires',
-    'secure',
-    'httponly'
-  ]);
-
   static Map<String, String> _extractResponseCookies(responseHeaders) {
     Map<String, String> cookies = {};
     for (var key in responseHeaders.keys) {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
-        cookie.split(',').forEach((String one) {
-          one
-              .split(';')
-              .map((x) => x.trim().split('='))
-              .where((x) => x.length == 2)
-              .where((x) => !_cookiesKeysToIgnore.contains(x[0].toLowerCase()))
-              .forEach((x) => cookies[x[0]] = x[1]);
-        });
+
+        RegExp regExp = RegExp(r'([A-Za-z0-9_]*)=([A-Za-z0-9_=.-]*)');
+        var matches = regExp.allMatches(cookie).toList();
+        if (matches.isNotEmpty) {
+          // specifically take first match only
+          cookies[matches[0].group(1)] = matches[0].group(2);
+        }
         break;
       }
     }
@@ -105,7 +96,6 @@ class Requests {
         cookies.keys.map((key) => '$key=${cookies[key]}').join('; ');
     Map<String, String> requestHeaders = Map();
     requestHeaders['cookie'] = cookie;
-
     if (customHeaders != null) {
       requestHeaders.addAll(customHeaders);
     }
