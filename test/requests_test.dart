@@ -225,5 +225,10 @@ void main() {
       expect(Common.split('', '').length, 1);
       expect(Common.split('', '1234').length, 1);
     });
+
+    test('from json', () async {
+      expect(Common.fromJson('{"a":1}'), {"a":1});
+      expect(Common.fromJson(null), null);
+    });
   });
 }

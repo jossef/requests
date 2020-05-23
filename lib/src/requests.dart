@@ -114,12 +114,13 @@ class Requests {
       String hostnameHash = Common.hashStringSHA256(hostname);
       String cookiesJson = await Common.storageGet('cookies-$hostnameHash');
       var cookies = Common.fromJson(cookiesJson);
-      return Map<String, String>.from(cookies);
+      if (cookies != null) {
+        return Map.from(cookies);
+      }
     } catch (e) {
-      log.shout(
-          'problem reading stored cookies. fallback with empty cookies $e');
-      return Map<String, String>();
+      log.shout('problem reading stored cookies. fallback with empty cookies $e');
     }
+    return Map<String, String>();
   }
 
   static Future setStoredCookies(

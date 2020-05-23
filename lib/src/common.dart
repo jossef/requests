@@ -26,6 +26,9 @@ class Common {
   }
 
   static dynamic fromJson(String jsonString) {
+    if (jsonString == null){
+      return null;
+    }
     return json.decode(jsonString);
   }
 
