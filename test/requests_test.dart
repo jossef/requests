@@ -1,4 +1,5 @@
 import 'package:requests/requests.dart';
+import 'package:requests/src/common.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/test.dart';
 
@@ -26,7 +27,7 @@ void main() {
 
     test('plain http get with query parameters', () async {
       var r = await Requests.get('https://google.com',
-          queryParameters: DEFAULT_QUERY_PARAMETER);
+                                     queryParameters: DEFAULT_QUERY_PARAMETER);
       r.raiseForStatus();
       dynamic body = r.content();
       expect(body, isNotNull);
@@ -58,14 +59,14 @@ void main() {
 
     test('FormURLEncoded http post', () async {
       var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
-          body: {
-            'userId': 10,
-            'id': 91,
-            'title': 'aut amet sed',
-            'body':
-                'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
-          },
-          bodyEncoding: RequestBodyEncoding.FormURLEncoded);
+                                      body: {
+                                        'userId': 10,
+                                        'id': 91,
+                                        'title': 'aut amet sed',
+                                        'body':
+                                        'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+                                      },
+                                      bodyEncoding: RequestBodyEncoding.FormURLEncoded);
       r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
@@ -76,7 +77,7 @@ void main() {
       var r = await Requests.delete(
         '$PLACEHOLDER_PROVIDER/api/users/10',
         json: {'something': 'something'},
-      );
+        );
       r.raiseForStatus();
       _validateResponse(r);
     });
@@ -87,7 +88,7 @@ void main() {
         'id': 91,
         'title': 'aut amet sed',
         'body':
-            'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+        'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
       });
       r.raiseForStatus();
       dynamic body = r.json();
@@ -107,7 +108,7 @@ void main() {
         'id': 91,
         'title': 'aut amet sed',
         'body':
-            'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+        'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
       });
       r.raiseForStatus();
       dynamic body = r.json();
@@ -139,7 +140,7 @@ void main() {
 
     test('response as Response object', () async {
       var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
-          body: {'name': 'morpheus'});
+                                      body: {'name': 'morpheus'});
       r.raiseForStatus();
       var content = r.content();
       var json = r.json();
@@ -163,7 +164,7 @@ void main() {
     test('throw if both json and body used', () async {
       try {
         await Requests.post('$PLACEHOLDER_PROVIDER/api/unknown/23',
-            body: {}, json: {});
+                                body: {}, json: {});
       } on ArgumentError catch (e) {
         return;
       }
@@ -184,6 +185,30 @@ void main() {
     test('ssl allow invalid', () async {
       var r = await Requests.get('https://expired.badssl.com/', verify: false);
       r.raiseForStatus();
+    });
+
+    test('cookie parsing', () async {
+      var headers = Map<String, String>();
+      var cookiesString = '_ga=GA1.4..1563550573; ; ; ; data=1=2=3=4; textsize=NaN; tp_state=true; _ga=GA1.3..1563550573; __browsiUID=03b1cb22-d18d-&{"bt":"Browser","os":"Windows","osv":"10.0","m":"Desktop|Emulator","v":"Unknown","b":"Chrome","p":2}; _cb_ls=1; _cb=CaBNIWCf-db-3i9ro; _chartbeat2=..414141414.1..1; AMUUID=%; _fbp=fb.2..; adblockerfound=true';
+      headers['set-cookie'] = cookiesString;
+      var cookies = await Requests.extractResponseCookies(headers);
+
+      expect(cookies['_ga'], "GA1.3..1563550573");
+      expect(cookies['adblockerfound'], "true");
+      expect(cookies['textsize'], "NaN");
+      expect(cookies['data'], "1=2=3=4");
+      expect(cookies['__browsiUID'], '03b1cb22-d18d-&{"bt":"Browser","os":"Windows","osv":"10.0","m":"Desktop|Emulator","v":"Unknown","b":"Chrome","p":2}');
+    });
+
+    test('string split', () async {
+      expect(Common.split('a=b=c', '=')[0], 'a');
+      expect(Common.split('a=b=c', '=')[1], 'b');
+      expect(Common.split('a=b=c', '=')[2], 'c');
+      expect(Common.split('a=b=c', '=').length, 3);
+      expect(Common.split('a=b=c', '=', max: 1).length, 2);
+      expect(Common.split('=', '=').length, 2);
+      expect(Common.split('', '').length, 1);
+      expect(Common.split('', '1234').length, 1);
     });
   });
 }

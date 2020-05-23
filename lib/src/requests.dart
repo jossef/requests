@@ -20,16 +20,17 @@ class Response {
 
   Response(this._rawResponse);
 
-  get statusCode => _rawResponse.statusCode;
+  int get statusCode => _rawResponse.statusCode;
 
-  get hasError => (400 <= statusCode) && (statusCode < 600);
+  bool get hasError => (400 <= statusCode) && (statusCode < 600);
 
-  get success => !hasError;
+  bool get success => !hasError;
 
-  get url => _rawResponse.request.url;
+  Uri get url => _rawResponse.request.url;
 
   Map<String, String> get headers => _rawResponse.headers;
-  get contentType => _rawResponse.headers['content-type'];
+
+  String get contentType => _rawResponse.headers['content-type'];
 
   throwForStatus() {
     if (!success) {
@@ -64,25 +65,30 @@ class HTTPException implements Exception {
 
 class Requests {
   const Requests();
-
   static final Event onError = Event();
   static const int DEFAULT_TIMEOUT_SECONDS = 10;
+  static const RequestBodyEncoding DEFAULT_BODY_ENCODING = RequestBodyEncoding.FormURLEncoded;
+  static Set _cookiesKeysToIgnore = Set.from([
+   'samesite',
+   'path',
+   'domain',
+   'max-age',
+   'expires',
+   'secure',
+   'httponly'
+  ]);
 
-  static const RequestBodyEncoding DEFAULT_BODY_ENCODING =
-      RequestBodyEncoding.FormURLEncoded;
-
-  static Map<String, String> _extractResponseCookies(responseHeaders) {
+  static Map<String, String> extractResponseCookies(responseHeaders) {
     Map<String, String> cookies = {};
     for (var key in responseHeaders.keys) {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
-
-        RegExp regExp = RegExp(r'([A-Za-z0-9_]*)=([A-Za-z0-9_=.-]*)');
-        var matches = regExp.allMatches(cookie).toList();
-        if (matches.isNotEmpty) {
-          // specifically take first match only
-          cookies[matches[0].group(1)] = matches[0].group(2);
-        }
+        cookie
+            .split(';')
+            .map((x) => Common.split(x.trim(), '=', max: 1))
+            .where((x) => x.length == 2)
+            .where((x) => !_cookiesKeysToIgnore.contains(x[0].toLowerCase()))
+            .forEach((x) => cookies[x[0]] = x[1]);
         break;
       }
     }
@@ -136,7 +142,7 @@ class Requests {
   static Future<Response> _handleHttpResponse(
       String hostname, http.Response rawResponse, bool persistCookies) async {
     if (persistCookies) {
-      var responseCookies = _extractResponseCookies(rawResponse.headers);
+      var responseCookies = extractResponseCookies(rawResponse.headers);
       if (responseCookies.isNotEmpty) {
         var storedCookies = await getStoredCookies(hostname);
         storedCookies.addAll(responseCookies);
