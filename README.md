@@ -25,7 +25,7 @@ import 'package:requests/requests.dart';
 Let's make a simple HTTP request
 
 ```dart
-var r = await Requests.get("https://google.com");
+var r = await Requests.get('https://google.com');
 r.raiseForStatus();
 String body = r.content();
 ```
@@ -72,11 +72,11 @@ HTTP post, body encoded as application/x-www-form-urlencoded, parse response as 
 
 ```dart
 var r = await Requests.post(
-  "https://reqres.in/api/users",
+  'https://reqres.in/api/users',
   body: {
-    "userId": 10,
-    "id": 91,
-    "title": "aut amet sed",
+    'userId': 10,
+    'id': 91,
+    'title': 'aut amet sed',
   },
   bodyEncoding: RequestBodyEncoding.FormURLEncoded);
 
@@ -90,7 +90,7 @@ print(json['id']);
 HTTP delete
 
 ```dart
-var r = await Requests.delete("https://reqres.in/api/users/10");
+var r = await Requests.delete('https://reqres.in/api/users/10');
 r.raiseForStatus();
 ```
 
@@ -108,7 +108,7 @@ r.raiseForStatus();
 Play with stored cookies
 
 ```dart
-String url = "https://reqres.in/api/users/10";
+String url = 'https://reqres.in/api/users/10';
 String hostname = Requests.getHostname(url);
 await Requests.clearStoredCookies(hostname);
 await Requests.setStoredCookies(hostname, {'session': 'bla'});

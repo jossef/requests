@@ -21,7 +21,7 @@ class Common {
   }
 
   static String toJson(dynamic object) {
-    var encoder = JsonEncoder.withIndent("     ");
+    var encoder = JsonEncoder.withIndent('     ');
     return encoder.convert(object);
   }
 
@@ -51,7 +51,7 @@ class Common {
     return data.keys.map((key) {
       var k = Uri.encodeComponent(key.toString());
       var v = Uri.encodeComponent(data[key].toString());
-      return "${k}=${v}";
-    }).join("&");
+      return '${k}=${v}';
+    }).join('&');
   }
 }
