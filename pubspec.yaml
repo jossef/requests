@@ -1,6 +1,6 @@
 name: requests
 description: a flutter library that helps with http requests and stored cookies
-version: 3.1.0
+version: 3.2.0
 homepage: https://github.com/jossef/requests
 authors:
 - Jossef Harush <jossef12@gmail.com>
@@ -9,6 +9,9 @@ authors:
 - Frederik Pietzko <pietzkof@gmail.com>
 - Rafael Carvalho Monteiro <rafael@qwkin.io>
 - eggate <https://github.com/eggate>
+- Dane Mackier <https://github.com/FilledStacks>
+- Anirudh S <https://github.com/anirudh24seven>
+- Imdat Solak <contact@solak.de>
 environment:
   sdk: ">=2.0.0 <3.0.0"
 dependencies:

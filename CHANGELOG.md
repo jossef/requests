@@ -28,3 +28,10 @@
 - enhancement: added more validations on tests
 - enhancement: executed flutter format to improve pub score
 - fix: cookie matching incorrect variable + case insensitive
+
+## 3.2.0
+
+- feat: dynamic type json 
+- fix: incorrect parse of cookie value if has '=' in value
+- fix: query parameters normalization to Map<String, String>
+- fix: null checking warning on first run

@@ -57,14 +57,13 @@ void main() {
 
     test('FormURLEncoded http post', () async {
       var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
-                                      body: {
-                                        'userId': 10,
-                                        'id': 91,
-                                        'title': 'aut amet sed',
-                                        'body':
-                                        'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
-                                      },
-                                      bodyEncoding: RequestBodyEncoding.FormURLEncoded);
+          body: {
+            'userId': 10,
+            'id': 91,
+            'title': 'aut amet sed',
+            'body': 'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+          },
+          bodyEncoding: RequestBodyEncoding.FormURLEncoded);
       r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
@@ -72,14 +71,14 @@ void main() {
     });
 
     test('http post a list of object', () async {
-      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
-                                      json: [{
-                                        'userId': 10,
-                                        'id': 91,
-                                        'title': 'aut amet sed',
-                                        'body':
-                                        'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
-                                      }]);
+      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users', json: [
+        {
+          'userId': 10,
+          'id': 91,
+          'title': 'aut amet sed',
+          'body': 'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+        }
+      ]);
       r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
@@ -90,7 +89,7 @@ void main() {
       var r = await Requests.delete(
         '$PLACEHOLDER_PROVIDER/api/users/10',
         json: {'something': 'something'},
-        );
+      );
       r.raiseForStatus();
       _validateResponse(r);
     });
@@ -100,8 +99,7 @@ void main() {
         'userId': 10,
         'id': 91,
         'title': 'aut amet sed',
-        'body':
-        'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+        'body': 'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
       });
       r.raiseForStatus();
       dynamic body = r.json();
@@ -120,8 +118,7 @@ void main() {
         'userId': 10,
         'id': 91,
         'title': 'aut amet sed',
-        'body':
-        'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+        'body': 'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
       });
       r.raiseForStatus();
       dynamic body = r.json();
@@ -152,8 +149,7 @@ void main() {
     });
 
     test('response as Response object', () async {
-      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
-                                      body: {'name': 'morpheus'});
+      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users', body: {'name': 'morpheus'});
       r.raiseForStatus();
       var content = r.content();
       var json = r.json();
@@ -176,8 +172,7 @@ void main() {
 
     test('throw if both json and body used', () async {
       try {
-        await Requests.post('$PLACEHOLDER_PROVIDER/api/unknown/23',
-                                body: {}, json: {});
+        await Requests.post('$PLACEHOLDER_PROVIDER/api/unknown/23', body: {}, json: {});
       } on ArgumentError catch (_) {
         return;
       }

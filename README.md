@@ -13,7 +13,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  requests: ^3.1.0
+  requests: ^3.2.0
 ```
 
 ## Usage
@@ -38,6 +38,7 @@ just like in python's request module, the `Response` object has this functionall
 - `r.raiseForStatus()` - same as `throwForStatus`
 - `r.statusCode` - the response status code
 - `r.url` - the url in the request 
+- `r.headers` - the response headers 
 - `r.success` - a boolean. `true` indicates that the request was a great success 
 - `r.hasError` - a boolean. `true` indicates that the request was not a great success 
 - `r.bytes()` - return the body in the respone as a list of bytes 
