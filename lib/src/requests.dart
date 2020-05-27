@@ -183,6 +183,7 @@ class Requests {
       Map<String, dynamic> queryParameters,
       int port,
       dynamic json,
+      dynamic body,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
