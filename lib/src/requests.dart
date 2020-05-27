@@ -193,6 +193,7 @@ class Requests {
         queryParameters: queryParameters,
         port: port,
         json: json,
+        body: body,
         headers: headers,
         timeoutSeconds: timeoutSeconds,
         persistCookies: persistCookies,
