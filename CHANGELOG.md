@@ -35,3 +35,7 @@
 - fix: incorrect parse of cookie value if has '=' in value
 - fix: query parameters normalization to Map<String, String>
 - fix: null checking warning on first run
+
+## 3.3.0
+
+- feat: adding json, body to GET requests

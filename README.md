@@ -13,7 +13,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  requests: ^3.2.0
+  requests: ^3.3.0
 ```
 
 ## Usage
