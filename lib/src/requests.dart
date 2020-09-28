@@ -67,15 +67,16 @@ class Requests {
   const Requests();
   static final Event onError = Event();
   static const int DEFAULT_TIMEOUT_SECONDS = 10;
-  static const RequestBodyEncoding DEFAULT_BODY_ENCODING = RequestBodyEncoding.FormURLEncoded;
+  static const RequestBodyEncoding DEFAULT_BODY_ENCODING =
+      RequestBodyEncoding.FormURLEncoded;
   static Set _cookiesKeysToIgnore = Set.from([
-   'samesite',
-   'path',
-   'domain',
-   'max-age',
-   'expires',
-   'secure',
-   'httponly'
+    'samesite',
+    'path',
+    'domain',
+    'max-age',
+    'expires',
+    'secure',
+    'httponly'
   ]);
 
   static Map<String, String> extractResponseCookies(responseHeaders) {
@@ -118,7 +119,8 @@ class Requests {
         return Map.from(cookies);
       }
     } catch (e) {
-      log.shout('problem reading stored cookies. fallback with empty cookies $e');
+      log.shout(
+          'problem reading stored cookies. fallback with empty cookies $e');
     }
     return Map<String, String>();
   }
@@ -294,17 +296,15 @@ class Requests {
   }
 
   static Future<Response> _httpRequest(HttpMethod method, String url,
-      {
-        dynamic json,
-        dynamic body,
-        RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
-        Map<String, dynamic> queryParameters,
-        int port,
-        Map<String, String> headers,
-        int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
-        bool persistCookies = true,
-        bool verify = true
-      }) async {
+      {dynamic json,
+      dynamic body,
+      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+      Map<String, dynamic> queryParameters,
+      int port,
+      Map<String, String> headers,
+      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      bool persistCookies = true,
+      bool verify = true}) async {
     http.Client client;
     if (!verify) {
       // Ignore SSL errors
@@ -332,8 +332,13 @@ class Requests {
     }
 
     if (queryParameters != null) {
-      Map<String, String> stringQueryParameters = Map();
-      queryParameters.forEach((key, value) => stringQueryParameters[key] = value?.toString());
+      Map<String, dynamic> stringQueryParameters = Map();
+
+      queryParameters.forEach((key, value) => stringQueryParameters[key] =
+          value is List
+              ? (value.map((e) => e?.toString()))
+              : value?.toString());
+
       uri = uri.replace(queryParameters: stringQueryParameters);
     }
 
