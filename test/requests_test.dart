@@ -197,26 +197,15 @@ void main() {
 
     test('cookie parsing', () async {
       var headers = Map<String, String>();
-      var cookiesString = '_ga=GA1.4..1563550573; ; ; ; data=1=2=3=4; textsize=NaN; tp_state=true; _ga=GA1.3..1563550573; __browsiUID=03b1cb22-d18d-&{"bt":"Browser","os":"Windows","osv":"10.0","m":"Desktop|Emulator","v":"Unknown","b":"Chrome","p":2}; _cb_ls=1; _cb=CaBNIWCf-db-3i9ro; _chartbeat2=..414141414.1..1; AMUUID=%; _fbp=fb.2..; adblockerfound=true';
+      var cookiesString = 'session=mySecret; path=/myPath; expires=Xxx, x-x-x x:x:x XXX,data=1=2=3=4; _ga=GA1.4..1563550573; ; ; ; textsize=NaN; tp_state=true; _ga=GA1.3..1563550573; __browsiUID=03b1cb22-d18d-&{"bt":"Browser","os":"Windows","osv":"10.0","m":"Desktop|Emulator","v":"Unknown","b":"Chrome","p":2}; _cb_ls=1; _cb=CaBNIWCf-db-3i9ro; _chartbeat2=..414141414.1..1; AMUUID=%; _fbp=fb.2..; adblockerfound=true ';
       headers['set-cookie'] = cookiesString;
       var cookies = await Requests.extractResponseCookies(headers);
 
-      expect(cookies['_ga'], "GA1.3..1563550573");
+      expect(cookies['session'], "mySecret");
       expect(cookies['adblockerfound'], "true");
       expect(cookies['textsize'], "NaN");
       expect(cookies['data'], "1=2=3=4");
       expect(cookies['__browsiUID'], '03b1cb22-d18d-&{"bt":"Browser","os":"Windows","osv":"10.0","m":"Desktop|Emulator","v":"Unknown","b":"Chrome","p":2}');
-    });
-
-    test('string split', () async {
-      expect(Common.split('a=b=c', '=')[0], 'a');
-      expect(Common.split('a=b=c', '=')[1], 'b');
-      expect(Common.split('a=b=c', '=')[2], 'c');
-      expect(Common.split('a=b=c', '=').length, 3);
-      expect(Common.split('a=b=c', '=', max: 1).length, 2);
-      expect(Common.split('=', '=').length, 2);
-      expect(Common.split('', '').length, 1);
-      expect(Common.split('', '1234').length, 1);
     });
 
     test('from json', () async {

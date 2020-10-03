@@ -83,13 +83,22 @@ class Requests {
     Map<String, String> cookies = {};
     for (var key in responseHeaders.keys) {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
-        String cookie = responseHeaders[key];
-        cookie
-            .split(';')
-            .map((x) => Common.split(x.trim(), '=', max: 1))
-            .where((x) => x.length == 2)
-            .where((x) => !_cookiesKeysToIgnore.contains(x[0].toLowerCase()))
-            .forEach((x) => cookies[x[0]] = x[1]);
+        var cookie = responseHeaders[key].trim();
+
+        var separators = [',', ';', ' '];
+        var lastSeparator = -1, endSeparator = 0;
+        cookie.split('').asMap().forEach((i, char) {
+          if(separators.contains(char)) lastSeparator = i;
+
+          if(char == '=' && i > endSeparator) {
+            endSeparator = cookie.indexOf(';', i) > 0 ? cookie.indexOf(';', i) : cookie.length;
+            var value = cookie.substring(i+1, endSeparator);
+            var key = cookie.substring(lastSeparator+1, i).trim();
+
+            if(_cookiesKeysToIgnore.contains(key.toLowerCase())) endSeparator = 0;
+            else cookies[key] = value;
+          }
+        });
         break;
       }
     }
