@@ -1,14 +1,20 @@
 import 'dart:convert';
+import 'dart:async';
+
+import 'package:crypto/crypto.dart';
 import 'package:hex/hex.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:crypto/crypto.dart';
 
 class Common {
   const Common();
 
-  static storageSet(String key, String value) async {
+  static Future<bool> storageSet(String key, String value) async {
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setString(key, value);
+    if (value == null) {
+        return sharedPreferences.remove(key);
+    } else {
+        return sharedPreferences.setString(key, value);
+    }
   }
 
   static storageGet(String key) async {
@@ -54,12 +60,12 @@ class Common {
     return data.keys.map((key) {
       var k = Uri.encodeComponent(key.toString());
       var v = Uri.encodeComponent(data[key].toString());
-      return '${k}=${v}';
+      return '$k=$v';
     }).join('&');
   }
 
   static List<String> split(String string, String separator, {int max = 0}) {
-    var result = List<String>();
+    List<String> result = [];
 
     if (separator.isEmpty) {
       result.add(string);

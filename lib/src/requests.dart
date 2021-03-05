@@ -32,14 +32,14 @@ class Response {
 
   String get contentType => _rawResponse.headers['content-type'];
 
-  throwForStatus() {
+  void throwForStatus() {
     if (!success) {
       throw HTTPException(
           'Invalid HTTP status code $statusCode for url ${url}', this);
     }
   }
 
-  raiseForStatus() {
+  void raiseForStatus() {
     throwForStatus();
   }
 
