@@ -14,13 +14,13 @@ authors:
 - Imdat Solak <contact@solak.de>
 - obuhovsergai <https://github.com/obuhovsergai>
 environment:
-  sdk: ">=2.0.0 <3.0.0"
+  sdk: '>=2.12.0 <3.0.0'
 dependencies:
-  http: ^0.12.0
-  shared_preferences: ^0.5.11
-  crypto: ^2.0.6
-  hex: ^0.1.2
-  logging: ^0.11.3+2
+  http: ^0.13.0
+  shared_preferences: ^2.0.5
+  crypto: ^3.0.0
+  hex: ^0.2.0
+  logging: ^1.0.0
   flutter:
     sdk: flutter
 dev_dependencies:

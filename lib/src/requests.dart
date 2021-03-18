@@ -26,11 +26,11 @@ class Response {
 
   bool get success => !hasError;
 
-  Uri get url => _rawResponse.request.url;
+  Uri get url => _rawResponse.request!.url;
 
   Map<String, String> get headers => _rawResponse.headers;
 
-  String get contentType => _rawResponse.headers['content-type'];
+  String? get contentType => _rawResponse.headers['content-type'];
 
   throwForStatus() {
     if (!success) {
@@ -51,7 +51,7 @@ class Response {
     return utf8.decode(bytes(), allowMalformed: true);
   }
 
-  dynamic json() {
+  dynamic? json() {
     return Common.fromJson(content());
   }
 }
@@ -97,8 +97,8 @@ class Requests {
     return cookies;
   }
 
-  static Future<Map> _constructRequestHeaders(
-      String hostname, Map<String, String> customHeaders) async {
+  static Future<Map<String, String>> _constructRequestHeaders(
+      String hostname, Map<String, String>? customHeaders) async {
     var cookies = await getStoredCookies(hostname);
     String cookie =
         cookies.keys.map((key) => '$key=${cookies[key]}').join('; ');
@@ -134,7 +134,7 @@ class Requests {
 
   static Future clearStoredCookies(String hostname) async {
     String hostnameHash = Common.hashStringSHA256(hostname);
-    await Common.storageSet('cookies-$hostnameHash', null);
+    await Common.storageRemove('cookies-$hostnameHash');
   }
 
   static String getHostname(String url) {
@@ -163,9 +163,9 @@ class Requests {
   }
 
   static Future<Response> head(String url,
-      {Map<String, String> headers,
-      Map<String, dynamic> queryParameters,
-      int port,
+      {required Map<String, String> headers,
+      Map<String, dynamic>? queryParameters,
+      int? port,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
@@ -181,11 +181,11 @@ class Requests {
   }
 
   static Future<Response> get(String url,
-      {Map<String, String> headers,
-      Map<String, dynamic> queryParameters,
-      int port,
-      dynamic json,
-      dynamic body,
+      {required Map<String, String> headers,
+      Map<String, dynamic>? queryParameters,
+      int? port,
+      dynamic? json,
+      dynamic? body,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
@@ -203,11 +203,11 @@ class Requests {
   }
 
   static Future<Response> patch(String url,
-      {Map<String, String> headers,
-      int port,
-      dynamic json,
-      dynamic body,
-      Map<String, dynamic> queryParameters,
+      {required Map<String, String> headers,
+      int? port,
+      dynamic? json,
+      dynamic? body,
+      Map<String, dynamic>? queryParameters,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
@@ -225,11 +225,11 @@ class Requests {
   }
 
   static Future<Response> delete(String url,
-      {Map<String, String> headers,
-      dynamic json,
-      dynamic body,
-      Map<String, dynamic> queryParameters,
-      int port,
+      {required Map<String, String> headers,
+      dynamic? json,
+      dynamic? body,
+      Map<String, dynamic>? queryParameters,
+      int? port,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
@@ -247,12 +247,12 @@ class Requests {
   }
 
   static Future<Response> post(String url,
-      {dynamic json,
-      int port,
-      dynamic body,
-      Map<String, dynamic> queryParameters,
+      {dynamic? json,
+      int? port,
+      dynamic? body,
+      Map<String, dynamic>? queryParameters,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
-      Map<String, String> headers,
+      required Map<String, String> headers,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
       bool verify = true}) {
@@ -270,12 +270,12 @@ class Requests {
 
   static Future<Response> put(
     String url, {
-    int port,
-    dynamic json,
-    dynamic body,
-    Map<String, dynamic> queryParameters,
+    int? port,
+    dynamic? json,
+    dynamic? body,
+    Map<String, dynamic>? queryParameters,
     RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
-    Map<String, String> headers,
+    required Map<String, String> headers,
     int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
     bool persistCookies = true,
     bool verify = true,
@@ -296,12 +296,12 @@ class Requests {
   }
 
   static Future<Response> _httpRequest(HttpMethod method, String url,
-      {dynamic json,
-      dynamic body,
+      {dynamic? json,
+      dynamic? body,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
-      Map<String, dynamic> queryParameters,
-      int port,
-      Map<String, String> headers,
+      Map<String, dynamic>? queryParameters,
+      int? port,
+      Map<String, String> headers = const <String, String>{},
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
       bool verify = true}) async {
@@ -325,7 +325,7 @@ class Requests {
 
     String hostname = getHostname(url);
     headers = await _constructRequestHeaders(hostname, headers);
-    String requestBody;
+    String? requestBody;
 
     if (body != null && json != null) {
       throw ArgumentError('cannot use both "json" and "body" choose only one.');
@@ -352,7 +352,7 @@ class Requests {
     }
 
     if (body != null) {
-      String contentTypeHeader;
+      String? contentTypeHeader;
 
       switch (bodyEncoding) {
         case RequestBodyEncoding.JSON:
@@ -375,7 +375,7 @@ class Requests {
       }
     }
 
-    Future future;
+    late Future future;
 
     switch (method) {
       case HttpMethod.GET:
@@ -408,7 +408,8 @@ class Requests {
     var response = await future.timeout(Duration(seconds: timeoutSeconds));
 
     if (response is http.StreamedResponse) {
-      response = await http.Response.fromStream(response);
+      response = await (http.Response.fromStream(response)
+          as FutureOr<http.StreamedResponse>);
     }
 
     return await _handleHttpResponse(hostname, response, persistCookies);
