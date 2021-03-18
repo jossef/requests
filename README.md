@@ -13,7 +13,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  requests: ^3.3.0
+  requests: ^4.0.0-nullsafety.0
 ```
 
 ## Usage
@@ -82,8 +82,8 @@ var r = await Requests.post(
   bodyEncoding: RequestBodyEncoding.FormURLEncoded);
 
 r.raiseForStatus();
-dynamic json = r.json();
-print(json['id']);
+dynamic? json = r.json();
+print(json!['id']);
 ```
 
 ---
