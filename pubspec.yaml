@@ -3,29 +3,28 @@ description: a flutter library that helps with http requests and stored cookies
 version: 3.3.0
 homepage: https://github.com/jossef/requests
 authors:
-- Jossef Harush <jossef12@gmail.com>
-- Rick Stanley <rick-stanley@hotmail.com>
-- Martin <https://github.com/genesiscz>
-- Frederik Pietzko <pietzkof@gmail.com>
-- Rafael Carvalho Monteiro <rafael@qwkin.io>
-- eggate <https://github.com/eggate>
-- Dane Mackier <https://github.com/FilledStacks>
-- Anirudh S <https://github.com/anirudh24seven>
-- Imdat Solak <contact@solak.de>
-- obuhovsergai <https://github.com/obuhovsergai>
+  - Jossef Harush <jossef12@gmail.com>
+  - Rick Stanley <rick-stanley@hotmail.com>
+  - Martin <https://github.com/genesiscz>
+  - Frederik Pietzko <pietzkof@gmail.com>
+  - Rafael Carvalho Monteiro <rafael@qwkin.io>
+  - eggate <https://github.com/eggate>
+  - Dane Mackier <https://github.com/FilledStacks>
+  - Anirudh S <https://github.com/anirudh24seven>
+  - Imdat Solak <contact@solak.de>
+  - obuhovsergai <https://github.com/obuhovsergai>
 environment:
-  sdk: ">=2.0.0 <3.0.0"
+  sdk: ">=2.2.0 <3.0.0"
 dependencies:
-  http: ^0.12.0
-  shared_preferences: ^0.5.11
-  crypto: ^2.0.6
-  hex: ^0.1.2
-  logging: ^0.11.3+2
   flutter:
     sdk: flutter
+  crypto: ^3.0.0
+  hex: ^0.2.0
+  http: ^0.13.0
+  logging: ^1.0.0
+  shared_preferences: ^2.0.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  pedantic: ^1.0.0
+  pedantic: ^1.11.0
   test: ^1.0.0
-

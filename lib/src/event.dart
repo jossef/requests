@@ -4,7 +4,7 @@ class Event {
   StreamController<dynamic> _streamController;
 
   Event() {
-    this._streamController = StreamController<dynamic>.broadcast(sync: true);
+    _streamController = StreamController<dynamic>.broadcast(sync: true);
   }
 
   Stream<dynamic> _getStream() {
@@ -18,8 +18,8 @@ class Event {
     }
   }
 
-  void listen(void callback(dynamic event)) {
-    Stream<dynamic> stream = _getStream();
+  void listen(void Function(dynamic event) callback) {
+    var stream = _getStream();
     stream.listen(callback);
   }
 

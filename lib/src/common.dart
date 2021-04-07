@@ -6,13 +6,13 @@ import 'package:crypto/crypto.dart';
 class Common {
   const Common();
 
-  static storageSet(String key, String value) async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  static Future<void> storageSet(String key, String value) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
     await sharedPreferences.setString(key, value);
   }
 
-  static storageGet(String key) async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+  static Future<String> storageGet(String key) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
     return sharedPreferences.getString(key);
   }
 
@@ -26,7 +26,7 @@ class Common {
   }
 
   static dynamic fromJson(String jsonString) {
-    if (jsonString == null){
+    if (jsonString == null) {
       return null;
     }
     return json.decode(jsonString);
@@ -54,12 +54,12 @@ class Common {
     return data.keys.map((key) {
       var k = Uri.encodeComponent(key.toString());
       var v = Uri.encodeComponent(data[key].toString());
-      return '${k}=${v}';
+      return '$k=$v';
     }).join('&');
   }
 
   static List<String> split(String string, String separator, {int max = 0}) {
-    var result = List<String>();
+    var result = <String>[];
 
     if (separator.isEmpty) {
       result.add(string);

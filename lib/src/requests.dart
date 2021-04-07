@@ -32,14 +32,14 @@ class Response {
 
   String get contentType => _rawResponse.headers['content-type'];
 
-  throwForStatus() {
+  void throwForStatus() {
     if (!success) {
       throw HTTPException(
-          'Invalid HTTP status code $statusCode for url ${url}', this);
+          'Invalid HTTP status code $statusCode for url $url', this);
     }
   }
 
-  raiseForStatus() {
+  void raiseForStatus() {
     throwForStatus();
   }
 
@@ -69,7 +69,7 @@ class Requests {
   static const int DEFAULT_TIMEOUT_SECONDS = 10;
   static const RequestBodyEncoding DEFAULT_BODY_ENCODING =
       RequestBodyEncoding.FormURLEncoded;
-  static Set _cookiesKeysToIgnore = Set.from([
+  static final Set _cookiesKeysToIgnore = {
     'samesite',
     'path',
     'domain',
@@ -77,10 +77,10 @@ class Requests {
     'expires',
     'secure',
     'httponly'
-  ]);
+  };
 
   static Map<String, String> extractResponseCookies(responseHeaders) {
-    Map<String, String> cookies = {};
+    var cookies = <String, String>{};
     for (var key in responseHeaders.keys) {
       if (Common.equalsIgnoreCase(key, 'set-cookie')) {
         String cookie = responseHeaders[key];
@@ -100,9 +100,8 @@ class Requests {
   static Future<Map> _constructRequestHeaders(
       String hostname, Map<String, String> customHeaders) async {
     var cookies = await getStoredCookies(hostname);
-    String cookie =
-        cookies.keys.map((key) => '$key=${cookies[key]}').join('; ');
-    Map<String, String> requestHeaders = Map();
+    var cookie = cookies.keys.map((key) => '$key=${cookies[key]}').join('; ');
+    var requestHeaders = <String, String>{};
     requestHeaders['cookie'] = cookie;
     if (customHeaders != null) {
       requestHeaders.addAll(customHeaders);
@@ -112,8 +111,8 @@ class Requests {
 
   static Future<Map<String, String>> getStoredCookies(String hostname) async {
     try {
-      String hostnameHash = Common.hashStringSHA256(hostname);
-      String cookiesJson = await Common.storageGet('cookies-$hostnameHash');
+      var hostnameHash = Common.hashStringSHA256(hostname);
+      var cookiesJson = await Common.storageGet('cookies-$hostnameHash');
       var cookies = Common.fromJson(cookiesJson);
       if (cookies != null) {
         return Map.from(cookies);
@@ -122,19 +121,19 @@ class Requests {
       log.shout(
           'problem reading stored cookies. fallback with empty cookies $e');
     }
-    return Map<String, String>();
+    return <String, String>{};
   }
 
-  static Future setStoredCookies(
+  static Future<void> setStoredCookies(
       String hostname, Map<String, String> cookies) async {
-    String hostnameHash = Common.hashStringSHA256(hostname);
-    String cookiesJson = Common.toJson(cookies);
+    var hostnameHash = Common.hashStringSHA256(hostname);
+    var cookiesJson = Common.toJson(cookies);
     await Common.storageSet('cookies-$hostnameHash', cookiesJson);
   }
 
   static Future clearStoredCookies(String hostname) async {
-    String hostnameHash = Common.hashStringSHA256(hostname);
-    await Common.storageSet('cookies-$hostnameHash', null);
+    var hostnameHash = Common.hashStringSHA256(hostname);
+    await Common.storageSet('cookies-$hostnameHash', '');
   }
 
   static String getHostname(String url) {
@@ -323,7 +322,7 @@ class Requests {
           "invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')");
     }
 
-    String hostname = getHostname(url);
+    var hostname = getHostname(url);
     headers = await _constructRequestHeaders(hostname, headers);
     String requestBody;
 
@@ -332,7 +331,7 @@ class Requests {
     }
 
     if (queryParameters != null) {
-      Map<String, dynamic> stringQueryParameters = Map();
+      var stringQueryParameters = <String, dynamic>{};
 
       queryParameters.forEach((key, value) => stringQueryParameters[key] =
           value is List
