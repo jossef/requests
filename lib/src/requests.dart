@@ -26,7 +26,7 @@ class Response {
 
   bool get success => !hasError;
 
-  Uri get url => _rawResponse.request!.url;
+  Uri? get url => _rawResponse.request?.url;
 
   Map<String, String> get headers => _rawResponse.headers;
 
@@ -51,7 +51,7 @@ class Response {
     return utf8.decode(bytes(), allowMalformed: true);
   }
 
-  dynamic? json() {
+  dynamic json() {
     return Common.fromJson(content());
   }
 }
@@ -183,8 +183,8 @@ class Requests {
       {Map<String, String>? headers,
       Map<String, dynamic>? queryParameters,
       int? port,
-      dynamic? json,
-      dynamic? body,
+      dynamic json,
+      dynamic body,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
@@ -204,8 +204,8 @@ class Requests {
   static Future<Response> patch(String url,
       {Map<String, String>? headers,
       int? port,
-      dynamic? json,
-      dynamic? body,
+      dynamic json,
+      dynamic body,
       Map<String, dynamic>? queryParameters,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
@@ -225,8 +225,8 @@ class Requests {
 
   static Future<Response> delete(String url,
       {Map<String, String>? headers,
-      dynamic? json,
-      dynamic? body,
+      dynamic json,
+      dynamic body,
       Map<String, dynamic>? queryParameters,
       int? port,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
@@ -246,9 +246,9 @@ class Requests {
   }
 
   static Future<Response> post(String url,
-      {dynamic? json,
+      {dynamic json,
       int? port,
-      dynamic? body,
+      dynamic body,
       Map<String, dynamic>? queryParameters,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       Map<String, String>? headers,
@@ -270,8 +270,8 @@ class Requests {
   static Future<Response> put(
     String url, {
     int? port,
-    dynamic? json,
-    dynamic? body,
+    dynamic json,
+    dynamic body,
     Map<String, dynamic>? queryParameters,
     RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
     Map<String, String>? headers,
@@ -295,12 +295,12 @@ class Requests {
   }
 
   static Future<Response> _httpRequest(HttpMethod method, String url,
-      {dynamic? json,
-      dynamic? body,
+      {dynamic json,
+      dynamic body,
       RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
       Map<String, dynamic>? queryParameters,
       int? port,
-      required Map<String, String> headers,
+      Map<String, String>? headers,
       int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
       bool persistCookies = true,
       bool verify = true}) async {
@@ -368,8 +368,7 @@ class Requests {
           break;
       }
 
-      if (contentTypeHeader != null &&
-          !Common.hasKeyIgnoreCase(headers, 'content-type')) {
+      if (!Common.hasKeyIgnoreCase(headers, 'content-type')) {
         headers['content-type'] = contentTypeHeader;
       }
     }

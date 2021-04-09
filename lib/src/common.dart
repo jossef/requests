@@ -12,13 +12,13 @@ class Common {
     await sharedPreferences.setString(key, value);
   }
 
-  static Future<String> storageGet(String key) async {
+  static Future<String?> storageGet(String key) async {
     var sharedPreferences = await SharedPreferences.getInstance();
     return sharedPreferences.getString(key);
   }
 
   static Future<bool> storageRemove(String key) async {
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var sharedPreferences = await SharedPreferences.getInstance();
     return await sharedPreferences.remove(key);
   }
 
@@ -31,7 +31,7 @@ class Common {
     return encoder.convert(object);
   }
 
-  static dynamic? fromJson(String? jsonString) {
+  static dynamic fromJson(String? jsonString) {
     if (jsonString == null) {
       return null;
     }

@@ -82,7 +82,7 @@ var r = await Requests.post(
   bodyEncoding: RequestBodyEncoding.FormURLEncoded);
 
 r.raiseForStatus();
-dynamic? json = r.json();
+dynamic json = r.json();
 print(json!['id']);
 ```
 
