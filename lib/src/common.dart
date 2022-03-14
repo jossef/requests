@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:hex/hex.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,12 +12,17 @@ class Common {
     await sharedPreferences.setString(key, value);
   }
 
-  static Future<String> storageGet(String key) async {
+  static Future<String?> storageGet(String key) async {
     var sharedPreferences = await SharedPreferences.getInstance();
     return sharedPreferences.getString(key);
   }
 
-  static bool equalsIgnoreCase(String string1, String string2) {
+  static Future<bool> storageRemove(String key) async {
+    var sharedPreferences = await SharedPreferences.getInstance();
+    return await sharedPreferences.remove(key);
+  }
+
+  static bool equalsIgnoreCase(String? string1, String? string2) {
     return string1?.toLowerCase() == string2?.toLowerCase();
   }
 
@@ -25,7 +31,7 @@ class Common {
     return encoder.convert(object);
   }
 
-  static dynamic fromJson(String jsonString) {
+  static dynamic fromJson(String? jsonString) {
     if (jsonString == null) {
       return null;
     }
@@ -36,7 +42,7 @@ class Common {
     return map.keys.any((x) => equalsIgnoreCase(x, key));
   }
 
-  static String toHexString(List data) {
+  static String toHexString(List<int> data) {
     return HEX.encode(data);
   }
 
