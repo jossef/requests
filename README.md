@@ -32,7 +32,7 @@ String body = r.content();
 
 
 ### the `Response` object
-just like in python's request module, the `Response` object has this functionallity
+just like in python's request module, the `Response` object has this functionality
 
 - `r.throwForStatus()` - will throw an exception if the response `statusCode` is not a great success.
 - `r.raiseForStatus()` - same as `throwForStatus`
@@ -41,9 +41,9 @@ just like in python's request module, the `Response` object has this functionall
 - `r.headers` - the response headers 
 - `r.success` - a boolean. `true` indicates that the request was a great success 
 - `r.hasError` - a boolean. `true` indicates that the request was not a great success 
-- `r.bytes()` - return the body in the respone as a list of bytes 
-- `r.content()` - return the body in the respone as a string
-- `r.json()` - recodes the body in the respone and returns the result (dynamic type)
+- `r.bytes()` - return the body in the response as a list of bytes 
+- `r.content()` - return the body in the response as a string
+- `r.json()` - recodes the body in the response and returns the result (dynamic type)
 
 
 ### Optional Arguments
