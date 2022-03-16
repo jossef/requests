@@ -406,8 +406,7 @@ class Requests {
     var response = await future.timeout(Duration(seconds: timeoutSeconds));
 
     if (response is http.StreamedResponse) {
-      response = await (http.Response.fromStream(response)
-          as FutureOr<http.StreamedResponse>);
+      response = await http.Response.fromStream(response);
     }
 
     return await _handleHttpResponse(hostname, response, persistCookies);
