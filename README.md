@@ -4,7 +4,7 @@
 a flutter library to make HTTP requests (inspired by python [requests](https://github.com/psf/requests) module). It comes with JSON support and a lightweight implementation to store cookies like a browser.
 
 ### Cookies, huh?
-Server side cookies (via response header `SET-COOKIE`) are stored using the assistance of `shared_preferences`. Stored cookies will be send seamlessly on the next http requests you make to the same domain (simple implementation, similar to a web browser)
+Server side cookies (via response header `SET-COOKIE`) are stored using the assistance of `stash_hive`. Stored cookies will be send seamlessly on the next http requests you make to the same domain (simple implementation, similar to a web browser)
 
 
 ## Install
@@ -13,7 +13,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  requests: ^4.0.0-nullsafety.0
+  requests: ^4.1.0
 ```
 
 ## Usage
