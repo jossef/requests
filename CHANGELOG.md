@@ -39,3 +39,16 @@
 ## 3.3.0
 
 - feat: adding json, body to GET requests
+
+## 4.0.0-nullsafety.0
+
+- feat: migrate to null-safety
+
+## 4.1.0
+
+- enhancement: fix typos
+- fix: revert cast to FutureOr<http.StreamedResponse>
+- feat: migrate shared_preferences to stash_hive
+- feat: update dependencies
+- feat: remove flutter dependency
+- feat: remove deprecated dependencies and field in the pubspec.yaml file

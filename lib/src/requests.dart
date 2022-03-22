@@ -319,7 +319,7 @@ class Requests {
 
     if (uri.scheme != 'http' && uri.scheme != 'https') {
       throw ArgumentError(
-          "invalid url, must start with 'http://' or 'https://' sheme (e.g. 'http://example.com')");
+          "invalid url, must start with 'http://' or 'https://' scheme (e.g. 'http://example.com')");
     }
 
     var hostname = getHostname(url);
@@ -406,8 +406,7 @@ class Requests {
     var response = await future.timeout(Duration(seconds: timeoutSeconds));
 
     if (response is http.StreamedResponse) {
-      response = await (http.Response.fromStream(response)
-          as FutureOr<http.StreamedResponse>);
+      response = await http.Response.fromStream(response);
     }
 
     return await _handleHttpResponse(hostname, response, persistCookies);

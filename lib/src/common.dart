@@ -1,25 +1,51 @@
+import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:hex/hex.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:stash/stash_api.dart';
+import 'package:stash_hive/stash_hive.dart';
 import 'package:crypto/crypto.dart';
 
 class Common {
   const Common();
 
+  // Temporary directory
+  static final path = Directory.systemTemp.path;
+
+  // Creates a store
+  static final store = newHiveDefaultVaultStore(path: path);
+
+  // Creates a vault from the previously created store
+  static final vault = store.vault<String>(
+    name: 'cookieVault',
+    eventListenerMode: EventListenerMode.synchronous,
+  );
+
+  /// Add / Replace this [Vault] [value] for the specified [key].
+  ///
+  /// * [key]: the key
+  /// * [value]: the value
   static Future<void> storageSet(String key, String value) async {
-    var sharedPreferences = await SharedPreferences.getInstance();
-    await sharedPreferences.setString(key, value);
+    await vault.put(key, value);
   }
 
+  /// Returns the stash value for the specified [key]
+  ///
+  /// * [key]: the key
+  ///
+  /// Returns a [String]
   static Future<String?> storageGet(String key) async {
-    var sharedPreferences = await SharedPreferences.getInstance();
-    return sharedPreferences.getString(key);
+    return await vault.get(key);
   }
 
+  /// Removes the mapping for a [key] from this [Vault] if it is present.
+  ///
+  /// * [key]: key whose mapping is to be removed from the [Vault]
+  ///
+  /// Returns `true` if the removal of the mapping for the specified [key] was successful.
   static Future<bool> storageRemove(String key) async {
-    var sharedPreferences = await SharedPreferences.getInstance();
-    return await sharedPreferences.remove(key);
+    await vault.remove(key);
+    return !await vault.containsKey(key);
   }
 
   static bool equalsIgnoreCase(String? string1, String? string2) {
