@@ -1,22 +1,26 @@
-## 1.0.0
+## 4.1.0
 
-- Initial version
+- enhancement: fix typos
+- fix: revert cast to FutureOr<http.StreamedResponse>
+- feat: migrate shared_preferences to stash_hive
+- feat: update dependencies
+- feat: remove flutter dependency
+- feat: remove deprecated dependencies and field in the pubspec.yaml file
 
-## 3.0.1
+## 4.0.0-nullsafety.0
 
-- updated api with breaking changes
+- feat: migrate to null-safety
 
-## 3.0.3
+## 3.3.0
 
-- fix: parse json only if requested
+- feat: adding json, body to GET requests
 
-## 3.0.4
+## 3.2.0
 
-- fix: added body in patch and delete methods 
-
-## 3.0.5
-
-- fix: body in delete method 
+- feat: dynamic type json 
+- fix: incorrect parse of cookie value if has '=' in value
+- fix: query parameters normalization to Map<String, String>
+- fix: null checking warning on first run
 
 ## 3.1.0
 
@@ -29,26 +33,22 @@
 - enhancement: executed flutter format to improve pub score
 - fix: cookie matching incorrect variable + case insensitive
 
-## 3.2.0
+## 3.0.5
 
-- feat: dynamic type json 
-- fix: incorrect parse of cookie value if has '=' in value
-- fix: query parameters normalization to Map<String, String>
-- fix: null checking warning on first run
+- fix: body in delete method 
 
-## 3.3.0
+## 3.0.4
 
-- feat: adding json, body to GET requests
+- fix: added body in patch and delete methods 
 
-## 4.0.0-nullsafety.0
+## 3.0.3
 
-- feat: migrate to null-safety
+- fix: parse json only if requested
 
-## 4.1.0
+## 3.0.1
 
-- enhancement: fix typos
-- fix: revert cast to FutureOr<http.StreamedResponse>
-- feat: migrate shared_preferences to stash_hive
-- feat: update dependencies
-- feat: remove flutter dependency
-- feat: remove deprecated dependencies and field in the pubspec.yaml file
+- updated api with breaking changes
+
+## 1.0.0
+
+- Initial version
