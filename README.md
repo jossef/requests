@@ -1,5 +1,7 @@
-![banner-01](https://user-images.githubusercontent.com/1287098/68531964-ccead400-0320-11ea-93a6-fa83b9183dd8.png)
+![banner-01](https://user-images.githubusercontent.com/40632486/159684962-ae198561-16dc-4216-9f26-b223e8d01df9.png)
 
+[![Version](https://img.shields.io/pub/v/requests?include_prereleases)](https://pub.dev/packages/requests)
+[![License](https://img.shields.io/github/license/jossef/requests)](https://github.com/jossef/requests)
 
 a dart library to make HTTP requests (inspired by python [requests](https://github.com/psf/requests) module). It comes with JSON support and a lightweight implementation to store cookies like a browser.
 
