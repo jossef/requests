@@ -9,23 +9,16 @@ import 'package:crypto/crypto.dart';
 class Common {
   const Common();
 
-  // Temporary directory
-  static final path = Directory.systemTemp.path;
-
-  // Creates a store
-  static final store = newHiveDefaultVaultStore(path: path);
-
-  // Creates a vault from the previously created store
-  static final vault = store.vault<String>(
-    name: 'cookieVault',
-    eventListenerMode: EventListenerMode.synchronous,
-  );
+  // The vault containing the cookies. Can be initialized before usage using `setCookieVault`,
+  // otherwise it will be created using `createDefaultCookieVault`.
+  static Vault<String>? vault;
 
   /// Add / Replace this [Vault] [value] for the specified [key].
   ///
   /// * [key]: the key
   /// * [value]: the value
   static Future<void> storageSet(String key, String value) async {
+    final vault = getVault();
     await vault.put(key, value);
   }
 
@@ -35,6 +28,7 @@ class Common {
   ///
   /// Returns a [String]
   static Future<String?> storageGet(String key) async {
+    final vault = getVault();
     return await vault.get(key);
   }
 
@@ -44,6 +38,7 @@ class Common {
   ///
   /// Returns `true` if the removal of the mapping for the specified [key] was successful.
   static Future<bool> storageRemove(String key) async {
+    final vault = getVault();
     await vault.remove(key);
     return !await vault.containsKey(key);
   }
@@ -110,5 +105,25 @@ class Common {
     }
 
     return result;
+  }
+
+  /// Gets or creates the cookie vault.
+  static Vault<String> getVault() {
+    return vault ?? (vault = createDefaultCookieVault());
+  }
+
+  /// Creates a default, plain-text Hive store and vault in the system temporary directory.
+  static Vault<String> createDefaultCookieVault() {
+    final path = Directory.systemTemp.path;
+    final store = newHiveDefaultVaultStore(path: path);
+    return store.vault<String>(
+        name: 'cookieVault', eventListenerMode: EventListenerMode.synchronous);
+  }
+
+  /// Defines the cookie vault for this process.
+  /// No-op if a cookie vault is already defined.
+  static Vault<String> setCookieVault(Vault<String> newVault) {
+    assert(vault == null, 'Cookie vault is already initialized');
+    return vault ?? (vault = newVault);
   }
 }
