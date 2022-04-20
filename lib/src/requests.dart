@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart' as io_client;
 import 'package:logging/logging.dart';
+import 'package:stash/stash_api.dart';
 
 import 'common.dart';
 import 'event.dart';
@@ -301,6 +302,12 @@ class Requests {
       verify: verify,
     );
   }
+
+  /// Defines the `stash` `Vault` used to store cookies.
+  /// Must be defined before storing or accessing cookies, otherwise
+  /// a default one will be created on first use.
+  static Vault<String> setCookieVault(Vault<String> vault) =>
+      Common.setCookieVault(vault);
 
   static Future<Response> _httpRequest(HttpMethod method, String url,
       {dynamic json,
