@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:hex/hex.dart';
+import 'package:hive/hive.dart';
 import 'package:stash/stash_api.dart';
 import 'package:stash_hive/stash_hive.dart';
 import 'package:crypto/crypto.dart';
@@ -88,22 +89,46 @@ class Common {
 
   /// Gets or creates the cookie vault.
   static Vault<String> getVault() {
-    return vault ?? (vault = createDefaultCookieVault());
+    return vault ?? (vault = createCookieVault());
   }
 
-  /// Creates a default, plain-text Hive store and vault
-  /// in the system temporary directory.
-  static Vault<String> createDefaultCookieVault() {
-    final path = Directory.systemTemp.path;
-    final store = newHiveDefaultVaultStore(path: path);
+  /// Creates a Hive store and vault with the optional [path], [vaultName] and
+  /// [encryptionCipher] parameters. By default will create a plain-text
+  /// Hive store and vault in the system temporary directory.
+  static Vault<String> createCookieVault({
+    final String? path,
+    final String? vaultName,
+    final HiveCipher? encryptionCipher,
+  }) {
+    final String defaultPath = Directory.systemTemp.path;
+    final String defaultVaultName = 'cookieVault';
+
+    final store = newHiveDefaultVaultStore(
+      path: path ?? defaultPath,
+      encryptionCipher: encryptionCipher,
+    );
     return store.vault<String>(
-        name: 'cookieVault', eventListenerMode: EventListenerMode.synchronous);
+      name: vaultName ?? defaultVaultName,
+      eventListenerMode: EventListenerMode.synchronous,
+    );
   }
 
-  /// Defines the cookie vault for this process.
+  /// Defines the cookie vault for this process with the optional [path], 
+  /// [vaultName] and [encryptionCipher] parameters.
   /// No-op if a cookie vault is already defined.
-  static Vault<String> setCookieVault(Vault<String> newVault) {
+  static void setCookieVault({
+    final String? path,
+    final String? vaultName,
+    final HiveCipher? encryptionCipher,
+  }) {
     assert(vault == null, 'Cookie vault is already initialized');
-    return vault ?? (vault = newVault);
+
+    if (vault != null) {
+      vault = createCookieVault(
+        path: path,
+        vaultName: vaultName,
+        encryptionCipher: encryptionCipher,
+      );
+    }
   }
 }
