@@ -303,7 +303,7 @@ class Requests {
     );
   }
 
-  /// Defines the `stash` `Vault` used to store cookies.
+  /// Defines the [stash] [Vault] used to store cookies.
   /// Must be defined before storing or accessing cookies, otherwise
   /// a default one will be created on first use.
   static Vault<String> setCookieVault(Vault<String> vault) =>

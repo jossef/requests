@@ -9,8 +9,9 @@ import 'package:crypto/crypto.dart';
 class Common {
   const Common();
 
-  // The vault containing the cookies. Can be initialized before usage using `setCookieVault`,
-  // otherwise it will be created using `createDefaultCookieVault`.
+  /// The vault containing the cookies. Can be initialized before usage using
+  /// [setCookieVault], otherwise it will be created
+  /// using [createDefaultCookieVault].
   static Vault<String>? vault;
 
   /// Add / Replace this [Vault] [value] for the specified [key].
@@ -90,7 +91,8 @@ class Common {
     return vault ?? (vault = createDefaultCookieVault());
   }
 
-  /// Creates a default, plain-text Hive store and vault in the system temporary directory.
+  /// Creates a default, plain-text Hive store and vault
+  /// in the system temporary directory.
   static Vault<String> createDefaultCookieVault() {
     final path = Directory.systemTemp.path;
     final store = newHiveDefaultVaultStore(path: path);
