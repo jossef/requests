@@ -1,6 +1,5 @@
 import 'package:requests/requests.dart';
 import 'package:requests/src/common.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:test/test.dart';
 
 void _validateResponse(Response r) {
@@ -12,9 +11,6 @@ void _validateResponse(Response r) {
 void main() {
   group('A group of tests', () {
     final String PLACEHOLDER_PROVIDER = 'https://reqres.in';
-    setUp(() {
-      SharedPreferences.setMockInitialValues({});
-    });
 
     test('plain http get', () async {
       var r = await Requests.get('https://google.com');
@@ -25,7 +21,8 @@ void main() {
     });
 
     test('plain http get with query parameters', () async {
-      var r = await Requests.get('https://google.com', queryParameters: {'id': 1, 'name': null});
+      var r = await Requests.get('https://google.com',
+          queryParameters: {'id': 1, 'name': null});
       r.raiseForStatus();
       dynamic body = r.content();
       expect(body, isNotNull);
@@ -42,7 +39,8 @@ void main() {
     });
 
     test('plain http get with port 8080', () async {
-      var r = await Requests.get('http://portquiz.net:8080/', timeoutSeconds: 30);
+      var r =
+          await Requests.get('http://portquiz.net:8080/', timeoutSeconds: 30);
       r.raiseForStatus();
     });
 
@@ -61,7 +59,8 @@ void main() {
             'userId': 10,
             'id': 91,
             'title': 'aut amet sed',
-            'body': 'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+            'body':
+                'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
           },
           bodyEncoding: RequestBodyEncoding.FormURLEncoded);
       r.raiseForStatus();
@@ -76,7 +75,8 @@ void main() {
           'userId': 10,
           'id': 91,
           'title': 'aut amet sed',
-          'body': 'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+          'body':
+              'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
         }
       ]);
       r.raiseForStatus();
@@ -99,7 +99,8 @@ void main() {
         'userId': 10,
         'id': 91,
         'title': 'aut amet sed',
-        'body': 'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+        'body':
+            'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
       });
       r.raiseForStatus();
       dynamic body = r.json();
@@ -118,7 +119,8 @@ void main() {
         'userId': 10,
         'id': 91,
         'title': 'aut amet sed',
-        'body': 'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+        'body':
+            'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
       });
       r.raiseForStatus();
       dynamic body = r.json();
@@ -149,7 +151,8 @@ void main() {
     });
 
     test('response as Response object', () async {
-      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users', body: {'name': 'morpheus'});
+      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
+          body: {'name': 'morpheus'});
       r.raiseForStatus();
       var content = r.content();
       var json = r.json();
@@ -172,7 +175,8 @@ void main() {
 
     test('throw if both json and body used', () async {
       try {
-        await Requests.post('$PLACEHOLDER_PROVIDER/api/unknown/23', body: {}, json: {});
+        await Requests.post('$PLACEHOLDER_PROVIDER/api/unknown/23',
+            body: {}, json: {});
       } on ArgumentError catch (_) {
         return;
       }
@@ -205,11 +209,12 @@ void main() {
       expect(cookies['adblockerfound'], "true");
       expect(cookies['textsize'], "NaN");
       expect(cookies['data'], "1=2=3=4");
-      expect(cookies['__browsiUID'], '03b1cb22-d18d-&{"bt":"Browser","os":"Windows","osv":"10.0","m":"Desktop|Emulator","v":"Unknown","b":"Chrome","p":2}');
+      expect(cookies['__browsiUID'],
+          '03b1cb22-d18d-&{"bt":"Browser","os":"Windows","osv":"10.0","m":"Desktop|Emulator","v":"Unknown","b":"Chrome","p":2}');
     });
 
     test('from json', () async {
-      expect(Common.fromJson('{"a":1}'), {"a":1});
+      expect(Common.fromJson('{"a":1}'), {"a": 1});
       expect(Common.fromJson(null), null);
     });
   });
