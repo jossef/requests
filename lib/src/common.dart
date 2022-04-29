@@ -113,7 +113,7 @@ class Common {
     );
   }
 
-  /// Defines the cookie vault for this process with the optional [path], 
+  /// Defines the cookie vault for this process with the optional [path],
   /// [vaultName] and [encryptionCipher] parameters.
   /// No-op if a cookie vault is already defined.
   static void setCookieVault({
@@ -123,12 +123,10 @@ class Common {
   }) {
     assert(vault == null, 'Cookie vault is already initialized');
 
-    if (vault != null) {
-      vault = createCookieVault(
-        path: path,
-        vaultName: vaultName,
-        encryptionCipher: encryptionCipher,
-      );
-    }
+    vault ??= createCookieVault(
+      path: path,
+      vaultName: vaultName,
+      encryptionCipher: encryptionCipher,
+    );
   }
 }
