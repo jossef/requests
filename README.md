@@ -32,6 +32,7 @@ r.raiseForStatus();
 String body = r.content();
 ```
 
+You can find an example of encrypted cookies [here](./example/encrypted_cookies.dart).
 
 ### the `Response` object
 just like in python's request module, the `Response` object has this functionality
@@ -63,6 +64,7 @@ just like in python's request module, the `Response` object has this functionali
  
  ### Class Methods
 
+- `.init(path, vaultName, encryptionCipher)` - initialize Requests with a custom cookie vault
 - `.getHostname(url)` - returns the hostname of the given url
 - `.clearStoredCookies(hostname)` - clears the stored cookies for the hostname
 - `.setStoredCookies(hostname, Map<String, String>)` - set the stored cookies for the hostname
@@ -121,5 +123,7 @@ await Requests.clearStoredCookies(hostname);
 cookies = await Requests.getStoredCookies(hostname);
 expect(cookies.keys.length, 0);
 ``` 
+
+More examples can be found in [example/](./example/).
 
 <a href="https://www.freepik.com/free-photos-vectors/business">Business vector created by freepik - www.freepik.com</a>
