@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:hex/hex.dart';
+import 'package:hive/hive.dart';
 import 'package:stash/stash_api.dart';
 import 'package:stash_hive/stash_hive.dart';
 import 'package:crypto/crypto.dart';
@@ -9,23 +10,17 @@ import 'package:crypto/crypto.dart';
 class Common {
   const Common();
 
-  // Temporary directory
-  static final path = Directory.systemTemp.path;
-
-  // Creates a store
-  static final store = newHiveDefaultVaultStore(path: path);
-
-  // Creates a vault from the previously created store
-  static final vault = store.vault<String>(
-    name: 'cookieVault',
-    eventListenerMode: EventListenerMode.synchronous,
-  );
+  /// The vault containing the cookies. Can be initialized before usage using
+  /// [setCookieVault], otherwise it will be created
+  /// using [createDefaultCookieVault].
+  static Vault<String>? vault;
 
   /// Add / Replace this [Vault] [value] for the specified [key].
   ///
   /// * [key]: the key
   /// * [value]: the value
   static Future<void> storageSet(String key, String value) async {
+    final vault = getVault();
     await vault.put(key, value);
   }
 
@@ -35,6 +30,7 @@ class Common {
   ///
   /// Returns a [String]
   static Future<String?> storageGet(String key) async {
+    final vault = getVault();
     return await vault.get(key);
   }
 
@@ -44,6 +40,7 @@ class Common {
   ///
   /// Returns `true` if the removal of the mapping for the specified [key] was successful.
   static Future<bool> storageRemove(String key) async {
+    final vault = getVault();
     await vault.remove(key);
     return !await vault.containsKey(key);
   }
@@ -88,5 +85,48 @@ class Common {
       var v = Uri.encodeComponent(data[key].toString());
       return '$k=$v';
     }).join('&');
+  }
+
+  /// Gets or creates the cookie vault.
+  static Vault<String> getVault() {
+    return vault ?? (vault = createCookieVault());
+  }
+
+  /// Creates a Hive store and vault with the optional [path], [vaultName] and
+  /// [encryptionCipher] parameters. By default will create a plain-text
+  /// Hive store and vault in the system temporary directory.
+  static Vault<String> createCookieVault({
+    final String? path,
+    final String? vaultName,
+    final HiveCipher? encryptionCipher,
+  }) {
+    final String defaultPath = Directory.systemTemp.path;
+    final String defaultVaultName = 'cookieVault';
+
+    final store = newHiveDefaultVaultStore(
+      path: path ?? defaultPath,
+      encryptionCipher: encryptionCipher,
+    );
+    return store.vault<String>(
+      name: vaultName ?? defaultVaultName,
+      eventListenerMode: EventListenerMode.synchronous,
+    );
+  }
+
+  /// Defines the cookie vault for this process with the optional [path],
+  /// [vaultName] and [encryptionCipher] parameters.
+  /// No-op if a cookie vault is already defined.
+  static void setCookieVault({
+    final String? path,
+    final String? vaultName,
+    final HiveCipher? encryptionCipher,
+  }) {
+    assert(vault == null, 'Cookie vault is already initialized');
+
+    vault ??= createCookieVault(
+      path: path,
+      vaultName: vaultName,
+      encryptionCipher: encryptionCipher,
+    );
   }
 }

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
+import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart' as io_client;
 import 'package:logging/logging.dart';
@@ -77,6 +78,22 @@ class Requests {
     'secure',
     'httponly'
   };
+
+  /// Initialize [Requests] with a custom [stash] [Vault] to store cookies.
+  ///
+  /// Must be defined before storing or accessing cookies, otherwise
+  /// a default one will be created on first use.
+  static void init({
+    final String? path,
+    final String? vaultName,
+    final HiveCipher? encryptionCipher,
+  }) {
+    Common.setCookieVault(
+      path: path,
+      vaultName: vaultName,
+      encryptionCipher: encryptionCipher,
+    );
+  }
 
   static Map<String, String> extractResponseCookies(responseHeaders) {
     var cookies = <String, String>{};
