@@ -104,15 +104,20 @@ class Requests {
         var separators = [',', ';', ' '];
         var lastSeparator = -1, endSeparator = 0;
         cookie.split('').asMap().forEach((i, char) {
-          if(separators.contains(char)) lastSeparator = i;
+          if (separators.contains(char)) {
+            lastSeparator = i;
+          }
 
           if(char == '=' && i > endSeparator) {
             endSeparator = cookie.indexOf(';', i) > 0 ? cookie.indexOf(';', i) : cookie.length;
             var value = cookie.substring(i+1, endSeparator);
             var key = cookie.substring(lastSeparator+1, i).trim();
 
-            if(_cookiesKeysToIgnore.contains(key.toLowerCase())) endSeparator = 0;
-            else cookies[key] = value;
+            if (_cookiesKeysToIgnore.contains(key.toLowerCase())) {
+              endSeparator = 0;
+            } else {
+              cookies[key] = value;
+            }
           }
         });
         break;
