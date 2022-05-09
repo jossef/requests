@@ -6,7 +6,7 @@
 a dart library to make HTTP requests (inspired by python [requests](https://github.com/psf/requests) module). It comes with JSON support and a lightweight implementation to store cookies like a browser.
 
 ### Cookies, huh?
-Server side cookies (via response header `SET-COOKIE`) are stored using the assistance of `quiver.cache`. Stored cookies will be send seamlessly on the next http requests you make to the same domain (simple implementation, similar to a web browser)
+Server side cookies (via response header `SET-COOKIE`) are stored using the assistance of [`quiver.cache`](https://pub.dev/documentation/quiver/latest/quiver.cache/quiver.cache-library.html). Stored cookies will be send seamlessly on the next http requests you make to the same domain (simple implementation, similar to a web browser).
 
 
 ## Install
@@ -31,8 +31,6 @@ var r = await Requests.get('https://google.com');
 r.raiseForStatus();
 String body = r.content();
 ```
-
-You can find an example of encrypted cookies [here](./example/encrypted_cookies.dart).
 
 ### the `Response` object
 just like in python's request module, the `Response` object has this functionality
