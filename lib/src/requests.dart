@@ -5,15 +5,12 @@ import 'dart:io';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/io_client.dart' as io_client;
-import 'package:logging/logging.dart';
 
 import 'common.dart';
 import 'event.dart';
 
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
 enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
-
-final Logger log = Logger('requests');
 
 class Response {
   final http.Response _rawResponse;
@@ -140,18 +137,11 @@ class Requests {
   }
 
   static Future<Map<String, String>> getStoredCookies(String hostname) async {
-    try {
-      var hostnameHash = Common.hashStringSHA256(hostname);
-      var cookiesJson = await Common.storageGet('cookies-$hostnameHash');
-      var cookies = Common.fromJson(cookiesJson);
-      if (cookies != null) {
-        return Map.from(cookies);
-      }
-    } catch (e) {
-      log.shout(
-          'problem reading stored cookies. fallback with empty cookies $e');
-    }
-    return <String, String>{};
+    var hostnameHash = Common.hashStringSHA256(hostname);
+    var cookiesJson = await Common.storageGet('cookies-$hostnameHash');
+    var cookies = Common.fromJson(cookiesJson);
+
+    return cookies != null ? Map.from(cookies) : <String, String>{};
   }
 
   static Future<void> setStoredCookies(
