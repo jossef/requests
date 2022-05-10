@@ -106,15 +106,21 @@ class CookieJar extends DelegatingMap<String, Cookie> {
 
     var result = CookieJar();
 
+    // Matches commas that separate cookies.
+    // Commas shall not be between " or ' as it would be some json string.
+    // We assume that there will be no commas inside keys or values.
     RegExp cookiesSplit = RegExp(
       r"""(?<!expires=\w{3}|"|')\s*,\s*(?!"|')""",
       caseSensitive: false,
     );
 
+    // Separates the name, value and attributes of one cookie.
+    // The attributes will still need to be parsed.
     RegExp cookieParse = RegExp(
       r"^(?<name>[^=]+)=(?<value>[^;]+);?(?<raw_attributes>.*)$",
     );
 
+    // Matches the key / value pair of an attribute of a cookie.
     RegExp attributesParse = RegExp(
       r"(?<key>[^;=\s]+)(?:=(?<value>[^=;\n]+))?",
     );
