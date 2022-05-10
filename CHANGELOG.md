@@ -1,5 +1,22 @@
 # Changelog
 
+## [4.2.1](https://github.com/jossef/requests/tree/4.2.1) (2022-05-10)
+
+[Full Changelog](https://github.com/jossef/requests/compare/4.2.0...4.2.1)
+
+**Fixed bugs:**
+
+- cannot retrieve multiple 'set-cookies' [\#64](https://github.com/jossef/requests/issues/64)
+
+**Closed issues:**
+
+- replace shared\_preferences with something suitable for sensitive data [\#1](https://github.com/jossef/requests/issues/1)
+
+**Merged pull requests:**
+
+- fix: QA workflow [\#67](https://github.com/jossef/requests/pull/67) ([sehnryr](https://github.com/sehnryr))
+- refactor: remove unsuitable logger [\#66](https://github.com/jossef/requests/pull/66) ([sehnryr](https://github.com/sehnryr))
+
 ## [4.2.0](https://github.com/jossef/requests/tree/4.2.0) (2022-05-04)
 
 [Full Changelog](https://github.com/jossef/requests/compare/4.1.0...4.2.0)
