@@ -7,6 +7,7 @@ import 'package:http/io_client.dart' as io_client;
 
 import 'common.dart';
 import 'event.dart';
+import 'cookie.dart';
 
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
 enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
@@ -65,75 +66,53 @@ class Requests {
   static const int DEFAULT_TIMEOUT_SECONDS = 10;
   static const RequestBodyEncoding DEFAULT_BODY_ENCODING =
       RequestBodyEncoding.FormURLEncoded;
-  static final Set _cookiesKeysToIgnore = {
-    'samesite',
-    'path',
-    'domain',
-    'max-age',
-    'expires',
-    'secure',
-    'httponly'
-  };
 
-  static Map<String, String> extractResponseCookies(responseHeaders) {
-    var cookies = <String, String>{};
-    for (var key in responseHeaders.keys) {
-      if (Common.equalsIgnoreCase(key, 'set-cookie')) {
-        var cookie = responseHeaders[key].trim();
+  /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
+  static CookieJar extractResponseCookies(Map<String, String> responseHeaders) {
+    var result = CookieJar();
+    var keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
-        var separators = [',', ';', ' '];
-        var lastSeparator = -1, endSeparator = 0;
-        cookie.split('').asMap().forEach((i, char) {
-          if (separators.contains(char)) {
-            lastSeparator = i;
-          }
-
-          if(char == '=' && i > endSeparator) {
-            endSeparator = cookie.indexOf(';', i) > 0 ? cookie.indexOf(';', i) : cookie.length;
-            var value = cookie.substring(i+1, endSeparator);
-            var key = cookie.substring(lastSeparator+1, i).trim();
-
-            if (_cookiesKeysToIgnore.contains(key.toLowerCase())) {
-              endSeparator = 0;
-            } else {
-              cookies[key] = value;
-            }
-          }
-        });
-        break;
-      }
+    if (keys.contains("set-cookie")) {
+      var cookies = responseHeaders["set-cookie"]!;
+      result = CookieJar.parseCookiesString(cookies);
     }
 
-    return cookies;
+    return result;
   }
 
   static Future<Map<String, String>> _constructRequestHeaders(
       String hostname, Map<String, String>? customHeaders) async {
-    var cookies = await getStoredCookies(hostname);
-    var cookie = cookies.keys.map((key) => '$key=${cookies[key]}').join('; ');
     var requestHeaders = <String, String>{};
+
+    var cookies = (await getStoredCookies(hostname)).values;
+    var cookie = cookies.map((e) => '${e.name}=${e.value}').join("; ");
+
     requestHeaders['cookie'] = cookie;
+
     if (customHeaders != null) {
       requestHeaders.addAll(customHeaders);
     }
+
     return requestHeaders;
   }
 
-  static Future<Map<String, String>> getStoredCookies(String hostname) async {
+  /// Get the [CookieJar] for the given [hostname], or an empty [CookieJar]
+  /// if the [hostname] is not in the cache.
+  static Future<CookieJar> getStoredCookies(String hostname) async {
     var hostnameHash = Common.hashStringSHA256(hostname);
-    var cookiesJson = await Common.storageGet('cookies-$hostnameHash');
-    var cookies = Common.fromJson(cookiesJson);
+    var cookies = await Common.storageGet('cookies-$hostnameHash');
 
-    return cookies != null ? Map.from(cookies) : <String, String>{};
+    return cookies ?? CookieJar();
   }
 
+  /// Associates the [hostname] with the given [cookies] into the cache.
   static Future<void> setStoredCookies(
-      String hostname, Map<String, String> cookies) async {
+      String hostname, CookieJar cookies) async {
     var hostnameHash = Common.hashStringSHA256(hostname);
-    var cookiesJson = Common.toJson(cookies);
-    await Common.storageSet('cookies-$hostnameHash', cookiesJson);
+    await Common.storageSet('cookies-$hostnameHash', cookies);
   }
 
+  /// Removes [hostname] and its associated value, if present, from the cache.
   static Future clearStoredCookies(String hostname) async {
     var hostnameHash = Common.hashStringSHA256(hostname);
     await Common.storageRemove('cookies-$hostnameHash');
