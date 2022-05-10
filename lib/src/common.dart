@@ -1,37 +1,35 @@
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:hex/hex.dart';
 import 'package:crypto/crypto.dart';
 import 'package:quiver/cache.dart';
 
+import 'cookie.dart';
+
+/// A collection of common methods.
 class Common {
   const Common();
 
   /// The cache containing the cookies semi-persistently.
-  static MapCache<String, String> cache = MapCache();
+  static MapCache<String, CookieJar> cache = MapCache();
 
-  /// Add / Replace this [Vault] [value] for the specified [key].
+  /// Add this key/value pair to the [cache].
   ///
-  /// * [key]: the key
-  /// * [value]: the value
-  static Future<void> storageSet(String key, String value) async {
+  /// If a key of other is already in this [cache], its value is overwritten.
+  static Future<void> storageSet(String key, CookieJar value) async {
     await cache.set(key, value);
   }
 
-  /// Returns the stash value for the specified [key]
-  ///
-  /// * [key]: the key
-  ///
-  /// Returns a [String]
-  static Future<String?> storageGet(String key) async {
+  /// The value for the given [key], or `null` if [key] is not in the [cache].
+  static Future<CookieJar?> storageGet(String key) async {
     return await cache.get(key);
   }
 
-  /// Removes the mapping for a [key] from this [Vault] if it is present.
+  /// Removes [key] and its associated value, if present, from the [cache].
   ///
-  /// * [key]: key whose mapping is to be removed from the [Vault]
-  ///
-  /// Returns `true` if the removal of the mapping for the specified [key] was successful.
+  /// Returns `true` if the key/value pair was successfully removed,
+  /// `false` otherwise.
   static Future<bool> storageRemove(String key) async {
     await cache.invalidate(key);
     return await cache.get(key) == null;
