@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.3.0](https://github.com/jossef/requests/tree/4.3.0) (2022-05-11)
+
+[Full Changelog](https://github.com/jossef/requests/compare/4.2.1...4.3.0)
+
+**Fixed bugs:**
+
+- cookies secure has sticked to next key [\#44](https://github.com/jossef/requests/issues/44)
+
+**Merged pull requests:**
+
+- feat: separate `Response` & support web [\#70](https://github.com/jossef/requests/pull/70) ([sehnryr](https://github.com/sehnryr))
+- feat: better support for cookies [\#69](https://github.com/jossef/requests/pull/69) ([sehnryr](https://github.com/sehnryr))
+- feat: replace `stash_hive` with `quiver.cache` [\#68](https://github.com/jossef/requests/pull/68) ([sehnryr](https://github.com/sehnryr))
+
 ## [4.2.1](https://github.com/jossef/requests/tree/4.2.1) (2022-05-10)
 
 [Full Changelog](https://github.com/jossef/requests/compare/4.2.0...4.2.1)
