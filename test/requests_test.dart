@@ -1,4 +1,7 @@
+import 'package:http/http.dart';
+
 import 'package:requests/requests.dart';
+import 'package:requests/src/response.dart';
 import 'package:requests/src/common.dart';
 import 'package:requests/src/cookie.dart';
 import 'package:test/test.dart';
@@ -46,7 +49,7 @@ void main() {
     });
 
     test('json http get list of objects', () async {
-      dynamic r = await Requests.get('$PLACEHOLDER_PROVIDER/api/users');
+      var r = await Requests.get('$PLACEHOLDER_PROVIDER/api/users');
       r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
