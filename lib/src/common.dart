@@ -11,6 +11,10 @@ import 'cookie.dart';
 class Common {
   const Common();
 
+  /// Checks if the script is running in the dart vm.
+  static bool isDartVM =
+      Uri.base.scheme == 'file' && Uri.base.path.endsWith('/');
+
   /// The cache containing the cookies semi-persistently.
   static MapCache<String, CookieJar> cache = MapCache();
 

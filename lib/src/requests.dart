@@ -1,70 +1,22 @@
-import 'dart:convert';
 import 'dart:core';
 import 'dart:io';
 
-import 'package:http/http.dart' as http;
+import 'package:http/http.dart';
 import 'package:http/io_client.dart' as io_client;
 
-import 'common.dart';
-import 'event.dart';
-import 'cookie.dart';
+import 'package:requests/src/common.dart';
+import 'package:requests/src/cookie.dart';
+import 'package:requests/src/event.dart';
+import 'package:requests/src/response.dart';
 
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
 enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
 
-class Response {
-  final http.Response _rawResponse;
-
-  Response(this._rawResponse);
-
-  int get statusCode => _rawResponse.statusCode;
-
-  bool get hasError => (400 <= statusCode) && (statusCode < 600);
-
-  bool get success => !hasError;
-
-  Uri? get url => _rawResponse.request?.url;
-
-  Map<String, String> get headers => _rawResponse.headers;
-
-  String? get contentType => _rawResponse.headers['content-type'];
-
-  void throwForStatus() {
-    if (!success) {
-      throw HTTPException(
-          'Invalid HTTP status code $statusCode for url $url', this);
-    }
-  }
-
-  void raiseForStatus() {
-    throwForStatus();
-  }
-
-  List<int> bytes() {
-    return _rawResponse.bodyBytes;
-  }
-
-  String content() {
-    return utf8.decode(bytes(), allowMalformed: true);
-  }
-
-  dynamic json() {
-    return Common.fromJson(content());
-  }
-}
-
-class HTTPException implements Exception {
-  final String message;
-  final Response response;
-
-  HTTPException(this.message, this.response);
-}
-
 class Requests {
   const Requests();
   static final Event onError = Event();
-  static const int DEFAULT_TIMEOUT_SECONDS = 10;
-  static const RequestBodyEncoding DEFAULT_BODY_ENCODING =
+  static const int defaultTimeoutSeconds = 10;
+  static const RequestBodyEncoding defaultBodyEncoding =
       RequestBodyEncoding.FormURLEncoded;
 
   /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
@@ -76,24 +28,7 @@ class Requests {
       var cookies = responseHeaders["set-cookie"]!;
       result = CookieJar.parseCookiesString(cookies);
     }
-
     return result;
-  }
-
-  static Future<Map<String, String>> _constructRequestHeaders(
-      String hostname, Map<String, String>? customHeaders) async {
-    var requestHeaders = <String, String>{};
-
-    var cookies = (await getStoredCookies(hostname)).values;
-    var cookie = cookies.map((e) => '${e.name}=${e.value}').join("; ");
-
-    requestHeaders['cookie'] = cookie;
-
-    if (customHeaders != null) {
-      requestHeaders.addAll(customHeaders);
-    }
-
-    return requestHeaders;
   }
 
   /// Get the [CookieJar] for the given [hostname], or an empty [CookieJar]
@@ -106,8 +41,7 @@ class Requests {
   }
 
   /// Associates the [hostname] with the given [cookies] into the cache.
-  static Future<void> setStoredCookies(
-      String hostname, CookieJar cookies) async {
+  static Future setStoredCookies(String hostname, CookieJar cookies) async {
     var hostnameHash = Common.hashStringSHA256(hostname);
     await Common.storageSet('cookies-$hostnameHash', cookies);
   }
@@ -123,32 +57,12 @@ class Requests {
     return '${uri.host}:${uri.port}';
   }
 
-  static Future<Response> _handleHttpResponse(
-      String hostname, http.Response rawResponse, bool persistCookies) async {
-    if (persistCookies) {
-      var responseCookies = extractResponseCookies(rawResponse.headers);
-      if (responseCookies.isNotEmpty) {
-        var storedCookies = await getStoredCookies(hostname);
-        storedCookies.addAll(responseCookies);
-        await setStoredCookies(hostname, storedCookies);
-      }
-    }
-    var response = Response(rawResponse);
-
-    if (response.hasError) {
-      var errorEvent = {'response': response};
-      onError.publish(errorEvent);
-    }
-
-    return response;
-  }
-
   static Future<Response> head(String url,
       {Map<String, String>? headers,
       Map<String, dynamic>? queryParameters,
       int? port,
-      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
-      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+      int timeoutSeconds = defaultTimeoutSeconds,
       bool persistCookies = true,
       bool verify = true}) {
     return _httpRequest(HttpMethod.HEAD, url,
@@ -167,8 +81,8 @@ class Requests {
       int? port,
       dynamic json,
       dynamic body,
-      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
-      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+      int timeoutSeconds = defaultTimeoutSeconds,
       bool persistCookies = true,
       bool verify = true}) {
     return _httpRequest(HttpMethod.GET, url,
@@ -189,8 +103,8 @@ class Requests {
       dynamic json,
       dynamic body,
       Map<String, dynamic>? queryParameters,
-      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
-      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+      int timeoutSeconds = defaultTimeoutSeconds,
       bool persistCookies = true,
       bool verify = true}) {
     return _httpRequest(HttpMethod.PATCH, url,
@@ -211,8 +125,8 @@ class Requests {
       dynamic body,
       Map<String, dynamic>? queryParameters,
       int? port,
-      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
-      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+      int timeoutSeconds = defaultTimeoutSeconds,
       bool persistCookies = true,
       bool verify = true}) {
     return _httpRequest(HttpMethod.DELETE, url,
@@ -232,9 +146,9 @@ class Requests {
       int? port,
       dynamic body,
       Map<String, dynamic>? queryParameters,
-      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
       Map<String, String>? headers,
-      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      int timeoutSeconds = defaultTimeoutSeconds,
       bool persistCookies = true,
       bool verify = true}) {
     return _httpRequest(HttpMethod.POST, url,
@@ -255,9 +169,9 @@ class Requests {
     dynamic json,
     dynamic body,
     Map<String, dynamic>? queryParameters,
-    RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+    RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
     Map<String, String>? headers,
-    int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+    int timeoutSeconds = defaultTimeoutSeconds,
     bool persistCookies = true,
     bool verify = true,
   }) {
@@ -276,25 +190,63 @@ class Requests {
     );
   }
 
+  static Future<Map<String, String>> _constructRequestHeaders(
+      String hostname, Map<String, String>? customHeaders) async {
+    var requestHeaders = <String, String>{};
+
+    var cookies = (await getStoredCookies(hostname)).values;
+    var cookie = cookies.map((e) => '${e.name}=${e.value}').join("; ");
+
+    requestHeaders['cookie'] = cookie;
+
+    if (customHeaders != null) {
+      requestHeaders.addAll(customHeaders);
+    }
+
+    return requestHeaders;
+  }
+
+  static Future<Response> _handleHttpResponse(
+      String hostname, Response response, bool persistCookies) async {
+    if (persistCookies) {
+      var responseCookies = extractResponseCookies(response.headers);
+      if (responseCookies.isNotEmpty) {
+        var storedCookies = await getStoredCookies(hostname);
+        storedCookies.addAll(responseCookies);
+        await setStoredCookies(hostname, storedCookies);
+      }
+    }
+
+    if (response.hasError) {
+      var errorEvent = {'response': response};
+      onError.publish(errorEvent);
+    }
+
+    return response;
+  }
+
   static Future<Response> _httpRequest(HttpMethod method, String url,
       {dynamic json,
       dynamic body,
-      RequestBodyEncoding bodyEncoding = DEFAULT_BODY_ENCODING,
+      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
       Map<String, dynamic>? queryParameters,
       int? port,
       Map<String, String>? headers,
-      int timeoutSeconds = DEFAULT_TIMEOUT_SECONDS,
+      int timeoutSeconds = defaultTimeoutSeconds,
       bool persistCookies = true,
       bool verify = true}) async {
-    http.Client client;
-    if (!verify) {
+    Client client;
+
+    // dart:io is not supported on web. This will throw an SSL error if there is
+    // one and if the script is running on web.
+    if (!verify && Common.isDartVM) {
       // Ignore SSL errors
       var ioClient = HttpClient();
       ioClient.badCertificateCallback = (_, __, ___) => true;
       client = io_client.IOClient(ioClient);
     } else {
       // The default client validates SSL certificates and fail if invalid
-      client = http.Client();
+      client = Client();
     }
 
     var uri = Uri.parse(url);
@@ -365,7 +317,7 @@ class Requests {
         future = client.put(uri, body: requestBody, headers: headers);
         break;
       case HttpMethod.DELETE:
-        final request = http.Request('DELETE', uri);
+        final request = Request('DELETE', uri);
         request.headers.addAll(headers);
 
         if (requestBody != null) {
@@ -387,8 +339,8 @@ class Requests {
 
     var response = await future.timeout(Duration(seconds: timeoutSeconds));
 
-    if (response is http.StreamedResponse) {
-      response = await http.Response.fromStream(response);
+    if (response is StreamedResponse) {
+      response = await Response.fromStream(response);
     }
 
     return await _handleHttpResponse(hostname, response, persistCookies);
