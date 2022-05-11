@@ -1,8 +1,8 @@
 import 'dart:core';
-import 'dart:io';
+import 'dart:io' if (dart.library.html) '';
 
 import 'package:http/http.dart';
-import 'package:http/io_client.dart' as io_client;
+import 'package:http/io_client.dart' if (dart.library.html) '';
 
 import 'package:requests/src/common.dart';
 import 'package:requests/src/cookie.dart';
@@ -243,7 +243,7 @@ class Requests {
       // Ignore SSL errors
       var ioClient = HttpClient();
       ioClient.badCertificateCallback = (_, __, ___) => true;
-      client = io_client.IOClient(ioClient);
+      client = IOClient(ioClient);
     } else {
       // The default client validates SSL certificates and fail if invalid
       client = Client();
