@@ -144,7 +144,7 @@ void main() {
     test('remove cookies', () async {
       String url = '$PLACEHOLDER_PROVIDER/api/users/1';
       String hostname = Requests.getHostname(url);
-      expect('reqres.in:443', hostname);
+      expect('reqres.in', hostname);
       await Requests.clearStoredCookies(hostname);
       var cookies = CookieJar.parseCookiesString("session=bla");
       await Requests.setStoredCookies(hostname, cookies);
