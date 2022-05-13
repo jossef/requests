@@ -54,7 +54,7 @@ class Requests {
 
   static String getHostname(String url) {
     var uri = Uri.parse(url);
-    return '${uri.host}:${uri.port}';
+    return uri.host;
   }
 
   static Future<Response> head(String url,
