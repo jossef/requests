@@ -113,7 +113,8 @@ Play with stored cookies
 String url = 'https://reqres.in/api/users/10';
 String hostname = Requests.getHostname(url);
 await Requests.clearStoredCookies(hostname);
-await Requests.setStoredCookies(hostname, {'session': 'bla'});
+var cookies = CookieJar.parseCookiesString("session=bla");
+await Requests.setStoredCookies(hostname, cookies);
 var cookies = await Requests.getStoredCookies(hostname);
 expect(cookies.keys.length, 1);
 await Requests.clearStoredCookies(hostname);
