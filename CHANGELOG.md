@@ -1,5 +1,23 @@
 # Changelog
 
+## [4.4.0](https://github.com/jossef/requests/tree/4.4.0) (2022-06-16)
+
+[Full Changelog](https://github.com/jossef/requests/compare/4.3.0...4.4.0)
+
+**Implemented enhancements:**
+
+- create function to manually add cookies [\#76](https://github.com/jossef/requests/issues/76)
+- add flutter web support  [\#31](https://github.com/jossef/requests/issues/31)
+
+**Closed issues:**
+
+- cookies not found within the same hostname [\#75](https://github.com/jossef/requests/issues/75)
+- setstoredcookies using cookiejar [\#74](https://github.com/jossef/requests/issues/74)
+
+**Merged pull requests:**
+
+- feat: add `addCookie` method [\#77](https://github.com/jossef/requests/pull/77) ([sehnryr](https://github.com/sehnryr))
+
 ## [4.3.0](https://github.com/jossef/requests/tree/4.3.0) (2022-05-11)
 
 [Full Changelog](https://github.com/jossef/requests/compare/4.2.1...4.3.0)
