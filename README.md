@@ -64,8 +64,8 @@ just like in python's request module, the `Response` object has this functionali
 
 - `.getHostname(url)` - returns the hostname of the given url
 - `.clearStoredCookies(hostname)` - clears the stored cookies for the hostname
-- `.setStoredCookies(hostname, Map<String, String>)` - set the stored cookies for the hostname
-- `.getStoredCookies(hostname)` - returns a Map<String, String> of the stored cookies for the hostname
+- `.setStoredCookies(hostname, CookieJar)` - set the stored cookies for the hostname
+- `.getStoredCookies(hostname)` - returns a CookieJar of the stored cookies for the hostname
 
  
 ## Examples
