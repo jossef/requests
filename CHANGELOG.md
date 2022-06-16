@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.4.1](https://github.com/jossef/requests/tree/4.4.1) (2022-06-16)
+
+[Full Changelog](https://github.com/jossef/requests/compare/4.4.0...4.4.1)
+
+**Fixed bugs:**
+
+- Flutter Web not working \(HttpClient not found\) [\#71](https://github.com/jossef/requests/issues/71)
+
+**Merged pull requests:**
+
+- revert buggy web support [\#73](https://github.com/jossef/requests/pull/73) ([MarcoDiGioia](https://github.com/MarcoDiGioia))
+
 ## [4.4.0](https://github.com/jossef/requests/tree/4.4.0) (2022-06-16)
 
 [Full Changelog](https://github.com/jossef/requests/compare/4.3.0...4.4.0)
