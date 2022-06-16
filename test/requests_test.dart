@@ -155,6 +155,22 @@ void main() {
       expect(cookies.keys.length, 0);
     });
 
+    test('add cookies', () async {
+      String hostname = 'example';
+      await Requests.addCookie(hostname, 'name', 'value');
+      var cookies = await Requests.getStoredCookies(hostname);
+      expect(cookies.keys.length, 1);
+      await Requests.addCookie(hostname, 'name', 'value');
+      cookies = await Requests.getStoredCookies(hostname);
+      expect(cookies.keys.length, 1);
+      await Requests.addCookie(hostname, 'another name', 'value');
+      cookies = await Requests.getStoredCookies(hostname);
+      expect(cookies.keys.length, 2);
+      await Requests.clearStoredCookies(hostname);
+      cookies = await Requests.getStoredCookies(hostname);
+      expect(cookies.keys.length, 0);
+    });
+
     test('response as Response object', () async {
       var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
           body: {'name': 'morpheus'});

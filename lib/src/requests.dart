@@ -52,6 +52,14 @@ class Requests {
     await Common.storageRemove('cookies-$hostnameHash');
   }
 
+  /// Add a cookie with its [name] and [value] to the [hostname] associated
+  /// [CookieJar].
+  static Future addCookie(String hostname, String name, String value) async {
+    var cookieJar = await getStoredCookies(hostname);
+    cookieJar[name] = Cookie(name, value);
+    await setStoredCookies(hostname, cookieJar);
+  }
+
   static String getHostname(String url) {
     var uri = Uri.parse(url);
     return uri.host;
