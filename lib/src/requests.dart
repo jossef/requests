@@ -10,6 +10,7 @@ import 'package:requests/src/event.dart';
 import 'package:requests/src/response.dart';
 
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
+
 enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
 
 class Requests {
@@ -31,33 +32,37 @@ class Requests {
     return result;
   }
 
-  /// Get the [CookieJar] for the given [hostname], or an empty [CookieJar]
-  /// if the [hostname] is not in the cache.
-  static Future<CookieJar> getStoredCookies(String hostname) async {
+  /// Get the [CookieJar] for the given [url] hostname, or an empty
+  /// [CookieJar] if the hostname is not in the cache.
+  static Future<CookieJar> getStoredCookies(String url) async {
+    var hostname = getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
     var cookies = await Common.storageGet('cookies-$hostnameHash');
 
     return cookies ?? CookieJar();
   }
 
-  /// Associates the [hostname] with the given [cookies] into the cache.
-  static Future setStoredCookies(String hostname, CookieJar cookies) async {
+  /// Associates the [url] hostname with the given [cookies] into the cache.
+  static Future setStoredCookies(String url, CookieJar cookies) async {
+    var hostname = getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
     await Common.storageSet('cookies-$hostnameHash', cookies);
   }
 
-  /// Removes [hostname] and its associated value, if present, from the cache.
-  static Future clearStoredCookies(String hostname) async {
+  /// Removes the [url] hostname and its associated value, if present,
+  /// from the cache.
+  static Future clearStoredCookies(String url) async {
+    var hostname = getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
     await Common.storageRemove('cookies-$hostnameHash');
   }
 
-  /// Add a cookie with its [name] and [value] to the [hostname] associated
-  /// [CookieJar].
-  static Future addCookie(String hostname, String name, String value) async {
-    var cookieJar = await getStoredCookies(hostname);
+  /// Add a cookie with its [name] and [value] to the [url] hostname
+  /// associated [CookieJar].
+  static Future addCookie(String url, String name, String value) async {
+    var cookieJar = await getStoredCookies(url);
     cookieJar[name] = Cookie(name, value);
-    await setStoredCookies(hostname, cookieJar);
+    await setStoredCookies(url, cookieJar);
   }
 
   static String getHostname(String url) {
@@ -199,10 +204,10 @@ class Requests {
   }
 
   static Future<Map<String, String>> _constructRequestHeaders(
-      String hostname, Map<String, String>? customHeaders) async {
+      String url, Map<String, String>? customHeaders) async {
     var requestHeaders = <String, String>{};
 
-    var cookies = (await getStoredCookies(hostname)).values;
+    var cookies = (await getStoredCookies(url)).values;
     var cookie = cookies.map((e) => '${e.name}=${e.value}').join("; ");
 
     requestHeaders['cookie'] = cookie;
@@ -215,13 +220,13 @@ class Requests {
   }
 
   static Future<Response> _handleHttpResponse(
-      String hostname, Response response, bool persistCookies) async {
+      String url, Response response, bool persistCookies) async {
     if (persistCookies) {
       var responseCookies = extractResponseCookies(response.headers);
       if (responseCookies.isNotEmpty) {
-        var storedCookies = await getStoredCookies(hostname);
+        var storedCookies = await getStoredCookies(url);
         storedCookies.addAll(responseCookies);
-        await setStoredCookies(hostname, storedCookies);
+        await setStoredCookies(url, storedCookies);
       }
     }
 
@@ -264,8 +269,7 @@ class Requests {
           "invalid url, must start with 'http://' or 'https://' scheme (e.g. 'http://example.com')");
     }
 
-    var hostname = getHostname(url);
-    headers = await _constructRequestHeaders(hostname, headers);
+    headers = await _constructRequestHeaders(url, headers);
     String? requestBody;
 
     if (body != null && json != null) {
@@ -351,6 +355,6 @@ class Requests {
       response = await Response.fromStream(response);
     }
 
-    return await _handleHttpResponse(hostname, response, persistCookies);
+    return await _handleHttpResponse(url, response, persistCookies);
   }
 }

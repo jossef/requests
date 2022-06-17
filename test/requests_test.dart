@@ -145,29 +145,29 @@ void main() {
       String url = '$PLACEHOLDER_PROVIDER/api/users/1';
       String hostname = Requests.getHostname(url);
       expect('reqres.in', hostname);
-      await Requests.clearStoredCookies(hostname);
+      await Requests.clearStoredCookies(url);
       var cookies = CookieJar.parseCookiesString("session=bla");
-      await Requests.setStoredCookies(hostname, cookies);
-      cookies = await Requests.getStoredCookies(hostname);
+      await Requests.setStoredCookies(url, cookies);
+      cookies = await Requests.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.clearStoredCookies(hostname);
-      cookies = await Requests.getStoredCookies(hostname);
+      await Requests.clearStoredCookies(url);
+      cookies = await Requests.getStoredCookies(url);
       expect(cookies.keys.length, 0);
     });
 
     test('add cookies', () async {
-      String hostname = 'example';
-      await Requests.addCookie(hostname, 'name', 'value');
-      var cookies = await Requests.getStoredCookies(hostname);
+      String url = 'http://example.com';
+      await Requests.addCookie(url, 'name', 'value');
+      var cookies = await Requests.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.addCookie(hostname, 'name', 'value');
-      cookies = await Requests.getStoredCookies(hostname);
+      await Requests.addCookie(url, 'name', 'value');
+      cookies = await Requests.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.addCookie(hostname, 'another name', 'value');
-      cookies = await Requests.getStoredCookies(hostname);
+      await Requests.addCookie(url, 'another name', 'value');
+      cookies = await Requests.getStoredCookies(url);
       expect(cookies.keys.length, 2);
-      await Requests.clearStoredCookies(hostname);
-      cookies = await Requests.getStoredCookies(hostname);
+      await Requests.clearStoredCookies(url);
+      cookies = await Requests.getStoredCookies(url);
       expect(cookies.keys.length, 0);
     });
 
