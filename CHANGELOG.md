@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.5.0](https://github.com/jossef/requests/tree/4.5.0) (2022-09-02)
+
+[Full Changelog](https://github.com/jossef/requests/compare/4.4.1...4.5.0)
+
+**Closed issues:**
+
+- CookieJar is not exposed [\#79](https://github.com/jossef/requests/issues/79)
+
 ## [4.4.1](https://github.com/jossef/requests/tree/4.4.1) (2022-06-16)
 
 [Full Changelog](https://github.com/jossef/requests/compare/4.4.0...4.4.1)
