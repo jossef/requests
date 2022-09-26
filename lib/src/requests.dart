@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
-import 'package:http/browser_client.dart';
+import 'package:http/browser_client.dart' if (dart.library.io) '';
 
 import 'package:requests/src/common.dart';
 import 'package:requests/src/cookie.dart';
