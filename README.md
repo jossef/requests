@@ -56,6 +56,7 @@ just like in python's request module, the `Response` object has this functionali
 - `timeoutSeconds` - default `10` seconds. after that period of time without server response an exception is thrown
 - `persistCookies` - default `true`. if should respect server's command to persist cookie
 - `verify` - default `true`. if the SSL verification enabled
+- `withCredentials` - default `false`. for dart web to handle cookies, authorization headers, or TLS client certificates
 
 > 💡 Only one optional argument can be used in a single request `body` or `json`
  
