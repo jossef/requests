@@ -1,14 +1,13 @@
 import 'dart:core';
-import 'dart:io';
 
 import 'package:http/http.dart';
-import 'package:http/io_client.dart';
-import 'package:http/browser_client.dart';
 
 import 'package:requests/src/common.dart';
 import 'package:requests/src/cookie.dart';
 import 'package:requests/src/event.dart';
 import 'package:requests/src/response.dart';
+import 'package:requests/src/client/io_client.dart'
+    if (dart.library.html) 'package:requests/src/client/browser_client.dart';
 
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
 
@@ -288,20 +287,14 @@ class Requests {
   }) async {
     Client client;
 
-    // dart:io is not supported on web. This will throw an SSL error if there is
-    // one and if the script is running on web.
-    if (!verify && Common.isDartVM) {
-      // Ignore SSL errors
-      var ioClient = HttpClient();
-      ioClient.badCertificateCallback = (_, __, ___) => true;
-      client = IOClient(ioClient);
+    if (!verify || withCredentials) {
+      client = createClient(
+        verify: verify,
+        withCredentials: withCredentials,
+      );
     } else {
       // The default client validates SSL certificates and fail if invalid
       client = Client();
-
-      if (client is BrowserClient) {
-        client.withCredentials = withCredentials;
-      }
     }
 
     var uri = Uri.parse(url);
