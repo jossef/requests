@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.7.0](https://github.com/jossef/requests/tree/4.7.0) (2022-09-26)
+
+[Full Changelog](https://github.com/jossef/requests/compare/4.6.0...4.7.0)
+
+**Closed issues:**
+
+- \[URGENT\] 4.6.0 breaks building mobile-only apps [\#81](https://github.com/jossef/requests/issues/81)
+
+**Merged pull requests:**
+
+- fix: previous breaking release [\#82](https://github.com/jossef/requests/pull/82) ([sehnryr](https://github.com/sehnryr))
+
 ## [4.6.0](https://github.com/jossef/requests/tree/4.6.0) (2022-09-26)
 
 [Full Changelog](https://github.com/jossef/requests/compare/4.5.0...4.6.0)
