@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart';
 import 'package:http/io_client.dart';
+import 'package:http/browser_client.dart';
 
 import 'package:requests/src/common.dart';
 import 'package:requests/src/cookie.dart';
@@ -10,6 +11,7 @@ import 'package:requests/src/event.dart';
 import 'package:requests/src/response.dart';
 
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
+
 enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
 
 class Requests {
@@ -65,110 +67,145 @@ class Requests {
     return uri.host;
   }
 
-  static Future<Response> head(String url,
-      {Map<String, String>? headers,
-      Map<String, dynamic>? queryParameters,
-      int? port,
-      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
-      int timeoutSeconds = defaultTimeoutSeconds,
-      bool persistCookies = true,
-      bool verify = true}) {
-    return _httpRequest(HttpMethod.HEAD, url,
-        bodyEncoding: bodyEncoding,
-        queryParameters: queryParameters,
-        port: port,
-        headers: headers ?? const <String, String>{},
-        timeoutSeconds: timeoutSeconds,
-        persistCookies: persistCookies,
-        verify: verify);
+  static Future<Response> head(
+    String url, {
+    Map<String, String>? headers,
+    Map<String, dynamic>? queryParameters,
+    int? port,
+    RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+    int timeoutSeconds = defaultTimeoutSeconds,
+    bool persistCookies = true,
+    bool verify = true,
+    bool withCredentials = false,
+  }) {
+    return _httpRequest(
+      HttpMethod.HEAD,
+      url,
+      bodyEncoding: bodyEncoding,
+      queryParameters: queryParameters,
+      port: port,
+      headers: headers ?? const <String, String>{},
+      timeoutSeconds: timeoutSeconds,
+      persistCookies: persistCookies,
+      verify: verify,
+      withCredentials: withCredentials,
+    );
   }
 
-  static Future<Response> get(String url,
-      {Map<String, String>? headers,
-      Map<String, dynamic>? queryParameters,
-      int? port,
-      dynamic json,
-      dynamic body,
-      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
-      int timeoutSeconds = defaultTimeoutSeconds,
-      bool persistCookies = true,
-      bool verify = true}) {
-    return _httpRequest(HttpMethod.GET, url,
-        bodyEncoding: bodyEncoding,
-        queryParameters: queryParameters,
-        port: port,
-        json: json,
-        body: body,
-        headers: headers ?? const <String, String>{},
-        timeoutSeconds: timeoutSeconds,
-        persistCookies: persistCookies,
-        verify: verify);
+  static Future<Response> get(
+    String url, {
+    Map<String, String>? headers,
+    Map<String, dynamic>? queryParameters,
+    int? port,
+    dynamic json,
+    dynamic body,
+    RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+    int timeoutSeconds = defaultTimeoutSeconds,
+    bool persistCookies = true,
+    bool verify = true,
+    bool withCredentials = false,
+  }) {
+    return _httpRequest(
+      HttpMethod.GET,
+      url,
+      bodyEncoding: bodyEncoding,
+      queryParameters: queryParameters,
+      port: port,
+      json: json,
+      body: body,
+      headers: headers ?? const <String, String>{},
+      timeoutSeconds: timeoutSeconds,
+      persistCookies: persistCookies,
+      verify: verify,
+      withCredentials: withCredentials,
+    );
   }
 
-  static Future<Response> patch(String url,
-      {Map<String, String>? headers,
-      int? port,
-      dynamic json,
-      dynamic body,
-      Map<String, dynamic>? queryParameters,
-      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
-      int timeoutSeconds = defaultTimeoutSeconds,
-      bool persistCookies = true,
-      bool verify = true}) {
-    return _httpRequest(HttpMethod.PATCH, url,
-        bodyEncoding: bodyEncoding,
-        port: port,
-        json: json,
-        body: body,
-        queryParameters: queryParameters,
-        headers: headers ?? <String, String>{},
-        timeoutSeconds: timeoutSeconds,
-        persistCookies: persistCookies,
-        verify: verify);
+  static Future<Response> patch(
+    String url, {
+    Map<String, String>? headers,
+    int? port,
+    dynamic json,
+    dynamic body,
+    Map<String, dynamic>? queryParameters,
+    RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+    int timeoutSeconds = defaultTimeoutSeconds,
+    bool persistCookies = true,
+    bool verify = true,
+    bool withCredentials = false,
+  }) {
+    return _httpRequest(
+      HttpMethod.PATCH,
+      url,
+      bodyEncoding: bodyEncoding,
+      port: port,
+      json: json,
+      body: body,
+      queryParameters: queryParameters,
+      headers: headers ?? <String, String>{},
+      timeoutSeconds: timeoutSeconds,
+      persistCookies: persistCookies,
+      verify: verify,
+      withCredentials: withCredentials,
+    );
   }
 
-  static Future<Response> delete(String url,
-      {Map<String, String>? headers,
-      dynamic json,
-      dynamic body,
-      Map<String, dynamic>? queryParameters,
-      int? port,
-      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
-      int timeoutSeconds = defaultTimeoutSeconds,
-      bool persistCookies = true,
-      bool verify = true}) {
-    return _httpRequest(HttpMethod.DELETE, url,
-        bodyEncoding: bodyEncoding,
-        port: port,
-        json: json,
-        body: body,
-        queryParameters: queryParameters,
-        headers: headers ?? const <String, String>{},
-        timeoutSeconds: timeoutSeconds,
-        persistCookies: persistCookies,
-        verify: verify);
+  static Future<Response> delete(
+    String url, {
+    Map<String, String>? headers,
+    dynamic json,
+    dynamic body,
+    Map<String, dynamic>? queryParameters,
+    int? port,
+    RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+    int timeoutSeconds = defaultTimeoutSeconds,
+    bool persistCookies = true,
+    bool verify = true,
+    bool withCredentials = false,
+  }) {
+    return _httpRequest(
+      HttpMethod.DELETE,
+      url,
+      bodyEncoding: bodyEncoding,
+      port: port,
+      json: json,
+      body: body,
+      queryParameters: queryParameters,
+      headers: headers ?? const <String, String>{},
+      timeoutSeconds: timeoutSeconds,
+      persistCookies: persistCookies,
+      verify: verify,
+      withCredentials: withCredentials,
+    );
   }
 
-  static Future<Response> post(String url,
-      {dynamic json,
-      int? port,
-      dynamic body,
-      Map<String, dynamic>? queryParameters,
-      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
-      Map<String, String>? headers,
-      int timeoutSeconds = defaultTimeoutSeconds,
-      bool persistCookies = true,
-      bool verify = true}) {
-    return _httpRequest(HttpMethod.POST, url,
-        bodyEncoding: bodyEncoding,
-        json: json,
-        port: port,
-        body: body,
-        queryParameters: queryParameters,
-        headers: headers ?? <String, String>{},
-        timeoutSeconds: timeoutSeconds,
-        persistCookies: persistCookies,
-        verify: verify);
+  static Future<Response> post(
+    String url, {
+    dynamic json,
+    int? port,
+    dynamic body,
+    Map<String, dynamic>? queryParameters,
+    RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+    Map<String, String>? headers,
+    int timeoutSeconds = defaultTimeoutSeconds,
+    bool persistCookies = true,
+    bool verify = true,
+    bool withCredentials = false,
+  }) {
+    return _httpRequest(
+      HttpMethod.POST,
+      url,
+      bodyEncoding: bodyEncoding,
+      json: json,
+      port: port,
+      body: body,
+      queryParameters: queryParameters,
+      headers: headers ?? <String, String>{},
+      timeoutSeconds: timeoutSeconds,
+      persistCookies: persistCookies,
+      verify: verify,
+      withCredentials: withCredentials,
+    );
   }
 
   static Future<Response> put(
@@ -182,6 +219,7 @@ class Requests {
     int timeoutSeconds = defaultTimeoutSeconds,
     bool persistCookies = true,
     bool verify = true,
+    bool withCredentials = false,
   }) {
     return _httpRequest(
       HttpMethod.PUT,
@@ -195,6 +233,7 @@ class Requests {
       timeoutSeconds: timeoutSeconds,
       persistCookies: persistCookies,
       verify: verify,
+      withCredentials: withCredentials,
     );
   }
 
@@ -233,16 +272,20 @@ class Requests {
     return response;
   }
 
-  static Future<Response> _httpRequest(HttpMethod method, String url,
-      {dynamic json,
-      dynamic body,
-      RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
-      Map<String, dynamic>? queryParameters,
-      int? port,
-      Map<String, String>? headers,
-      int timeoutSeconds = defaultTimeoutSeconds,
-      bool persistCookies = true,
-      bool verify = true}) async {
+  static Future<Response> _httpRequest(
+    HttpMethod method,
+    String url, {
+    dynamic json,
+    dynamic body,
+    RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
+    Map<String, dynamic>? queryParameters,
+    int? port,
+    Map<String, String>? headers,
+    int timeoutSeconds = defaultTimeoutSeconds,
+    bool persistCookies = true,
+    bool verify = true,
+    bool withCredentials = false,
+  }) async {
     Client client;
 
     // dart:io is not supported on web. This will throw an SSL error if there is
@@ -255,6 +298,10 @@ class Requests {
     } else {
       // The default client validates SSL certificates and fail if invalid
       client = Client();
+
+      if (client is BrowserClient) {
+        client.withCredentials = withCredentials;
+      }
     }
 
     var uri = Uri.parse(url);
