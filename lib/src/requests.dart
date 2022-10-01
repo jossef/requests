@@ -355,42 +355,36 @@ class Requests {
       }
     }
 
-    late Future future;
+    final request = Request(method.name, uri);
+    request.followRedirects = false;
+    request.headers.addAll(headers);
 
-    switch (method) {
-      case HttpMethod.GET:
-        future = client.get(uri, headers: headers);
-        break;
-      case HttpMethod.PUT:
-        future = client.put(uri, body: requestBody, headers: headers);
-        break;
-      case HttpMethod.DELETE:
-        final request = Request('DELETE', uri);
-        request.headers.addAll(headers);
-
-        if (requestBody != null) {
-          request.body = requestBody;
-        }
-
-        future = client.send(request);
-        break;
-      case HttpMethod.POST:
-        future = client.post(uri, body: requestBody, headers: headers);
-        break;
-      case HttpMethod.HEAD:
-        future = client.head(uri, headers: headers);
-        break;
-      case HttpMethod.PATCH:
-        future = client.patch(uri, body: requestBody, headers: headers);
-        break;
+    if (requestBody != null) {
+      request.body = requestBody;
     }
+
+    Future future = client.send(request);
 
     var response = await future.timeout(Duration(seconds: timeoutSeconds));
+    response = await Response.fromStream(response);
+    response = await _handleHttpResponse(hostname, response, persistCookies);
 
-    if (response is StreamedResponse) {
-      response = await Response.fromStream(response);
+    switch (response.statusCode) {
+      case 301 | 302 | 303 | 307 | 308: {
+        final location = response.headers['location'];
+
+        if (location != null) {
+          return _httpRequest(HttpMethod.GET, response.headers['location'],
+              timeoutSeconds: timeoutSeconds,
+              persistCookies: persistCookies,
+              verify: verify,
+              withCredentials: withCredentials);
+        }
+      }
+
+      break;
     }
 
-    return await _handleHttpResponse(hostname, response, persistCookies);
+    return response;
   }
 }
