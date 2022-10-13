@@ -4,8 +4,10 @@ import 'package:http/http.dart';
 
 import 'package:requests/src/common.dart';
 import 'package:requests/src/cookie.dart';
+import 'package:requests/src/cookie_jar.dart';
 import 'package:requests/src/event.dart';
 import 'package:requests/src/response.dart';
+import 'package:requests/src/storage.dart';
 import 'package:requests/src/client/io_client.dart'
     if (dart.library.html) 'package:requests/src/client/browser_client.dart';
 
@@ -37,7 +39,7 @@ class Requests {
   static Future<CookieJar> getStoredCookies(String url) async {
     var hostname = Common.getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
-    var cookies = await Common.storageGet('cookies-$hostnameHash');
+    var cookies = await Storage.get('cookies-$hostnameHash');
 
     return cookies ?? CookieJar();
   }
@@ -46,7 +48,7 @@ class Requests {
   static Future setStoredCookies(String url, CookieJar cookies) async {
     var hostname = Common.getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
-    await Common.storageSet('cookies-$hostnameHash', cookies);
+    await Storage.set('cookies-$hostnameHash', cookies);
   }
 
   /// Removes the [url] hostname and its associated value, if present,
@@ -54,7 +56,7 @@ class Requests {
   static Future clearStoredCookies(String url) async {
     var hostname = Common.getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
-    await Common.storageRemove('cookies-$hostnameHash');
+    await Storage.delete('cookies-$hostnameHash');
   }
 
   /// Add a cookie with its [name] and [value] to the [url] hostname

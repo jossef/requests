@@ -1,11 +1,7 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:hex/hex.dart';
 import 'package:crypto/crypto.dart';
-import 'package:quiver/cache.dart';
-
-import 'cookie.dart';
 
 /// A collection of common methods.
 class Common {
@@ -14,30 +10,6 @@ class Common {
   /// Checks if the script is running in the dart vm.
   static bool isDartVM =
       Uri.base.scheme == 'file' && Uri.base.path.endsWith('/');
-
-  /// The cache containing the cookies semi-persistently.
-  static MapCache<String, CookieJar> cache = MapCache();
-
-  /// Add this key/value pair to the [cache].
-  ///
-  /// If a key of other is already in this [cache], its value is overwritten.
-  static Future<void> storageSet(String key, CookieJar value) async {
-    await cache.set(key, value);
-  }
-
-  /// The value for the given [key], or `null` if [key] is not in the [cache].
-  static Future<CookieJar?> storageGet(String key) async {
-    return await cache.get(key);
-  }
-
-  /// Removes [key] and its associated value, if present, from the [cache].
-  ///
-  /// Returns `true` if the key/value pair was successfully removed,
-  /// `false` otherwise.
-  static Future<bool> storageRemove(String key) async {
-    await cache.invalidate(key);
-    return await cache.get(key) == null;
-  }
 
   static bool equalsIgnoreCase(String? string1, String? string2) {
     return string1?.toLowerCase() == string2?.toLowerCase();
