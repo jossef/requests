@@ -1,87 +1,31 @@
-import 'package:requests/src/exception.dart';
+import 'package:universal_io/io.dart';
 
-/// Object representation of a cookie.
-class Cookie {
-  final String _name;
-  final String _value;
-  static final Map<String, Type> validAttributes = {
-    "comment": String,
-    "domain": String,
-    "expires": String,
-    "httponly": bool,
-    "path": String,
-    "max-age": String,
-    "secure": bool,
-    "samesite": String,
-  };
-
-  final _attributes = <String, dynamic>{};
-
-  Cookie(this._name, this._value);
-
-  /// The name of [this].
-  String get name => _name;
-
-  /// The value of [this].
-  String get value => _value;
-
+extension CookieExtension on Cookie {
   /// Constructs a request header.
   String output({String header = "Set-Cookie"}) {
-    String string = "$header: $name=$value";
-
-    _attributes.forEach((key, value) {
-      if (value.runtimeType == String && value.length == 0) {
-        return;
-      }
-
-      if (value.runtimeType == bool && value == false) {
-        return;
-      }
-
-      string += "; $key";
-      if (value.runtimeType != bool) {
-        string += "=$value";
-      }
-    });
-
-    return string;
+    return "$header: " + toString();
   }
 
-  /// Removes [key] and its associated [value], if present, from the attributes.
-  String remove(String key) {
-    return _attributes.remove(key);
-  }
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'value': value,
+        'expires': expires?.toIso8601String(),
+        'maxAge': maxAge,
+        'domain': domain,
+        'path': path,
+        'secure': secure,
+        'httpOnly': httpOnly,
+      };
 
-  /// The value for the given [key], or `null` if [key] is not
-  /// in the attributes.
-  String? operator [](String key) {
-    return _attributes[key.toLowerCase()];
-  }
-
-  /// Associates the [key] with the given [value].
-  ///
-  /// Throws a [KeyError] if the key isn't a valid attribute,
-  /// see [this.validAttributes].
-  void operator []=(String key, dynamic value) {
-    if (validAttributes.containsKey(key.toLowerCase())) {
-      var attributeType = validAttributes[key.toLowerCase()];
-
-      switch (attributeType) {
-        case bool:
-        case String:
-          if (value.runtimeType == attributeType) {
-            _attributes[key.toLowerCase()] = value;
-          }
-          return;
-        default:
-      }
-    }
-    throw KeyError("Input key is not valid: $key.");
-  }
-
-  /// Same as [this.output()].
-  @override
-  String toString() {
-    return output();
+  Cookie fromJson(Map<String, dynamic> json) {
+    var cookie = Cookie(json['name'], json['value']);
+    cookie.expires =
+        json['expires'] != null ? DateTime.parse(json['expires']) : null;
+    cookie.maxAge = json['maxAge'];
+    cookie.domain = json['domain'];
+    cookie.path = json['path'];
+    cookie.secure = json['secure'];
+    cookie.httpOnly = json['httpOnly'];
+    return cookie;
   }
 }
