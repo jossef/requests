@@ -143,8 +143,6 @@ void main() {
 
     test('remove cookies', () async {
       String url = '$PLACEHOLDER_PROVIDER/api/users/1';
-      String hostname = Requests.getHostname(url);
-      expect('reqres.in', hostname);
       await Requests.clearStoredCookies(url);
       var cookies = CookieJar.parseCookiesString("session=bla");
       await Requests.setStoredCookies(url, cookies);
@@ -287,6 +285,16 @@ void main() {
     test('from json', () async {
       expect(Common.fromJson('{"a":1}'), {"a": 1});
       expect(Common.fromJson(null), null);
+    });
+
+    test('Common.getHostname', () {
+      var url = PLACEHOLDER_PROVIDER;
+      var host = Common.getHostname(url);
+      expect(host, 'reqres.in');
+      expect(Common.getHostname(host), 'reqres.in');
+      expect(Common.getHostname('$host/?=test'), 'reqres.in');
+      expect(Common.getHostname('$host:/?=test'), 'reqres.in');
+      expect(Common.getHostname('$host:8080/?=test'), 'reqres.in');
     });
   });
 }
