@@ -1,11 +1,10 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:hex/hex.dart';
 import 'package:crypto/crypto.dart';
 import 'package:quiver/cache.dart';
 
-import 'cookie.dart';
+import 'package:requests/src/cookie_jar.dart';
 
 /// A collection of common methods.
 class Common {

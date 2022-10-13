@@ -4,6 +4,7 @@ import 'package:http/http.dart';
 
 import 'package:requests/src/common.dart';
 import 'package:requests/src/cookie.dart';
+import 'package:requests/src/cookie_jar.dart';
 import 'package:requests/src/event.dart';
 import 'package:requests/src/response.dart';
 import 'package:requests/src/client/io_client.dart'
