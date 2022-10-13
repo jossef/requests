@@ -62,7 +62,6 @@ just like in python's request module, the `Response` object has this functionali
  
  ### Class Methods
 
-- `.getHostname(url)` - returns the hostname of the given url
 - `.clearStoredCookies(url)` - clears the stored cookies for the url
 - `.setStoredCookies(url, CookieJar)` - set the stored cookies for the url
 - `.getStoredCookies(url)` - returns a CookieJar of the stored cookies for the url

@@ -80,4 +80,16 @@ class Common {
       return '$k=$v';
     }).join('&');
   }
+
+  /// Get the hostname of a [url].
+  static String getHostname(String url) {
+    var uri = Uri.parse(url);
+    // If the url is already a hostname, return it.
+    // Get the first part of the split in case the hostname
+    // contains a path.
+    if (uri.path.isNotEmpty && url.startsWith(uri.path)) {
+      return url.split(RegExp(r'[#?/]'))[0];
+    }
+    return uri.host.isNotEmpty ? uri.host : uri.scheme;
+  }
 }

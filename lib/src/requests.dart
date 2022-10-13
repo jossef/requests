@@ -35,7 +35,7 @@ class Requests {
   /// Get the [CookieJar] for the given [url] hostname, or an empty
   /// [CookieJar] if the hostname is not in the cache.
   static Future<CookieJar> getStoredCookies(String url) async {
-    var hostname = getHostname(url);
+    var hostname = Common.getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
     var cookies = await Common.storageGet('cookies-$hostnameHash');
 
@@ -44,7 +44,7 @@ class Requests {
 
   /// Associates the [url] hostname with the given [cookies] into the cache.
   static Future setStoredCookies(String url, CookieJar cookies) async {
-    var hostname = getHostname(url);
+    var hostname = Common.getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
     await Common.storageSet('cookies-$hostnameHash', cookies);
   }
@@ -52,7 +52,7 @@ class Requests {
   /// Removes the [url] hostname and its associated value, if present,
   /// from the cache.
   static Future clearStoredCookies(String url) async {
-    var hostname = getHostname(url);
+    var hostname = Common.getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
     await Common.storageRemove('cookies-$hostnameHash');
   }
@@ -65,9 +65,9 @@ class Requests {
     await setStoredCookies(url, cookieJar);
   }
 
+  @Deprecated("Do not use this method, it is not needed anymore.")
   static String getHostname(String url) {
-    var uri = Uri.parse(url);
-    return uri.host;
+    return Common.getHostname(url);
   }
 
   static Future<Response> head(String url,
