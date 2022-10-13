@@ -63,11 +63,10 @@ just like in python's request module, the `Response` object has this functionali
  
  ### Class Methods
 
-- `.getHostname(url)` - returns the hostname of the given url
-- `.clearStoredCookies(hostname)` - clears the stored cookies for the hostname
-- `.setStoredCookies(hostname, CookieJar)` - set the stored cookies for the hostname
-- `.getStoredCookies(hostname)` - returns a CookieJar of the stored cookies for the hostname
-- `.addCookie(hostname, name, value)` - add a Cookie to the CookieJar associated to the hostname
+- `.clearStoredCookies(url)` - clears the stored cookies for the url
+- `.setStoredCookies(url, CookieJar)` - set the stored cookies for the url
+- `.getStoredCookies(url)` - returns a CookieJar of the stored cookies for the url
+- `.addCookie(url, name, value)` - add a Cookie to the CookieJar associated to the url
 
  
 ## Examples
@@ -113,21 +112,20 @@ Play with stored cookies
 
 ```dart
 String url = "https://example.com";
-String hostname = Requests.getHostname(url);
-await Requests.clearStoredCookies(hostname);
+await Requests.clearStoredCookies(url);
 
 // Set cookies using [CookieJar.parseCookiesString]
 var cookies = CookieJar.parseCookiesString("name=value");
-await Requests.setStoredCookies(hostname, cookies);
+await Requests.setStoredCookies(url, cookies);
 
 // Add single cookie using [CookieJar.parseCookiesString]
-var cookieJar = await Requests.getStoredCookies(hostname);
+var cookieJar = await Requests.getStoredCookies(url);
 cookieJar["name"] = Cookie("name", "value");
-await Requests.setStoredCookies(hostname, cookieJar);
+await Requests.setStoredCookies(url, cookieJar);
 
 // Add a single cookie using [Requests.addCookie]
 // Same as the above one but without exposing `cookies.dart`
-Requests.addCookie(hostname, "name", "value");
+Requests.addCookie(url, "name", "value");
 ```
 
 More examples can be found in [example/](./example/).
