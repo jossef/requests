@@ -1,9 +1,4 @@
-/// Error thrown when assigning an invalid key to a [Map].
-class KeyError implements Exception {
-  final String message;
-
-  KeyError(this.message);
-}
+import 'package:requests/src/exception.dart';
 
 /// Object representation of a cookie.
 class Cookie {
