@@ -217,44 +217,6 @@ void main() {
       r.raiseForStatus();
     });
 
-    test('multiple Set-Cookie response header', () {
-      // var r = await Requests.get("http://samesitetest.com/cookies/set");
-      // var cookies = await Requests.extractResponseCookies(r.headers);
-
-      var cookies = CookieJar();
-      cookies["StrictCookie"] = Cookie.fromSetCookieValue(
-          "StrictCookie=Cookie-set-with-SameSite=Strict; Path=/; httponly; samesite=strict");
-      cookies["LaxCookie"] = Cookie.fromSetCookieValue(
-          "LaxCookie=Cookie-set-with-SameSite=Lax; Path=/; httponly; samesite=lax");
-      cookies["SecureNoneCookie"] = Cookie.fromSetCookieValue(
-          "SecureNoneCookie=Cookie-set-with-SameSite=None-and-Secure; Path=/; secure; httponly; samesite=none");
-      cookies["NoneCookie"] = Cookie.fromSetCookieValue(
-          "NoneCookie=Cookie-set-with-SameSite=None; Path=/; httponly; samesite=none");
-      cookies["DefaultCookie"] = Cookie.fromSetCookieValue(
-          "DefaultCookie=Cookie-set-without-a-SameSite-attribute; Path=/; httponly");
-
-      expect(
-        cookies["StrictCookie"]!.output(),
-        "Set-Cookie: StrictCookie=Cookie-set-with-SameSite=Strict; Path=/; HttpOnly",
-      );
-      expect(
-        cookies["LaxCookie"]!.output(),
-        "Set-Cookie: LaxCookie=Cookie-set-with-SameSite=Lax; Path=/; HttpOnly",
-      );
-      expect(
-        cookies["SecureNoneCookie"]!.output(),
-        "Set-Cookie: SecureNoneCookie=Cookie-set-with-SameSite=None-and-Secure; Path=/; Secure; HttpOnly",
-      );
-      expect(
-        cookies["NoneCookie"]!.output(),
-        "Set-Cookie: NoneCookie=Cookie-set-with-SameSite=None; Path=/; HttpOnly",
-      );
-      expect(
-        cookies["DefaultCookie"]!.output(),
-        "Set-Cookie: DefaultCookie=Cookie-set-without-a-SameSite-attribute; Path=/; HttpOnly",
-      );
-    });
-
     test('cookie parsing', () {
       var headers = Map<String, String>();
       var cookiesString = """
@@ -268,28 +230,28 @@ void main() {
       var cookies = Requests.extractResponseCookies(headers);
 
       expect(
-        cookies["session"]!.output(),
-        "Set-Cookie: session=mySecret; Path=/mypath",
+        cookies["session"]!.toString(),
+        "session=mySecret; Path=/mypath",
       );
 
       expect(
-        cookies['data']!.output(),
-        "Set-Cookie: data=1=2=3=4",
+        cookies['data']!.toString(),
+        "data=1=2=3=4",
       );
 
       expect(
-        cookies['__browsiUID']!.output(),
-        'Set-Cookie: __browsiUID=03b1cb22-d18d-05c3d7daff82600c044b1b4edd096e75',
+        cookies['__browsiUID']!.toString(),
+        '__browsiUID=03b1cb22-d18d-05c3d7daff82600c044b1b4edd096e75',
       );
 
       expect(
-        cookies['_cb_ls']!.output(),
-        "Set-Cookie: _cb_ls=1",
+        cookies['_cb_ls']!.toString(),
+        "_cb_ls=1",
       );
 
       expect(
-        cookies['adblockerfound']!.output(),
-        "Set-Cookie: adblockerfound=true",
+        cookies['adblockerfound']!.toString(),
+        "adblockerfound=true",
       );
     });
 
