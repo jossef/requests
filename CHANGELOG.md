@@ -1,10 +1,23 @@
 # Changelog
 
+## [4.8.0-alpha.0](https://github.com/jossef/requests/tree/4.8.0-alpha.0) (2022-10-14)
+
+[Full Changelog](https://github.com/jossef/requests/compare/4.7.0...4.8.0-alpha.0)
+
+**Closed issues:**
+
+- Cookie values incorrectly parsed [\#85](https://github.com/jossef/requests/issues/85)
+
+**Merged pull requests:**
+
+- refactor: create files for each theme [\#86](https://github.com/jossef/requests/pull/86) ([sehnryr](https://github.com/sehnryr))
+- feat: deprecate `getHostname` [\#78](https://github.com/jossef/requests/pull/78) ([sehnryr](https://github.com/sehnryr))
+
 ## [4.7.0](https://github.com/jossef/requests/tree/4.7.0) (2022-09-26)
 
 [Full Changelog](https://github.com/jossef/requests/compare/4.6.0...4.7.0)
 
-**Closed issues:**
+**Fixed bugs:**
 
 - \[URGENT\] 4.6.0 breaks building mobile-only apps [\#81](https://github.com/jossef/requests/issues/81)
 
