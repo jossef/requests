@@ -15,7 +15,7 @@ Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  requests: ^4.7.0
+  requests: ^4.8.0-alpha.0
 ```
 
 ## Usage
