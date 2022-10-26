@@ -58,10 +58,10 @@ just like in python's request module, the `Response` object has this functionali
 - `verify` - default `true`. if the SSL verification enabled
 - `withCredentials` - default `false`. for dart web to handle cookies, authorization headers, or TLS client certificates
 
-> 💡 Only one optional argument can be used in a single request `body` or `json`
- 
- 
- ### Class Methods
+> **Note**:
+> Only one optional argument can be used in a single request `body` or `json`
+
+### Class Methods
 
 - `.clearStoredCookies(url)` - clears the stored cookies for the url
 - `.setStoredCookies(url, CookieJar)` - set the stored cookies for the url
