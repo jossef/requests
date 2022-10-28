@@ -1,9 +1,8 @@
 import 'package:http/http.dart';
+import 'package:universal_io/io.dart';
 
 import 'package:requests/requests.dart';
-import 'package:requests/src/response.dart';
 import 'package:requests/src/common.dart';
-import 'package:requests/src/cookie.dart';
 import 'package:test/test.dart';
 
 void _validateResponse(Response r) {
@@ -161,7 +160,7 @@ void main() {
       await Requests.addCookie(url, 'name', 'value');
       cookies = await Requests.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.addCookie(url, 'another name', 'value');
+      await Requests.addCookie(url, 'another-name', 'value');
       cookies = await Requests.getStoredCookies(url);
       expect(cookies.keys.length, 2);
       await Requests.clearStoredCookies(url);
@@ -218,71 +217,45 @@ void main() {
       r.raiseForStatus();
     });
 
-    test('multiple Set-Cookie response header', () async {
-      var r = await Requests.get("http://samesitetest.com/cookies/set");
-      var cookies = await Requests.extractResponseCookies(r.headers);
-
-      expect(
-        cookies["StrictCookie"]!.output(),
-        "Set-Cookie: StrictCookie=Cookie set with SameSite=Strict; path=/; httponly; samesite=strict",
-      );
-      expect(
-        cookies["LaxCookie"]!.output(),
-        "Set-Cookie: LaxCookie=Cookie set with SameSite=Lax; path=/; httponly; samesite=lax",
-      );
-      expect(
-        cookies["SecureNoneCookie"]!.output(),
-        "Set-Cookie: SecureNoneCookie=Cookie set with SameSite=None and Secure; path=/; secure; httponly; samesite=none",
-      );
-      expect(
-        cookies["NoneCookie"]!.output(),
-        "Set-Cookie: NoneCookie=Cookie set with SameSite=None; path=/; httponly; samesite=none",
-      );
-      expect(
-        cookies["DefaultCookie"]!.output(),
-        "Set-Cookie: DefaultCookie=Cookie set without a SameSite attribute; path=/; httponly",
-      );
-    });
-
-    test('cookie parsing', () async {
+    test('cookie parsing', () {
       var headers = Map<String, String>();
       var cookiesString = """
-        session=mySecret; path=/myPath; expires=Xxx, x-x-x x:x:x XXX,
+        session=mySecret; path=/myPath,
         data=1=2=3=4; _ga=GA1.4..1563550573; ; ; ; textsize=NaN; tp_state=true; _ga=GA1.3..1563550573,
-        __browsiUID=03b1cb22-d18d-&{"bt":"Browser","os":"Windows","osv":"10.0","m":"Desktop|Emulator","v":"Unknown","b":"Chrome","p":2},
+        __browsiUID=03b1cb22-d18d-05c3d7daff82600c044b1b4edd096e75,
         _cb_ls=1; _cb=CaBNIWCf-db-3i9ro; _chartbeat2=..414141414.1..1; AMUUID=%; _fbp=fb.2..,
         adblockerfound=true 
       """;
       headers['set-cookie'] = cookiesString;
-      var cookies = await Requests.extractResponseCookies(headers);
+      var cookies = Requests.extractResponseCookies(headers);
 
       expect(
-        cookies["session"]!.output(),
-        "Set-Cookie: session=mySecret; path=/myPath; expires=Xxx, x-x-x x:x:x XXX",
+        cookies["session"]!.toString(),
+        "session=mySecret; Path=/mypath",
       );
 
       expect(
-        cookies['data']!.output(),
-        "Set-Cookie: data=1=2=3=4",
+        cookies['data']!.toString(),
+        "data=1=2=3=4",
       );
 
       expect(
-        cookies['__browsiUID']!.output(),
-        'Set-Cookie: __browsiUID=03b1cb22-d18d-&{"bt":"Browser","os":"Windows","osv":"10.0","m":"Desktop|Emulator","v":"Unknown","b":"Chrome","p":2}',
+        cookies['__browsiUID']!.toString(),
+        '__browsiUID=03b1cb22-d18d-05c3d7daff82600c044b1b4edd096e75',
       );
 
       expect(
-        cookies['_cb_ls']!.output(),
-        "Set-Cookie: _cb_ls=1",
+        cookies['_cb_ls']!.toString(),
+        "_cb_ls=1",
       );
 
       expect(
-        cookies['adblockerfound']!.output(),
-        "Set-Cookie: adblockerfound=true",
+        cookies['adblockerfound']!.toString(),
+        "adblockerfound=true",
       );
     });
 
-    test('from json', () async {
+    test('from json', () {
       expect(Common.fromJson('{"a":1}'), {"a": 1});
       expect(Common.fromJson(null), null);
     });
