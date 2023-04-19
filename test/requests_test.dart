@@ -296,5 +296,23 @@ void main() {
       expect(Common.getHostname('$host:/?=test'), 'reqres.in');
       expect(Common.getHostname('$host:8080/?=test'), 'reqres.in');
     });
+
+    test('Common.encodeFormData', () {
+      var data = {
+        "some Data": "some Value",
+        "another Data": "another Value",
+        "third Data": "third Value"
+      };
+      var host = Common.encodeFormData(data, Common.generateBoundary());
+      var splited = host.split('\r\n');
+      expect(splited[1], 'Content-Disposition: form-data; name="some Data"');
+      expect(splited[3], "some Value");
+      expect(splited[5], 'Content-Disposition: form-data; name="another Data"');
+      expect(splited[7], "another Value");
+      expect(splited[9], 'Content-Disposition: form-data; name="third Data"');
+      expect(splited[11], "third Value");
+      expect(splited[0] == splited[4] && splited[4] == splited[8], true);
+      expect(splited[0].replaceAll("-", ""), splited[12].replaceAll("-", ""));
+    });
   });
 }

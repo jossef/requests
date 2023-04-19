@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:hex/hex.dart';
 import 'package:crypto/crypto.dart';
@@ -51,6 +52,30 @@ class Common {
       var v = Uri.encodeComponent(data[key].toString());
       return '$k=$v';
     }).join('&');
+  }
+
+  static String generateBoundary() {
+    final random = Random();
+    String boundary = '--------------------------';
+    for (int i = 0; i < 24; i++) {
+      boundary += random.nextInt(10).toString();
+    }
+    return boundary;
+  }
+
+  static String encodeFormData(Map data, String boundary) {
+    String midBoundary = '--$boundary\r\n';
+    String endBoundary = '--$boundary--\r\n';
+    String _contentDispositionPrefix =
+        'Content-Disposition: form-data; name="';
+    String result = '';
+    for (var key in data.keys) {
+      result += midBoundary;
+      result += '$_contentDispositionPrefix$key"\r\n\r\n';
+      result += '${data[key]}\r\n';
+    }
+    result += endBoundary;
+    return result;
   }
 
   /// Get the hostname of a [url].

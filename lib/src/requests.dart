@@ -11,7 +11,7 @@ import 'package:requests/src/storage.dart';
 import 'package:requests/src/client/io_client.dart'
     if (dart.library.html) 'package:requests/src/client/browser_client.dart';
 
-enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
+enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText, FormData }
 
 enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
 
@@ -352,6 +352,11 @@ class Requests {
         case RequestBodyEncoding.PlainText:
           requestBody = body;
           contentTypeHeader = 'text/plain';
+          break;
+        case RequestBodyEncoding.FormData:
+          String boundary = Common.generateBoundary();
+          requestBody = Common.encodeFormData(body, boundary);
+          contentTypeHeader = 'multipart/form-data; boundary=$boundary';
           break;
       }
 
