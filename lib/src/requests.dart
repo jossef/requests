@@ -17,18 +17,29 @@ enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
 
 class Requests {
   const Requests();
+
   static final Event onError = Event();
   static const int defaultTimeoutSeconds = 10;
   static const RequestBodyEncoding defaultBodyEncoding =
       RequestBodyEncoding.FormURLEncoded;
+  /// Set this to a proxy URL to use it for all requests.
+  /// ATTENTION : THE URL MUST END WITH A SLASH
+  /// this proxy should handle requests like this:
+  /// https://myCorsProxy.com/https://example.com
+  /// the cors proxy should take the cookies from the header cookie-unsecure
+  /// and set them in the header set-cookie-unsecure
+  static String corsProxyUrl = "";
+  
 
   /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
   static CookieJar extractResponseCookies(Map<String, String> responseHeaders) {
     var result = CookieJar();
     var keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
-    if (keys.contains("set-cookie")) {
-      var cookies = responseHeaders["set-cookie"]!;
+    String cookieHeader =
+        (corsProxyUrl.isNotEmpty) ? 'set-cookie-unsecure' : 'set-cookie';
+    if (keys.contains(cookieHeader)) {
+      var cookies = responseHeaders[cookieHeader]!;
       result = CookieJar.parseCookiesString(cookies);
     }
     return result;
@@ -40,6 +51,9 @@ class Requests {
     var hostname = Common.getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
     var cookies = await Storage.get('cookies-$hostnameHash');
+    print("hostname : $hostname");
+    print("cookies-$hostnameHash");
+    print("cookies: $cookies");
 
     return cookies ?? CookieJar();
   }
@@ -109,6 +123,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    
   }) {
     return _httpRequest(
       HttpMethod.GET,
@@ -138,6 +153,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    
   }) {
     return _httpRequest(
       HttpMethod.PATCH,
@@ -167,6 +183,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    
   }) {
     return _httpRequest(
       HttpMethod.DELETE,
@@ -196,6 +213,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    
   }) {
     return _httpRequest(
       HttpMethod.POST,
@@ -225,6 +243,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    
   }) {
     return _httpRequest(
       HttpMethod.PUT,
@@ -249,7 +268,9 @@ class Requests {
     var cookies = (await getStoredCookies(url)).values;
     var cookie = cookies.map((e) => '${e.name}=${e.value}').join("; ");
 
-    requestHeaders['cookie'] = cookie;
+    String cookieHeader =
+        (corsProxyUrl.isNotEmpty) ? 'cookie-unsecure' : 'cookie';
+    requestHeaders[cookieHeader] = cookie;
 
     if (customHeaders != null) {
       requestHeaders.addAll(customHeaders);
@@ -303,7 +324,7 @@ class Requests {
       client = Client();
     }
 
-    var uri = Uri.parse(url);
+    var uri = Uri.parse(((corsProxyUrl.isNotEmpty) ? corsProxyUrl : "") + url);
 
     if (uri.scheme != 'http' && uri.scheme != 'https') {
       throw ArgumentError(
@@ -329,7 +350,13 @@ class Requests {
     }
 
     if (port != null) {
-      uri = uri.replace(port: port);
+      if (corsProxyUrl.isNotEmpty) {
+        var destination = Uri.parse(url);
+        destination.replace(port: port);
+        uri = Uri.parse(corsProxyUrl + destination.toString());
+      } else {
+        uri = uri.replace(port: port);
+      }
     }
 
     if (json != null) {
