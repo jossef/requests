@@ -51,9 +51,6 @@ class Requests {
     var hostname = Common.getHostname(url);
     var hostnameHash = Common.hashStringSHA256(hostname);
     var cookies = await Storage.get('cookies-$hostnameHash');
-    print("hostname : $hostname");
-    print("cookies-$hostnameHash");
-    print("cookies: $cookies");
 
     return cookies ?? CookieJar();
   }
