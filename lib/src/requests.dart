@@ -11,8 +11,10 @@ import 'package:requests/src/storage.dart';
 import 'package:requests/src/client/io_client.dart'
     if (dart.library.html) 'package:requests/src/client/browser_client.dart';
 
+// ignore: constant_identifier_names
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText, FormData }
 
+// ignore: constant_identifier_names
 enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
 
 class Requests {
@@ -22,22 +24,15 @@ class Requests {
   static const int defaultTimeoutSeconds = 10;
   static const RequestBodyEncoding defaultBodyEncoding =
       RequestBodyEncoding.FormURLEncoded;
-  /// Set this to a proxy URL to use it for all requests.
-  /// ATTENTION : THE URL MUST END WITH A SLASH
-  /// this proxy should handle requests like this:
-  /// https://myCorsProxy.com/https://example.com
-  /// the cors proxy should take the cookies from the header cookie-unsecure
-  /// and set them in the header set-cookie-unsecure
-  static String corsProxyUrl = "";
-  
 
   /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
-  static CookieJar extractResponseCookies(Map<String, String> responseHeaders) {
+  static CookieJar extractResponseCookies(
+      Map<String, String> responseHeaders, String corsProxyUrl) {
     var result = CookieJar();
     var keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
     String cookieHeader =
-        (corsProxyUrl.isNotEmpty) ? 'set-cookie-unsecure' : 'set-cookie';
+        (corsProxyUrl.isNotEmpty) ? 'set-cookie-proxied' : 'set-cookie';
     if (keys.contains(cookieHeader)) {
       var cookies = responseHeaders[cookieHeader]!;
       result = CookieJar.parseCookiesString(cookies);
@@ -93,6 +88,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    String corsProxyUrl = '',
   }) {
     return _httpRequest(
       HttpMethod.HEAD,
@@ -105,6 +101,7 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
     );
   }
 
@@ -120,7 +117,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
-    
+    String corsProxyUrl = '',
   }) {
     return _httpRequest(
       HttpMethod.GET,
@@ -135,6 +132,7 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
     );
   }
 
@@ -150,7 +148,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
-    
+    String corsProxyUrl = '',
   }) {
     return _httpRequest(
       HttpMethod.PATCH,
@@ -165,6 +163,7 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
     );
   }
 
@@ -180,7 +179,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
-    
+    String corsProxyUrl = '',
   }) {
     return _httpRequest(
       HttpMethod.DELETE,
@@ -195,6 +194,7 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
     );
   }
 
@@ -210,7 +210,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
-    
+    String corsProxyUrl = '',
   }) {
     return _httpRequest(
       HttpMethod.POST,
@@ -225,6 +225,7 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
     );
   }
 
@@ -240,7 +241,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
-    
+    String corsProxyUrl = '',
   }) {
     return _httpRequest(
       HttpMethod.PUT,
@@ -255,18 +256,19 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
     );
   }
 
-  static Future<Map<String, String>> _constructRequestHeaders(
-      String url, Map<String, String>? customHeaders) async {
+  static Future<Map<String, String>> _constructRequestHeaders(String url,
+      Map<String, String>? customHeaders, String corsProxyUrl) async {
     var requestHeaders = <String, String>{};
 
     var cookies = (await getStoredCookies(url)).values;
     var cookie = cookies.map((e) => '${e.name}=${e.value}').join("; ");
 
     String cookieHeader =
-        (corsProxyUrl.isNotEmpty) ? 'cookie-unsecure' : 'cookie';
+        (corsProxyUrl.isNotEmpty) ? 'cookie-proxied' : 'cookie';
     requestHeaders[cookieHeader] = cookie;
 
     if (customHeaders != null) {
@@ -276,10 +278,11 @@ class Requests {
     return requestHeaders;
   }
 
-  static Future<Response> _handleHttpResponse(
-      String url, Response response, bool persistCookies) async {
+  static Future<Response> _handleHttpResponse(String url, Response response,
+      bool persistCookies, String corsProxyUrl) async {
     if (persistCookies) {
-      var responseCookies = extractResponseCookies(response.headers);
+      var responseCookies =
+          extractResponseCookies(response.headers, corsProxyUrl);
       if (responseCookies.isNotEmpty) {
         var storedCookies = await getStoredCookies(url);
         storedCookies.addAll(responseCookies);
@@ -308,6 +311,7 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    String corsProxyUrl = "",
   }) async {
     Client client;
 
@@ -328,7 +332,7 @@ class Requests {
           "invalid url, must start with 'http://' or 'https://' scheme (e.g. 'http://example.com')");
     }
 
-    headers = await _constructRequestHeaders(url, headers);
+    headers = await _constructRequestHeaders(url, headers, corsProxyUrl);
     String? requestBody;
 
     if (body != null && json != null) {
@@ -425,6 +429,7 @@ class Requests {
       response = await Response.fromStream(response);
     }
 
-    return await _handleHttpResponse(url, response, persistCookies);
+    return await _handleHttpResponse(
+        url, response, persistCookies, corsProxyUrl);
   }
 }
