@@ -66,12 +66,12 @@ class Common {
   static String encodeFormData(Map data, String boundary) {
     String midBoundary = '--$boundary\r\n';
     String endBoundary = '--$boundary--\r\n';
-    String _contentDispositionPrefix =
+    String contentDispositionPrefix =
         'Content-Disposition: form-data; name="';
     String result = '';
     for (var key in data.keys) {
       result += midBoundary;
-      result += '$_contentDispositionPrefix$key"\r\n\r\n';
+      result += '$contentDispositionPrefix$key"\r\n\r\n';
       result += '${data[key]}\r\n';
     }
     result += endBoundary;
