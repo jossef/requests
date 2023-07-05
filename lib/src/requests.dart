@@ -27,7 +27,7 @@ class Requests {
 
   /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
   static CookieJar extractResponseCookies(
-      Map<String, String> responseHeaders, String corsProxyUrl) {
+      Map<String, String> responseHeaders, {String corsProxyUrl = ""}) {
     var result = CookieJar();
     var keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
@@ -89,6 +89,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
+    bool followRedirects = true,
   }) {
     return _httpRequest(
       HttpMethod.HEAD,
@@ -102,6 +103,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
     );
   }
 
@@ -118,6 +120,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
+    bool followRedirects = true,
   }) {
     return _httpRequest(
       HttpMethod.GET,
@@ -133,6 +136,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
     );
   }
 
@@ -149,6 +153,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
+    bool followRedirects = true,
   }) {
     return _httpRequest(
       HttpMethod.PATCH,
@@ -164,6 +169,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
     );
   }
 
@@ -180,6 +186,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
+    bool followRedirects = true,
   }) {
     return _httpRequest(
       HttpMethod.DELETE,
@@ -195,6 +202,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
     );
   }
 
@@ -211,6 +219,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
+    bool followRedirects = true,
   }) {
     return _httpRequest(
       HttpMethod.POST,
@@ -226,6 +235,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
     );
   }
 
@@ -242,6 +252,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
+    bool followRedirects = true,
   }) {
     return _httpRequest(
       HttpMethod.PUT,
@@ -257,6 +268,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
     );
   }
 
@@ -282,7 +294,7 @@ class Requests {
       bool persistCookies, String corsProxyUrl) async {
     if (persistCookies) {
       var responseCookies =
-          extractResponseCookies(response.headers, corsProxyUrl);
+          extractResponseCookies(response.headers, corsProxyUrl: corsProxyUrl);
       if (responseCookies.isNotEmpty) {
         var storedCookies = await getStoredCookies(url);
         storedCookies.addAll(responseCookies);
@@ -312,6 +324,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = "",
+    bool followRedirects = true,
   }) async {
     Client client;
 
@@ -393,41 +406,17 @@ class Requests {
       }
     }
 
-    late Future future;
-
-    switch (method) {
-      case HttpMethod.GET:
-        future = client.get(uri, headers: headers);
-        break;
-      case HttpMethod.PUT:
-        future = client.put(uri, body: requestBody, headers: headers);
-        break;
-      case HttpMethod.DELETE:
-        final request = Request('DELETE', uri);
-        request.headers.addAll(headers);
-
-        if (requestBody != null) {
-          request.body = requestBody;
-        }
-
-        future = client.send(request);
-        break;
-      case HttpMethod.POST:
-        future = client.post(uri, body: requestBody, headers: headers);
-        break;
-      case HttpMethod.HEAD:
-        future = client.head(uri, headers: headers);
-        break;
-      case HttpMethod.PATCH:
-        future = client.patch(uri, body: requestBody, headers: headers);
-        break;
+    Request request = Request(method.toString().split(".").last, uri);//little hack to get rid of HttpMethod.
+    request.followRedirects = followRedirects;
+    request.headers.addAll(headers);
+    if ([HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE]
+            .contains(method) &&
+        requestBody != null) {
+      request.body = requestBody;
     }
 
-    var response = await future.timeout(Duration(seconds: timeoutSeconds));
-
-    if (response is StreamedResponse) {
-      response = await Response.fromStream(response);
-    }
+    final streamedResponse = await client.send(request).timeout(Duration(seconds: timeoutSeconds));
+    final response = await Response.fromStream(streamedResponse);
 
     return await _handleHttpResponse(
         url, response, persistCookies, corsProxyUrl);
