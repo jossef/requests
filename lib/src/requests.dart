@@ -26,13 +26,15 @@ class Requests {
       RequestBodyEncoding.FormURLEncoded;
 
   /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
-  static CookieJar extractResponseCookies(Map<String, String> responseHeaders,
-      {String corsProxyUrl = ""}) {
+  static CookieJar extractResponseCookies(
+      Map<String, String> responseHeaders, {String corsProxyUrl = ""}) {
     var result = CookieJar();
     var keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
-    if (keys.contains('set-cookie')) {
-      var cookies = responseHeaders['set-cookie']!;
+    String cookieHeader =
+        (corsProxyUrl.isNotEmpty) ? 'set-cookie-proxied' : 'set-cookie';
+    if (keys.contains(cookieHeader)) {
+      var cookies = responseHeaders[cookieHeader]!;
       result = CookieJar.parseCookiesString(cookies);
     }
     return result;
@@ -270,14 +272,16 @@ class Requests {
     );
   }
 
-  static Future<Map<String, String>> _constructRequestHeaders(
-      String url, Map<String, String>? customHeaders) async {
+  static Future<Map<String, String>> _constructRequestHeaders(String url,
+      Map<String, String>? customHeaders, String corsProxyUrl) async {
     var requestHeaders = <String, String>{};
 
     var cookies = (await getStoredCookies(url)).values;
     var cookie = cookies.map((e) => '${e.name}=${e.value}').join("; ");
 
-    requestHeaders['cookie'] = cookie;
+    String cookieHeader =
+        (corsProxyUrl.isNotEmpty) ? 'cookie-proxied' : 'cookie';
+    requestHeaders[cookieHeader] = cookie;
 
     if (customHeaders != null) {
       requestHeaders.addAll(customHeaders);
@@ -341,7 +345,7 @@ class Requests {
           "invalid url, must start with 'http://' or 'https://' scheme (e.g. 'http://example.com')");
     }
 
-    headers = await _constructRequestHeaders(url, headers);
+    headers = await _constructRequestHeaders(url, headers, corsProxyUrl);
     String? requestBody;
 
     if (body != null && json != null) {
@@ -402,13 +406,7 @@ class Requests {
       }
     }
 
-    if (corsProxyUrl.isNotEmpty) {
-      //rename all headers key with key-proxied
-      headers = headers.map((key, value) => MapEntry('$key-proxied', value));
-    }
-
-    Request request = Request(method.toString().split(".").last,
-        uri); //little hack to get rid of HttpMethod.
+    Request request = Request(method.toString().split(".").last, uri);//little hack to get rid of HttpMethod.
     request.followRedirects = followRedirects;
     request.headers.addAll(headers);
     if ([HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE]
@@ -417,16 +415,8 @@ class Requests {
       request.body = requestBody;
     }
 
-    final streamedResponse =
-        await client.send(request).timeout(Duration(seconds: timeoutSeconds));
+    final streamedResponse = await client.send(request).timeout(Duration(seconds: timeoutSeconds));
     final response = await Response.fromStream(streamedResponse);
-
-    if (corsProxyUrl.isNotEmpty) {
-      final headers = response.headers;
-      response.headers.removeWhere((key, value) => true);
-      response.headers.addAll(headers.map(
-          (key, value) => MapEntry(key.replaceAll('-proxied', ''), value)));
-    }
 
     return await _handleHttpResponse(
         url, response, persistCookies, corsProxyUrl);
