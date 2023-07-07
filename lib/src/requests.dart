@@ -26,8 +26,8 @@ class Requests {
       RequestBodyEncoding.FormURLEncoded;
 
   /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
-  static CookieJar extractResponseCookies(
-      Map<String, String> responseHeaders, {String corsProxyUrl = ""}) {
+  static CookieJar extractResponseCookies(Map<String, String> responseHeaders,
+      {String corsProxyUrl = ""}) {
     var result = CookieJar();
     var keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
@@ -89,7 +89,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
-    bool followRedirects = true,
+    int maxRedirects = 5,
   }) {
     return _httpRequest(
       HttpMethod.HEAD,
@@ -103,7 +103,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
-      followRedirects: followRedirects,
+      maxRedirects: maxRedirects
     );
   }
 
@@ -120,7 +120,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
-    bool followRedirects = true,
+    int maxRedirects = 5,
   }) {
     return _httpRequest(
       HttpMethod.GET,
@@ -136,7 +136,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
-      followRedirects: followRedirects,
+      maxRedirects: maxRedirects
     );
   }
 
@@ -153,7 +153,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
-    bool followRedirects = true,
+    int maxRedirects = 5,
   }) {
     return _httpRequest(
       HttpMethod.PATCH,
@@ -169,7 +169,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
-      followRedirects: followRedirects,
+      maxRedirects: maxRedirects
     );
   }
 
@@ -186,7 +186,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
-    bool followRedirects = true,
+    int maxRedirects = 5,
   }) {
     return _httpRequest(
       HttpMethod.DELETE,
@@ -202,7 +202,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
-      followRedirects: followRedirects,
+      maxRedirects: maxRedirects
     );
   }
 
@@ -219,7 +219,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
-    bool followRedirects = true,
+    int maxRedirects = 5,
   }) {
     return _httpRequest(
       HttpMethod.POST,
@@ -235,7 +235,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
-      followRedirects: followRedirects,
+      maxRedirects: maxRedirects
     );
   }
 
@@ -252,7 +252,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = '',
-    bool followRedirects = true,
+    int maxRedirects = 5,
   }) {
     return _httpRequest(
       HttpMethod.PUT,
@@ -268,7 +268,7 @@ class Requests {
       verify: verify,
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
-      followRedirects: followRedirects,
+      maxRedirects: maxRedirects
     );
   }
 
@@ -307,6 +307,10 @@ class Requests {
       onError.publish(errorEvent);
     }
 
+    if (response.headers.containsKey("location-proxied")) {
+      response.headers["location"] = response.headers["location-proxied"]!;
+      response.headers.remove("location-proxied");
+    }
     return response;
   }
 
@@ -324,7 +328,7 @@ class Requests {
     bool verify = true,
     bool withCredentials = false,
     String corsProxyUrl = "",
-    bool followRedirects = true,
+    int maxRedirects = 5,
   }) async {
     Client client;
 
@@ -374,8 +378,7 @@ class Requests {
     }
 
     if (json != null) {
-      body = json;
-      bodyEncoding = RequestBodyEncoding.JSON;
+      body = json;bodyEncoding = RequestBodyEncoding.JSON;
     }
 
     if (body != null) {
@@ -405,18 +408,21 @@ class Requests {
         headers['content-type'] = contentTypeHeader;
       }
     }
+      Request request = Request(method.toString().split(".").last,
+          uri); //little hack to get rid of HttpMethod.
+      request.maxRedirects = maxRedirects;
+      
+      request.headers.addAll(headers);
+      if ([HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE]
+          .contains(method) &&
+          requestBody != null) {
+        request.body = requestBody;
+      }
 
-    Request request = Request(method.toString().split(".").last, uri);//little hack to get rid of HttpMethod.
-    request.followRedirects = followRedirects;
-    request.headers.addAll(headers);
-    if ([HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE]
-            .contains(method) &&
-        requestBody != null) {
-      request.body = requestBody;
-    }
+      final streamedResponse =
+      await client.send(request).timeout(Duration(seconds: timeoutSeconds));
+      final response = await Response.fromStream(streamedResponse);
 
-    final streamedResponse = await client.send(request).timeout(Duration(seconds: timeoutSeconds));
-    final response = await Response.fromStream(streamedResponse);
 
     return await _handleHttpResponse(
         url, response, persistCookies, corsProxyUrl);
