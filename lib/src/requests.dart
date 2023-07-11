@@ -27,14 +27,13 @@ class Requests {
 
   /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
   static CookieJar extractResponseCookies(
-      Map<String, String> responseHeaders, {String corsProxyUrl = ""}) {
+    Map<String, String> responseHeaders,
+  ) {
     var result = CookieJar();
     var keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
-    String cookieHeader =
-        (corsProxyUrl.isNotEmpty) ? 'set-cookie-proxied' : 'set-cookie';
-    if (keys.contains(cookieHeader)) {
-      var cookies = responseHeaders[cookieHeader]!;
+    if (keys.contains('set-cookie')) {
+      var cookies = responseHeaders['set-cookie']!;
       result = CookieJar.parseCookiesString(cookies);
     }
     return result;
@@ -291,10 +290,35 @@ class Requests {
   }
 
   static Future<Response> _handleHttpResponse(String url, Response response,
-      bool persistCookies, String corsProxyUrl) async {
+      bool persistCookies, String corsProxyUrl, bool followRedirects) async {
+    if (response.headers.containsKey("location-proxied")) {
+      if (followRedirects && response.isRedirect) {
+        var redirectUrl = response.headers["location-proxied"]!;
+        return await _httpRequest(
+          HttpMethod.GET,
+          redirectUrl,
+          persistCookies: persistCookies,
+          corsProxyUrl: corsProxyUrl,
+        );
+      } else {
+        response.headers["location"] = response.headers["location-proxied"]!;
+        response.headers.remove("location-proxied");
+      }
+    }
+    if (response.headers.containsKey("set-cookie-proxied")) {
+      if (response.headers.containsKey("set-cookie")) {
+        response.headers["set-cookie"] = response.headers["set-cookie"]! +
+            "; " +
+            response.headers["set-cookie-proxied"]!;
+      } else {
+        response.headers["set-cookie"] =
+            response.headers["set-cookie-proxied"]!;
+      }
+      response.headers.remove("set-cookie-proxied");
+    }
+
     if (persistCookies) {
-      var responseCookies =
-          extractResponseCookies(response.headers, corsProxyUrl: corsProxyUrl);
+      var responseCookies = extractResponseCookies(response.headers);
       if (responseCookies.isNotEmpty) {
         var storedCookies = await getStoredCookies(url);
         storedCookies.addAll(responseCookies);
@@ -318,7 +342,7 @@ class Requests {
     RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
     Map<String, dynamic>? queryParameters,
     int? port,
-    Map<String, String>? headers,
+    Map<String, String> headers = const {},
     int timeoutSeconds = defaultTimeoutSeconds,
     bool persistCookies = true,
     bool verify = true,
@@ -345,6 +369,10 @@ class Requests {
           "invalid url, must start with 'http://' or 'https://' scheme (e.g. 'http://example.com')");
     }
 
+    if (corsProxyUrl.isNotEmpty) {
+      headers = {'follow-redirects': followRedirects.toString()}
+        ..addAll(headers);
+    }
     headers = await _constructRequestHeaders(url, headers, corsProxyUrl);
     String? requestBody;
 
@@ -406,7 +434,8 @@ class Requests {
       }
     }
 
-    Request request = Request(method.toString().split(".").last, uri);//little hack to get rid of HttpMethod.
+    Request request = Request(method.toString().split(".").last,
+        uri); //little hack to get rid of HttpMethod.
     request.followRedirects = followRedirects;
     request.headers.addAll(headers);
     if ([HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE]
@@ -415,10 +444,11 @@ class Requests {
       request.body = requestBody;
     }
 
-    final streamedResponse = await client.send(request).timeout(Duration(seconds: timeoutSeconds));
+    final streamedResponse =
+        await client.send(request).timeout(Duration(seconds: timeoutSeconds));
     final response = await Response.fromStream(streamedResponse);
 
     return await _handleHttpResponse(
-        url, response, persistCookies, corsProxyUrl);
+        url, response, persistCookies, corsProxyUrl, followRedirects);
   }
 }
