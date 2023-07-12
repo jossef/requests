@@ -2,14 +2,14 @@ import 'dart:core';
 
 import 'package:http/http.dart';
 
-import 'package:requests/src/common.dart';
-import 'package:requests/src/cookie.dart';
-import 'package:requests/src/cookie_jar.dart';
-import 'package:requests/src/event.dart';
-import 'package:requests/src/response.dart';
-import 'package:requests/src/storage.dart';
-import 'package:requests/src/client/io_client.dart'
-    if (dart.library.html) 'package:requests/src/client/browser_client.dart';
+import 'package:requests_plus/src/common.dart';
+import 'package:requests_plus/src/cookie.dart';
+import 'package:requests_plus/src/cookie_jar.dart';
+import 'package:requests_plus/src/event.dart';
+import 'package:requests_plus/src/response.dart';
+import 'package:requests_plus/src/storage.dart';
+import 'package:requests_plus/src/client/io_client.dart'
+    if (dart.library.html) 'package:requests_plus/src/client/browser_client.dart';
 
 // ignore: constant_identifier_names
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText, FormData }
@@ -17,8 +17,8 @@ enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText, FormData }
 // ignore: constant_identifier_names
 enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
 
-class Requests {
-  const Requests();
+class RequestsPlus {
+  const RequestsPlus();
 
   static final Event onError = Event();
   static const int defaultTimeoutSeconds = 10;
@@ -307,9 +307,7 @@ class Requests {
     }
     if (response.headers.containsKey("set-cookie-proxied")) {
       if (response.headers.containsKey("set-cookie")) {
-        response.headers["set-cookie"] = response.headers["set-cookie"]! +
-            "; " +
-            response.headers["set-cookie-proxied"]!;
+        response.headers["set-cookie"] = "${response.headers["set-cookie"]!}; ${response.headers["set-cookie-proxied"]!}";
       } else {
         response.headers["set-cookie"] =
             response.headers["set-cookie-proxied"]!;

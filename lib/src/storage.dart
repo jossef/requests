@@ -1,6 +1,6 @@
 import 'package:quiver/cache.dart';
 
-import 'package:requests/src/cookie_jar.dart';
+import 'package:requests_plus/src/cookie_jar.dart';
 
 class Storage {
   /// The cache containing the cookies semi-persistently.

@@ -1,6 +1,6 @@
 import 'package:http/http.dart';
 
-import 'package:requests/requests.dart';
+import 'package:requests/requests_plus.dart';
 import 'package:requests/src/response.dart';
 import 'package:requests/src/common.dart';
 import 'package:requests/src/cookie.dart';

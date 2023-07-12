@@ -1,4 +1,4 @@
-import 'package:requests/src/exception.dart';
+import 'package:requests_plus/src/exception.dart';
 
 /// Object representation of a cookie.
 class Cookie {

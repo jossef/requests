@@ -1,4 +1,4 @@
-import 'package:requests/requests.dart';
+import 'package:requests_plus/requests_plus.dart';
 
 void main(List<String> arguments) async {
   // This example uses the Google Books API to search for books about requests.
@@ -6,7 +6,7 @@ void main(List<String> arguments) async {
   var url = 'https://www.googleapis.com/books/v1/volumes?q={requests}';
 
   // Await the http get response, then decode the json-formatted response.
-  var response = await Requests.get(url);
+  var response = await RequestsPlus.get(url);
   if (response.statusCode == 200) {
     var jsonResponse = response.json();
     var itemCount = jsonResponse["totalItems"];

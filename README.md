@@ -21,7 +21,7 @@ dependencies:
 ## Usage
 Start by importing the library
 ```dart
-import 'package:requests/requests.dart';
+import 'package:requests/requests_plus.dart';
 ```
 
 Let's make a simple HTTP request

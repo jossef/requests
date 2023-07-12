@@ -2,7 +2,7 @@ import 'dart:convert' as c;
 
 import 'package:http/http.dart';
 
-import 'package:requests/src/exception.dart';
+import 'package:requests_plus/src/exception.dart';
 
 extension ResponseExtension on Response {
   bool get hasError => (400 <= statusCode) && (statusCode < 600);
