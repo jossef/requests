@@ -1,9 +1,9 @@
 import 'package:http/http.dart';
 
-import 'package:requests/requests_plus.dart';
-import 'package:requests/src/response.dart';
-import 'package:requests/src/common.dart';
-import 'package:requests/src/cookie.dart';
+import 'package:requests_plus/requests_plus.dart';
+import 'package:requests_plus/src/response.dart';
+import 'package:requests_plus/src/common.dart';
+import 'package:requests_plus/src/cookie.dart';
 import 'package:test/test.dart';
 
 void _validateResponse(Response r) {
