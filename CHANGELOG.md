@@ -1,8 +1,8 @@
 # Changelog
 
-## [4.8.0](https://github.com/jossef/requests/tree/4.8.0) (2022-10-14)
+## [4.8.0](https://github.com/onyx-lyon1/requests_plus/tree/4.8.0) (2022-10-14)
 
-[Full Changelog](https://github.com/jossef/requests/compare/4.8.0-alpha.0...4.8.0)
+[Full Changelog](https://github.com/onyx-lyon1/requests_plus/compare/4.8.0-alpha.0...4.8.0)
 
 **added new features:**
 
