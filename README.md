@@ -1,21 +1,30 @@
-![banner-01](https://user-images.githubusercontent.com/40632486/159684962-ae198561-16dc-4216-9f26-b223e8d01df9.png)
+![banner-01](https://raw.githubusercontent.com/onyx-lyon1/requests_plus/master/logo/social-01.png)
 
-[![Version](https://img.shields.io/pub/v/requests?include_prereleases)](https://pub.dev/packages/requests)
-[![License](https://img.shields.io/github/license/jossef/requests)](https://github.com/jossef/requests)
+[![Version](https://img.shields.io/pub/v/requests_plus?include_prereleases)](https://pub.dev/packages/requests_plus)
+[![License](https://img.shields.io/github/license/jossef/requests)](https://github.com/onyx-lyon1/requests_plus)
 
-a dart library to make HTTP requests (inspired by python [requests](https://github.com/psf/requests) module). It comes with JSON support and a lightweight implementation to store cookies like a browser.
+## 🚀 requests-plus
 
-### Cookies, huh?
+A powerful Dart library for making HTTP requests, based on the popular [requests](https://github.com/psf/requests) module from Python. This is a fork of the original "requests" project with additional features and enhancements.
+
+### 🌟 New Features
+
+- **Form Data Support**: Send data in the form of `multipart/form-data` using the `RequestBodyEncoding.FormData` option in the `bodyEncoding` parameter.
+- **CORS Proxy**: Easily bypass CORS restrictions by utilizing the [dart_cors-proxy](https://github.com/onyx-lyon1/dart_cors-proxy) proxy. Simply specify the `corsProxyUrl` parameter with the URL of the proxy.
+
+> **Note**: This fork builds upon the functionality of the original "requests" library, adding these new features to empower your HTTP requests.
+
+### 🍪 Cookies, huh?
 Server side cookies (via response header `SET-COOKIE`) are stored using the assistance of [`quiver.cache`](https://pub.dev/documentation/quiver/latest/quiver.cache/quiver.cache-library.html). Stored cookies will be send seamlessly on the next http requests you make to the same domain (simple implementation, similar to a web browser).
 
 
-## Install
+## ✨ Installation
 
 Add this to your package's pubspec.yaml file:
 
 ```yaml
 dependencies:
-  requests: ^4.8.1
+  requests: ^4.8.2
 ```
 
 ## Usage
