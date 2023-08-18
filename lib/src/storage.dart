@@ -15,7 +15,7 @@ class Storage {
 
   /// The value for the given [key], or `null` if [key] is not in the [cache].
   static Future<CookieJar?> get(String key) async {
-    return await cache.get(key);
+    return cache.get(key);
   }
 
   /// Removes [key] and its associated value, if present, from the [cache].
