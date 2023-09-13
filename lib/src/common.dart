@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:hex/hex.dart';
 import 'package:crypto/crypto.dart';
+import 'package:hex/hex.dart';
 
 /// A collection of common methods.
 class Common {
@@ -16,7 +16,7 @@ class Common {
   }
 
   static String toJson(dynamic object) {
-    var encoder = JsonEncoder.withIndent('     ');
+    const encoder = JsonEncoder.withIndent('     ');
     return encoder.convert(object);
   }
 
@@ -40,27 +40,27 @@ class Common {
   }
 
   static String hashStringSHA256(String input) {
-    var bytes = utf8.encode(input);
-    var digest = sha256.convert(bytes);
+    final bytes = utf8.encode(input);
+    final digest = sha256.convert(bytes);
     return toHexString(digest.bytes);
   }
 
   static String encodeMap(Map data) {
     return data.keys.map((key) {
-      var k = Uri.encodeComponent(key.toString());
-      var v = Uri.encodeComponent(data[key].toString());
+      final k = Uri.encodeComponent(key.toString());
+      final v = Uri.encodeComponent(data[key].toString());
       return '$k=$v';
     }).join('&');
   }
 
   /// Get the hostname of a [url].
   static String getHostname(String url) {
-    var uri = Uri.parse(url);
+    final uri = Uri.parse(url);
     // If the url is already a hostname, return it.
     // Get the first part of the split in case the hostname
     // contains a path.
     if (uri.path.isNotEmpty && url.startsWith(uri.path)) {
-      return url.split(RegExp(r'[#?/]'))[0];
+      return url.split(RegExp('[#?/]'))[0];
     }
     return uri.host.isNotEmpty ? uri.host : uri.scheme;
   }

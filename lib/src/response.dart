@@ -11,7 +11,7 @@ extension ResponseExtension on Response {
 
   Uri? get url => request?.url;
 
-  String? get contentType => headers["content-type"];
+  String? get contentType => headers['content-type'];
 
   List<int> bytes() => bodyBytes;
 
@@ -22,7 +22,9 @@ extension ResponseExtension on Response {
   void throwForStatus() {
     if (hasError) {
       throw HTTPException(
-          "Invalid HTTP status code $statusCode for url $url", this);
+        'Invalid HTTP status code $statusCode for url $url',
+        this,
+      );
     }
   }
 

@@ -1,15 +1,16 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:core';
 
 import 'package:http/http.dart';
-
+import 'package:requests/src/client/io_client.dart'
+    if (dart.library.html) 'package:requests/src/client/browser_client.dart';
 import 'package:requests/src/common.dart';
 import 'package:requests/src/cookie.dart';
 import 'package:requests/src/cookie_jar.dart';
 import 'package:requests/src/event.dart';
 import 'package:requests/src/response.dart';
 import 'package:requests/src/storage.dart';
-import 'package:requests/src/client/io_client.dart'
-    if (dart.library.html) 'package:requests/src/client/browser_client.dart';
 
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
 
@@ -25,10 +26,10 @@ class Requests {
   /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
   static CookieJar extractResponseCookies(Map<String, String> responseHeaders) {
     var result = CookieJar();
-    var keys = responseHeaders.keys.map((e) => e.toLowerCase());
+    final keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
-    if (keys.contains("set-cookie")) {
-      var cookies = responseHeaders["set-cookie"]!;
+    if (keys.contains('set-cookie')) {
+      final cookies = responseHeaders['set-cookie']!;
       result = CookieJar.parseCookiesString(cookies);
     }
     return result;
@@ -37,37 +38,37 @@ class Requests {
   /// Get the [CookieJar] for the given [url] hostname, or an empty
   /// [CookieJar] if the hostname is not in the cache.
   static Future<CookieJar> getStoredCookies(String url) async {
-    var hostname = Common.getHostname(url);
-    var hostnameHash = Common.hashStringSHA256(hostname);
-    var cookies = await Storage.get('cookies-$hostnameHash');
+    final hostname = Common.getHostname(url);
+    final hostnameHash = Common.hashStringSHA256(hostname);
+    final cookies = await Storage.get('cookies-$hostnameHash');
 
     return cookies ?? CookieJar();
   }
 
   /// Associates the [url] hostname with the given [cookies] into the cache.
   static Future setStoredCookies(String url, CookieJar cookies) async {
-    var hostname = Common.getHostname(url);
-    var hostnameHash = Common.hashStringSHA256(hostname);
+    final hostname = Common.getHostname(url);
+    final hostnameHash = Common.hashStringSHA256(hostname);
     await Storage.set('cookies-$hostnameHash', cookies);
   }
 
   /// Removes the [url] hostname and its associated value, if present,
   /// from the cache.
   static Future clearStoredCookies(String url) async {
-    var hostname = Common.getHostname(url);
-    var hostnameHash = Common.hashStringSHA256(hostname);
+    final hostname = Common.getHostname(url);
+    final hostnameHash = Common.hashStringSHA256(hostname);
     await Storage.delete('cookies-$hostnameHash');
   }
 
   /// Add a cookie with its [name] and [value] to the [url] hostname
   /// associated [CookieJar].
   static Future addCookie(String url, String name, String value) async {
-    var cookieJar = await getStoredCookies(url);
+    final cookieJar = await getStoredCookies(url);
     cookieJar[name] = Cookie(name, value);
     await setStoredCookies(url, cookieJar);
   }
 
-  @Deprecated("Do not use this method, it is not needed anymore.")
+  @Deprecated('Do not use this method, it is not needed anymore.')
   static String getHostname(String url) {
     return Common.getHostname(url);
   }
@@ -243,11 +244,13 @@ class Requests {
   }
 
   static Future<Map<String, String>> _constructRequestHeaders(
-      String url, Map<String, String>? customHeaders) async {
-    var requestHeaders = <String, String>{};
+    String url,
+    Map<String, String>? customHeaders,
+  ) async {
+    final requestHeaders = <String, String>{};
 
-    var cookies = (await getStoredCookies(url)).values;
-    var cookie = cookies.map((e) => '${e.name}=${e.value}').join("; ");
+    final cookies = (await getStoredCookies(url)).values;
+    final cookie = cookies.map((e) => '${e.name}=${e.value}').join('; ');
 
     requestHeaders['cookie'] = cookie;
 
@@ -259,18 +262,21 @@ class Requests {
   }
 
   static Future<Response> _handleHttpResponse(
-      String url, Response response, bool persistCookies) async {
+    String url,
+    Response response,
+    bool persistCookies,
+  ) async {
     if (persistCookies) {
-      var responseCookies = extractResponseCookies(response.headers);
+      final responseCookies = extractResponseCookies(response.headers);
       if (responseCookies.isNotEmpty) {
-        var storedCookies = await getStoredCookies(url);
+        final storedCookies = await getStoredCookies(url);
         storedCookies.addAll(responseCookies);
         await setStoredCookies(url, storedCookies);
       }
     }
 
     if (response.hasError) {
-      var errorEvent = {'response': response};
+      final errorEvent = {'response': response};
       onError.publish(errorEvent);
     }
 
@@ -307,7 +313,8 @@ class Requests {
 
     if (uri.scheme != 'http' && uri.scheme != 'https') {
       throw ArgumentError(
-          "invalid url, must start with 'http://' or 'https://' scheme (e.g. 'http://example.com')");
+        "invalid url, must start with 'http://' or 'https://' scheme (e.g. 'http://example.com')",
+      );
     }
 
     headers = await _constructRequestHeaders(url, headers);
@@ -318,12 +325,13 @@ class Requests {
     }
 
     if (queryParameters != null) {
-      var stringQueryParameters = <String, dynamic>{};
+      final stringQueryParameters = <String, dynamic>{};
 
-      queryParameters.forEach((key, value) => stringQueryParameters[key] =
-          value is List
-              ? (value.map((e) => e?.toString()))
-              : value?.toString());
+      queryParameters.forEach(
+        (key, value) => stringQueryParameters[key] = value is List
+            ? (value.map((e) => e?.toString()))
+            : value?.toString(),
+      );
 
       uri = uri.replace(queryParameters: stringQueryParameters);
     }
@@ -396,6 +404,6 @@ class Requests {
       response = await Response.fromStream(response);
     }
 
-    return await _handleHttpResponse(url, response, persistCookies);
+    return _handleHttpResponse(url, response, persistCookies);
   }
 }

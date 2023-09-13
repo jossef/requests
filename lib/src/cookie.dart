@@ -2,32 +2,31 @@ import 'package:requests/src/exception.dart';
 
 /// Object representation of a cookie.
 class Cookie {
+  Cookie(this._name, this._value);
   final String _name;
   final String _value;
   static final Map<String, Type> validAttributes = {
-    "comment": String,
-    "domain": String,
-    "expires": String,
-    "httponly": bool,
-    "path": String,
-    "max-age": String,
-    "secure": bool,
-    "samesite": String,
+    'comment': String,
+    'domain': String,
+    'expires': String,
+    'httponly': bool,
+    'path': String,
+    'max-age': String,
+    'secure': bool,
+    'samesite': String,
   };
 
   final _attributes = <String, dynamic>{};
 
-  Cookie(this._name, this._value);
-
-  /// The name of [this].
+  /// The name of this.
   String get name => _name;
 
-  /// The value of [this].
+  /// The value of this.
   String get value => _value;
 
   /// Constructs a request header.
-  String output({String header = "Set-Cookie"}) {
-    String string = "$header: $name=$value";
+  String output({String header = 'Set-Cookie'}) {
+    var string = '$header: $name=$value';
 
     _attributes.forEach((key, value) {
       if (value.runtimeType == String && value.length == 0) {
@@ -38,9 +37,9 @@ class Cookie {
         return;
       }
 
-      string += "; $key";
+      string += '; $key';
       if (value.runtimeType != bool) {
-        string += "=$value";
+        string += '=$value';
       }
     });
 
@@ -64,7 +63,7 @@ class Cookie {
   /// see [this.validAttributes].
   void operator []=(String key, dynamic value) {
     if (validAttributes.containsKey(key.toLowerCase())) {
-      var attributeType = validAttributes[key.toLowerCase()];
+      final attributeType = validAttributes[key.toLowerCase()];
 
       switch (attributeType) {
         case bool:
@@ -76,7 +75,7 @@ class Cookie {
         default:
       }
     }
-    throw KeyError("Input key is not valid: $key.");
+    throw KeyError('Input key is not valid: $key.');
   }
 
   /// Same as [this.output()].

@@ -8,7 +8,7 @@ Client createClient({
   bool verify = true,
   bool withCredentials = false,
 }) {
-  var ioClient = HttpClient();
+  final ioClient = HttpClient();
   if (!verify) {
     ioClient.badCertificateCallback = (_, __, ___) => true;
   }

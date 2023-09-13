@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.8.1](https://github.com/jossef/requests/tree/4.8.1) (2023-08-18)
+
+- Migration to Dart 3
+- Update dependencies and analysis_options
+
 ## [4.8.0-alpha.0](https://github.com/jossef/requests/tree/4.8.0-alpha.0) (2022-10-14)
 
 [Full Changelog](https://github.com/jossef/requests/compare/4.7.0...4.8.0-alpha.0)
