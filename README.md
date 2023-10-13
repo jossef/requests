@@ -10,6 +10,7 @@ A powerful Dart library for making HTTP requests, based on the popular [requests
 ### 🌟 New Features
 
 - **Form Data Support**: Send data in the form of `multipart/form-data` using the `RequestBodyEncoding.FormData` option in the `bodyEncoding` parameter.
+- **HTTP Authentification support**: Easily send HTTP authentification headers using the `userName` and `password` parameters. (Basic Authentification only)
 - **CORS Proxy**: Easily bypass CORS restrictions by utilizing the [dart_cors-proxy](https://github.com/onyx-lyon1/dart_cors-proxy) proxy. Simply specify the `corsProxyUrl` parameter with the URL of the proxy.
 
 > **Note**: This fork builds upon the functionality of the original "requests" library, adding these new features to empower your HTTP requests.
@@ -61,11 +62,13 @@ just like in python's request module, the `Response` object has this functionali
 - `json` - a `dynamic` object that will be json encoded and then be set as the request's body
 - `body` - a raw string to be used as the request's body
 - `bodyEncoding` - default `RequestBodyEncoding.FormURLEncoded`. will set the `content-type` header
-- `headers` - `Map<String, String>` of custom client headers to add in the request
+- `headers` - `Map<String, String>` of custom client headers to add in the request (will override all default headers)
 - `timeoutSeconds` - default `10` seconds. after that period of time without server response an exception is thrown
 - `persistCookies` - default `true`. if should respect server's command to persist cookie
 - `verify` - default `true`. if the SSL verification enabled
 - `withCredentials` - default `false`. for dart web to handle cookies, authorization headers, or TLS client certificates
+- `userName` - default `null`. for HTTP basic authentification
+- `password` - default `null`. for HTTP basic authentification
 
 > **Note**:
 > Only one optional argument can be used in a single request `body` or `json`

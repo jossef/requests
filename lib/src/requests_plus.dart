@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:core';
 
 import 'package:http/http.dart';
@@ -89,6 +90,8 @@ class RequestsPlus {
     bool withCredentials = false,
     String corsProxyUrl = '',
     bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.HEAD,
@@ -103,6 +106,8 @@ class RequestsPlus {
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
       followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -120,6 +125,8 @@ class RequestsPlus {
     bool withCredentials = false,
     String corsProxyUrl = '',
     bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.GET,
@@ -136,6 +143,8 @@ class RequestsPlus {
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
       followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -153,6 +162,8 @@ class RequestsPlus {
     bool withCredentials = false,
     String corsProxyUrl = '',
     bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.PATCH,
@@ -169,6 +180,8 @@ class RequestsPlus {
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
       followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -186,6 +199,8 @@ class RequestsPlus {
     bool withCredentials = false,
     String corsProxyUrl = '',
     bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.DELETE,
@@ -202,6 +217,8 @@ class RequestsPlus {
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
       followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -219,6 +236,8 @@ class RequestsPlus {
     bool withCredentials = false,
     String corsProxyUrl = '',
     bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.POST,
@@ -235,6 +254,8 @@ class RequestsPlus {
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
       followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -252,6 +273,8 @@ class RequestsPlus {
     bool withCredentials = false,
     String corsProxyUrl = '',
     bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.PUT,
@@ -268,11 +291,13 @@ class RequestsPlus {
       withCredentials: withCredentials,
       corsProxyUrl: corsProxyUrl,
       followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
   static Future<Map<String, String>> _constructRequestHeaders(String url,
-      Map<String, String>? customHeaders, String corsProxyUrl) async {
+      Map<String, String>? customHeaders, String corsProxyUrl, String? username, String? password) async {
     var requestHeaders = <String, String>{};
 
     var cookies = (await getStoredCookies(url)).values;
@@ -284,6 +309,10 @@ class RequestsPlus {
 
     if (customHeaders != null) {
       requestHeaders.addAll(customHeaders);
+    }
+    
+    if (!requestHeaders.containsKey('authorization') && username!=null && password!=null){
+      requestHeaders["authorization"] = "Basic ${base64Encode(utf8.encode('$username:$password'))}";
     }
 
     return requestHeaders;
@@ -347,9 +376,15 @@ class RequestsPlus {
     bool withCredentials = false,
     String corsProxyUrl = "",
     bool followRedirects = true,
+    String? userName,
+    String? password,
   }) async {
     Client client;
 
+    assert(
+        (userName == null && password == null) ||
+            (userName != null && password != null),
+        "username and password must be used together or none");
     if (!verify || withCredentials) {
       client = createClient(
         verify: verify,
@@ -371,7 +406,7 @@ class RequestsPlus {
       headers = {'follow-redirects': followRedirects.toString()}
         ..addAll(headers);
     }
-    headers = await _constructRequestHeaders(url, headers, corsProxyUrl);
+    headers = await _constructRequestHeaders(url, headers, corsProxyUrl, userName, password);
     String? requestBody;
 
     if (body != null && json != null) {
