@@ -7,7 +7,7 @@ environment:
 dependencies:
   crypto: ^3.0.3
   hex: ^0.2.0
-  http: <=1.1.0
+  http: ^1.1.0
   quiver: ^3.2.1
 dev_dependencies:
   lints: ^2.1.1
