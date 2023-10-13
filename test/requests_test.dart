@@ -17,7 +17,7 @@ void main() {
     final String PLACEHOLDER_PROVIDER = 'https://reqres.in';
 
     test('plain http get', () async {
-      var r = await Requests.get('https://google.com');
+      var r = await RequestsPlus.get('https://google.com');
       r.raiseForStatus();
       dynamic body = r.content();
       expect(body, isNotNull);
@@ -25,7 +25,7 @@ void main() {
     });
 
     test('plain http get with query parameters', () async {
-      var r = await Requests.get('https://google.com',
+      var r = await RequestsPlus.get('https://google.com',
           queryParameters: {'id': 1, 'name': null});
       r.raiseForStatus();
       dynamic body = r.content();
@@ -35,7 +35,7 @@ void main() {
     });
 
     test('plain http get with port 80', () async {
-      var r = await Requests.get('http://google.com', port: 80);
+      var r = await RequestsPlus.get('http://google.com', port: 80);
       r.raiseForStatus();
       _validateResponse(r);
       dynamic body = r.content();
@@ -44,12 +44,12 @@ void main() {
 
     test('plain http get with port 8080', () async {
       var r =
-          await Requests.get('http://portquiz.net:8080/', timeoutSeconds: 30);
+          await RequestsPlus.get('http://portquiz.net:8080/', timeoutSeconds: 30);
       r.raiseForStatus();
     });
 
     test('json http get list of objects', () async {
-      var r = await Requests.get('$PLACEHOLDER_PROVIDER/api/users');
+      var r = await RequestsPlus.get('$PLACEHOLDER_PROVIDER/api/users');
       r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
@@ -58,7 +58,7 @@ void main() {
     });
 
     test('FormURLEncoded http post', () async {
-      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
+      var r = await RequestsPlus.post('$PLACEHOLDER_PROVIDER/api/users',
           body: {
             'userId': 10,
             'id': 91,
@@ -72,9 +72,17 @@ void main() {
       expect(body, isNotNull);
       _validateResponse(r);
     });
+    
+    test('http get with auth', () async {
+      var r = await RequestsPlus.get('https://authenticationtest.com/HTTPAuth/',
+          userName: 'user', password: 'pass');
+      r.raiseForStatus();
+      expect(r.body.contains("Login Success"), true);
+      _validateResponse(r);
+    });
 
     test('http post a list of object', () async {
-      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users', json: [
+      var r = await RequestsPlus.post('$PLACEHOLDER_PROVIDER/api/users', json: [
         {
           'userId': 10,
           'id': 91,
@@ -90,7 +98,7 @@ void main() {
     });
 
     test('json http delete with request body', () async {
-      var r = await Requests.delete(
+      var r = await RequestsPlus.delete(
         '$PLACEHOLDER_PROVIDER/api/users/10',
         json: {'something': 'something'},
       );
@@ -99,7 +107,7 @@ void main() {
     });
 
     test('json http post', () async {
-      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users', json: {
+      var r = await RequestsPlus.post('$PLACEHOLDER_PROVIDER/api/users', json: {
         'userId': 10,
         'id': 91,
         'title': 'aut amet sed',
@@ -113,13 +121,13 @@ void main() {
     });
 
     test('json http delete', () async {
-      var r = await Requests.delete('$PLACEHOLDER_PROVIDER/api/users/10');
+      var r = await RequestsPlus.delete('$PLACEHOLDER_PROVIDER/api/users/10');
       r.raiseForStatus();
       _validateResponse(r);
     });
 
     test('json http post as a form and as a JSON', () async {
-      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users', json: {
+      var r = await RequestsPlus.post('$PLACEHOLDER_PROVIDER/api/users', json: {
         'userId': 10,
         'id': 91,
         'title': 'aut amet sed',
@@ -133,7 +141,7 @@ void main() {
     });
 
     test('json http get object', () async {
-      var r = await Requests.get('$PLACEHOLDER_PROVIDER/api/users/2');
+      var r = await RequestsPlus.get('$PLACEHOLDER_PROVIDER/api/users/2');
       r.raiseForStatus();
       dynamic body = r.json();
       expect(body, isNotNull);
@@ -143,34 +151,34 @@ void main() {
 
     test('remove cookies', () async {
       String url = '$PLACEHOLDER_PROVIDER/api/users/1';
-      await Requests.clearStoredCookies(url);
+      await RequestsPlus.clearStoredCookies(url);
       var cookies = CookieJar.parseCookiesString("session=bla");
-      await Requests.setStoredCookies(url, cookies);
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.setStoredCookies(url, cookies);
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.clearStoredCookies(url);
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.clearStoredCookies(url);
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 0);
     });
 
     test('add cookies', () async {
       String url = 'http://example.com';
-      await Requests.addCookie(url, 'name', 'value');
-      var cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.addCookie(url, 'name', 'value');
+      var cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.addCookie(url, 'name', 'value');
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.addCookie(url, 'name', 'value');
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.addCookie(url, 'another name', 'value');
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.addCookie(url, 'another name', 'value');
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 2);
-      await Requests.clearStoredCookies(url);
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.clearStoredCookies(url);
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 0);
     });
 
     test('response as Response object', () async {
-      var r = await Requests.post('$PLACEHOLDER_PROVIDER/api/users',
+      var r = await RequestsPlus.post('$PLACEHOLDER_PROVIDER/api/users',
           body: {'name': 'morpheus'});
       r.raiseForStatus();
       var content = r.content();
@@ -182,7 +190,7 @@ void main() {
 
     test('throw error', () async {
       try {
-        var r = await Requests.get('$PLACEHOLDER_PROVIDER/api/unknown/23');
+        var r = await RequestsPlus.get('$PLACEHOLDER_PROVIDER/api/unknown/23');
         r.raiseForStatus();
       } on HTTPException catch (e) {
         expect(e.response, isA<Response>());
@@ -194,7 +202,7 @@ void main() {
 
     test('throw if both json and body used', () async {
       try {
-        await Requests.post('$PLACEHOLDER_PROVIDER/api/unknown/23',
+        await RequestsPlus.post('$PLACEHOLDER_PROVIDER/api/unknown/23',
             body: {}, json: {});
       } on ArgumentError catch (_) {
         return;
@@ -204,7 +212,7 @@ void main() {
 
     test('ssl should fail due to expired certificate', () async {
       try {
-        var r = await Requests.get('https://expired.badssl.com/');
+        var r = await RequestsPlus.get('https://expired.badssl.com/');
         r.raiseForStatus();
       } on Exception catch (_) {
         return;
@@ -214,13 +222,13 @@ void main() {
     });
 
     test('ssl allow invalid', () async {
-      var r = await Requests.get('https://expired.badssl.com/', verify: false);
+      var r = await RequestsPlus.get('https://expired.badssl.com/', verify: false);
       r.raiseForStatus();
     });
 
     test('multiple Set-Cookie response header', () async {
-      var r = await Requests.get("http://samesitetest.com/cookies/set");
-      var cookies = await Requests.extractResponseCookies(r.headers);
+      var r = await RequestsPlus.get("http://samesitetest.com/cookies/set");
+      var cookies = await RequestsPlus.extractResponseCookies(r.headers);
 
       expect(
         cookies["StrictCookie"]!.output(),
@@ -254,7 +262,7 @@ void main() {
         adblockerfound=true 
       """;
       headers['set-cookie'] = cookiesString;
-      var cookies = await Requests.extractResponseCookies(headers);
+      var cookies = await RequestsPlus.extractResponseCookies(headers);
 
       expect(
         cookies["session"]!.output(),
