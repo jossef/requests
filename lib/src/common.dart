@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:hex/hex.dart';
 import 'package:crypto/crypto.dart';
+import 'package:hex/hex.dart';
 
 /// A collection of common methods.
 class Common {
@@ -17,7 +17,7 @@ class Common {
   }
 
   static String toJson(dynamic object) {
-    var encoder = JsonEncoder.withIndent('     ');
+    const encoder = JsonEncoder.withIndent('     ');
     return encoder.convert(object);
   }
 
@@ -41,51 +41,50 @@ class Common {
   }
 
   static String hashStringSHA256(String input) {
-    var bytes = utf8.encode(input);
-    var digest = sha256.convert(bytes);
+    final bytes = utf8.encode(input);
+    final digest = sha256.convert(bytes);
     return toHexString(digest.bytes);
   }
 
   static String encodeMap(Map data) {
     return data.keys.map((key) {
-      var k = Uri.encodeComponent(key.toString());
-      var v = Uri.encodeComponent(data[key].toString());
+      final k = Uri.encodeComponent(key.toString());
+      final v = Uri.encodeComponent(data[key].toString());
       return '$k=$v';
     }).join('&');
   }
 
   static String generateBoundary() {
     final random = Random();
-    String boundary = '--------------------------';
-    for (int i = 0; i < 24; i++) {
-      boundary += random.nextInt(10).toString();
+    final boundary = StringBuffer('--------------------------');
+    for (var i = 0; i < 24; i++) {
+      boundary.write(random.nextInt(10));
     }
-    return boundary;
+    return boundary.toString();
   }
 
   static String encodeFormData(Map data, String boundary) {
-    String midBoundary = '--$boundary\r\n';
-    String endBoundary = '--$boundary--\r\n';
-    String contentDispositionPrefix =
-        'Content-Disposition: form-data; name="';
-    String result = '';
-    for (var key in data.keys) {
-      result += midBoundary;
-      result += '$contentDispositionPrefix$key"\r\n\r\n';
-      result += '${data[key]}\r\n';
+    final midBoundary = StringBuffer('--$boundary\r\n');
+    final endBoundary = StringBuffer('--$boundary--\r\n');
+    final contentDispositionPrefix = StringBuffer('Content-Disposition: form-data; name="');
+    final result = StringBuffer();
+    for (final key in data.keys) {
+      result..write(midBoundary)
+      ..write('$contentDispositionPrefix$key"\r\n\r\n')
+      ..write('${data[key]}\r\n');
     }
-    result += endBoundary;
-    return result;
+    result.write(endBoundary);
+    return result.toString();
   }
 
   /// Get the hostname of a [url].
   static String getHostname(String url) {
-    var uri = Uri.parse(url);
+    final uri = Uri.parse(url);
     // If the url is already a hostname, return it.
     // Get the first part of the split in case the hostname
     // contains a path.
     if (uri.path.isNotEmpty && url.startsWith(uri.path)) {
-      return url.split(RegExp(r'[#?/]'))[0];
+      return url.split(RegExp('[#?/]'))[0];
     }
     return uri.host.isNotEmpty ? uri.host : uri.scheme;
   }

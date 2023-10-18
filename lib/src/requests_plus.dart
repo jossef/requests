@@ -2,15 +2,14 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:http/http.dart';
-
+import 'package:requests_plus/src/client/io_client.dart'
+    if (dart.library.html) 'package:requests_plus/src/client/browser_client.dart';
 import 'package:requests_plus/src/common.dart';
 import 'package:requests_plus/src/cookie.dart';
 import 'package:requests_plus/src/cookie_jar.dart';
 import 'package:requests_plus/src/event.dart';
 import 'package:requests_plus/src/response.dart';
 import 'package:requests_plus/src/storage.dart';
-import 'package:requests_plus/src/client/io_client.dart'
-    if (dart.library.html) 'package:requests_plus/src/client/browser_client.dart';
 
 // ignore: constant_identifier_names
 enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText, FormData }
@@ -31,10 +30,10 @@ class RequestsPlus {
     Map<String, String> responseHeaders,
   ) {
     var result = CookieJar();
-    var keys = responseHeaders.keys.map((e) => e.toLowerCase());
+    final keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
     if (keys.contains('set-cookie')) {
-      var cookies = responseHeaders['set-cookie']!;
+      final cookies = responseHeaders['set-cookie']!;
       result = CookieJar.parseCookiesString(cookies);
     }
     return result;
@@ -43,37 +42,37 @@ class RequestsPlus {
   /// Get the [CookieJar] for the given [url] hostname, or an empty
   /// [CookieJar] if the hostname is not in the cache.
   static Future<CookieJar> getStoredCookies(String url) async {
-    var hostname = Common.getHostname(url);
-    var hostnameHash = Common.hashStringSHA256(hostname);
-    var cookies = await Storage.get('cookies-$hostnameHash');
+    final hostname = Common.getHostname(url);
+    final hostnameHash = Common.hashStringSHA256(hostname);
+    final cookies = await Storage.get('cookies-$hostnameHash');
 
     return cookies ?? CookieJar();
   }
 
   /// Associates the [url] hostname with the given [cookies] into the cache.
   static Future setStoredCookies(String url, CookieJar cookies) async {
-    var hostname = Common.getHostname(url);
-    var hostnameHash = Common.hashStringSHA256(hostname);
+    final hostname = Common.getHostname(url);
+    final hostnameHash = Common.hashStringSHA256(hostname);
     await Storage.set('cookies-$hostnameHash', cookies);
   }
 
   /// Removes the [url] hostname and its associated value, if present,
   /// from the cache.
   static Future clearStoredCookies(String url) async {
-    var hostname = Common.getHostname(url);
-    var hostnameHash = Common.hashStringSHA256(hostname);
+    final hostname = Common.getHostname(url);
+    final hostnameHash = Common.hashStringSHA256(hostname);
     await Storage.delete('cookies-$hostnameHash');
   }
 
   /// Add a cookie with its [name] and [value] to the [url] hostname
   /// associated [CookieJar].
   static Future addCookie(String url, String name, String value) async {
-    var cookieJar = await getStoredCookies(url);
+    final cookieJar = await getStoredCookies(url);
     cookieJar[name] = Cookie(name, value);
     await setStoredCookies(url, cookieJar);
   }
 
-  @Deprecated("Do not use this method, it is not needed anymore.")
+  @Deprecated('Do not use this method, it is not needed anymore.')
   static String getHostname(String url) {
     return Common.getHostname(url);
   }
@@ -296,65 +295,79 @@ class RequestsPlus {
     );
   }
 
-  static Future<Map<String, String>> _constructRequestHeaders(String url,
-      Map<String, String>? customHeaders, String corsProxyUrl, String? username, String? password) async {
-    var requestHeaders = <String, String>{};
+  static Future<Map<String, String>> _constructRequestHeaders(
+    String url,
+    Map<String, String>? customHeaders,
+    String corsProxyUrl,
+    String? username,
+    String? password,
+  ) async {
+    final requestHeaders = <String, String>{};
 
-    var cookies = (await getStoredCookies(url)).values;
-    var cookie = cookies.map((e) => '${e.name}=${e.value}').join("; ");
+    final cookies = (await getStoredCookies(url)).values;
+    final cookie = cookies.map((e) => '${e.name}=${e.value}').join('; ');
 
-    String cookieHeader =
+    final cookieHeader =
         (corsProxyUrl.isNotEmpty) ? 'cookie-proxied' : 'cookie';
     requestHeaders[cookieHeader] = cookie;
 
     if (customHeaders != null) {
       requestHeaders.addAll(customHeaders);
     }
-    
-    if (!requestHeaders.containsKey('authorization') && username!=null && password!=null){
-      requestHeaders["authorization"] = "Basic ${base64Encode(utf8.encode('$username:$password'))}";
+
+    if (!requestHeaders.containsKey('authorization') &&
+        username != null &&
+        password != null) {
+      requestHeaders['authorization'] =
+          "Basic ${base64Encode(utf8.encode('$username:$password'))}";
     }
 
     return requestHeaders;
   }
 
-  static Future<Response> _handleHttpResponse(String url, Response response,
-      bool persistCookies, String corsProxyUrl, bool followRedirects) async {
-    if (response.headers.containsKey("location-proxied")) {
+  static Future<Response> _handleHttpResponse(
+    String url,
+    Response response,
+    bool persistCookies,
+    String corsProxyUrl,
+    bool followRedirects,
+  ) async {
+    if (response.headers.containsKey('location-proxied')) {
       if (followRedirects && response.isRedirect) {
-        var redirectUrl = response.headers["location-proxied"]!;
-        return await _httpRequest(
+        final redirectUrl = response.headers['location-proxied']!;
+        return _httpRequest(
           HttpMethod.GET,
           redirectUrl,
           persistCookies: persistCookies,
           corsProxyUrl: corsProxyUrl,
         );
       } else {
-        response.headers["location"] = response.headers["location-proxied"]!;
-        response.headers.remove("location-proxied");
+        response.headers['location'] = response.headers['location-proxied']!;
+        response.headers.remove('location-proxied');
       }
     }
-    if (response.headers.containsKey("set-cookie-proxied")) {
-      if (response.headers.containsKey("set-cookie")) {
-        response.headers["set-cookie"] = "${response.headers["set-cookie"]!}; ${response.headers["set-cookie-proxied"]!}";
+    if (response.headers.containsKey('set-cookie-proxied')) {
+      if (response.headers.containsKey('set-cookie')) {
+        response.headers['set-cookie'] =
+            "${response.headers["set-cookie"]!}; ${response.headers["set-cookie-proxied"]!}";
       } else {
-        response.headers["set-cookie"] =
-            response.headers["set-cookie-proxied"]!;
+        response.headers['set-cookie'] =
+            response.headers['set-cookie-proxied']!;
       }
-      response.headers.remove("set-cookie-proxied");
+      response.headers.remove('set-cookie-proxied');
     }
 
     if (persistCookies) {
-      var responseCookies = extractResponseCookies(response.headers);
+      final responseCookies = extractResponseCookies(response.headers);
       if (responseCookies.isNotEmpty) {
-        var storedCookies = await getStoredCookies(url);
+        final storedCookies = await getStoredCookies(url);
         storedCookies.addAll(responseCookies);
         await setStoredCookies(url, storedCookies);
       }
     }
 
     if (response.hasError) {
-      var errorEvent = {'response': response};
+      final errorEvent = {'response': response};
       onError.publish(errorEvent);
     }
 
@@ -374,7 +387,7 @@ class RequestsPlus {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
-    String corsProxyUrl = "",
+    String corsProxyUrl = '',
     bool followRedirects = true,
     String? userName,
     String? password,
@@ -382,9 +395,10 @@ class RequestsPlus {
     Client client;
 
     assert(
-        (userName == null && password == null) ||
-            (userName != null && password != null),
-        "username and password must be used together or none");
+      (userName == null && password == null) ||
+          (userName != null && password != null),
+      'username and password must be used together or none',
+    );
     if (!verify || withCredentials) {
       client = createClient(
         verify: verify,
@@ -395,18 +409,24 @@ class RequestsPlus {
       client = Client();
     }
 
-    var uri = Uri.parse(((corsProxyUrl.isNotEmpty) ? corsProxyUrl : "") + url);
+    var uri = Uri.parse(((corsProxyUrl.isNotEmpty) ? corsProxyUrl : '') + url);
 
     if (uri.scheme != 'http' && uri.scheme != 'https') {
       throw ArgumentError(
-          "invalid url, must start with 'http://' or 'https://' scheme (e.g. 'http://example.com')");
+        "invalid url, must start with 'http://' or 'https://' scheme (e.g. 'http://example.com')",
+      );
     }
 
     if (corsProxyUrl.isNotEmpty) {
-      headers = {'follow-redirects': followRedirects.toString()}
-        ..addAll(headers);
+      headers['follow-redirects'] = followRedirects.toString();
     }
-    headers = await _constructRequestHeaders(url, headers, corsProxyUrl, userName, password);
+    headers = await _constructRequestHeaders(
+      url,
+      headers,
+      corsProxyUrl,
+      userName,
+      password,
+    );
     String? requestBody;
 
     if (body != null && json != null) {
@@ -414,20 +434,20 @@ class RequestsPlus {
     }
 
     if (queryParameters != null) {
-      var stringQueryParameters = <String, dynamic>{};
+      final stringQueryParameters = <String, dynamic>{};
 
-      queryParameters.forEach((key, value) => stringQueryParameters[key] =
-          value is List
-              ? (value.map((e) => e?.toString()))
-              : value?.toString());
+      queryParameters.forEach(
+        (key, value) => stringQueryParameters[key] = value is List
+            ? (value.map((e) => e?.toString()))
+            : value?.toString(),
+      );
 
       uri = uri.replace(queryParameters: stringQueryParameters);
     }
 
     if (port != null) {
       if (corsProxyUrl.isNotEmpty) {
-        var destination = Uri.parse(url);
-        destination.replace(port: port);
+        final destination = Uri.parse(url)..replace(port: port);
         uri = Uri.parse(corsProxyUrl + destination.toString());
       } else {
         uri = uri.replace(port: port);
@@ -456,7 +476,7 @@ class RequestsPlus {
           contentTypeHeader = 'text/plain';
           break;
         case RequestBodyEncoding.FormData:
-          String boundary = Common.generateBoundary();
+          final boundary = Common.generateBoundary();
           requestBody = Common.encodeFormData(body, boundary);
           contentTypeHeader = 'multipart/form-data; boundary=$boundary';
           break;
@@ -467,10 +487,12 @@ class RequestsPlus {
       }
     }
 
-    Request request = Request(method.toString().split(".").last,
-        uri); //little hack to get rid of HttpMethod.
-    request.followRedirects = followRedirects;
-    request.headers.addAll(headers);
+    final request = Request(
+      method.toString().split('.').last,
+      uri,
+    )
+      ..followRedirects = followRedirects
+      ..headers.addAll(headers); //little hack to get rid of HttpMethod.
     if ([HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE]
             .contains(method) &&
         requestBody != null) {
@@ -481,7 +503,12 @@ class RequestsPlus {
         await client.send(request).timeout(Duration(seconds: timeoutSeconds));
     final response = await Response.fromStream(streamedResponse);
 
-    return await _handleHttpResponse(
-        url, response, persistCookies, corsProxyUrl, followRedirects);
+    return _handleHttpResponse(
+      url,
+      response,
+      persistCookies,
+      corsProxyUrl,
+      followRedirects,
+    );
   }
 }
