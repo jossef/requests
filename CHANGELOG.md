@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.8.5
+
+update to 4.8.1 of requests
+
 ## 4.8.4
 
 - add http authentification support
