@@ -127,7 +127,7 @@ class RequestsPlus {
     String? userName,
     String? password,
   }) {
-        return _httpRequest(
+    return _httpRequest(
       HttpMethod.GET,
       url,
       bodyEncoding: bodyEncoding,
