@@ -375,10 +375,9 @@ class RequestsPlus {
         response.headers['location'] = response.headers['location-proxied']!;
         response.headers.remove('location-proxied');
       }
-      final uri = Uri.parse(response.headers['location']!);
-      if (uri.scheme.isEmpty) uri.replace(scheme: Uri.parse(url).scheme);
-      if (uri.host.isEmpty) uri.replace(scheme: Uri.parse(url).host);
-
+      var uri = Uri.parse(response.headers['location']!);
+      if (uri.scheme.isEmpty) uri = uri.replace(scheme: Uri.parse(url).scheme);
+      if (uri.host.isEmpty) uri = uri.replace(host: Uri.parse(url).host);
       return _httpRequest(
         method,
         '${uri.scheme}://${uri.host}${uri.path}',
