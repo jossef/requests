@@ -1,14 +1,14 @@
-name: requests
+name: requests_plus
 description: a flutter library that helps with http requests and stored cookies
-version: 5.0.0
-homepage: https://github.com/jossef/requests
+version: 4.8.6
+homepage: https://github.com/onyx-lyon1/requests_plus
 environment:
-  sdk: ">=3.1.0 <4.0.0"
+  sdk: '>=2.16.1 <4.0.0'
 dependencies:
   crypto: ^3.0.3
   hex: ^0.2.0
-  http: ^1.0.0
+  http: ^1.1.0
   quiver: ^3.2.1
 dev_dependencies:
   lints: ^2.1.1
-  test: ^1.24.6
+  test: ^1.24.8

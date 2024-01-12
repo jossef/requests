@@ -113,7 +113,6 @@ linter:
     - package_api_docs
     - package_names
     - package_prefixed_library_names
-    - parameter_assignments
     - prefer_adjacent_string_concatenation
     - prefer_asserts_in_initializer_lists
     - prefer_collection_literals

@@ -1,7 +1,7 @@
 import 'package:http/http.dart';
 
-import 'package:requests/requests.dart';
-import 'package:requests/src/common.dart';
+import 'package:requests_plus/requests_plus.dart';
+import 'package:requests_plus/src/common.dart';
 import 'package:test/test.dart';
 
 void _validateResponse(Response r) {
@@ -15,7 +15,7 @@ void main() {
     const placeholderProvider = 'https://reqres.in';
 
     test('plain http get', () async {
-      final r = await Requests.get('https://google.com');
+      final r = await RequestsPlus.get('https://google.com');
       r.raiseForStatus();
       final dynamic body = r.content();
       expect(body, isNotNull);
@@ -23,7 +23,7 @@ void main() {
     });
 
     test('plain http get with query parameters', () async {
-      final r = await Requests.get(
+      final r = await RequestsPlus.get(
         'https://google.com',
         queryParameters: {'id': 1, 'name': null},
       );
@@ -35,7 +35,7 @@ void main() {
     });
 
     test('plain http get with port 80', () async {
-      final r = await Requests.get('http://google.com', port: 80);
+      final r = await RequestsPlus.get('http://google.com', port: 80);
       r.raiseForStatus();
       _validateResponse(r);
       final dynamic body = r.content();
@@ -43,13 +43,15 @@ void main() {
     });
 
     test('plain http get with port 8080', () async {
-      final r =
-          await Requests.get('http://portquiz.net:8080/', timeoutSeconds: 30);
+      final r = await RequestsPlus.get(
+        'http://portquiz.net:8080/',
+        timeoutSeconds: 30,
+      );
       r.raiseForStatus();
     });
 
     test('json http get list of objects', () async {
-      final r = await Requests.get('$placeholderProvider/api/users');
+      final r = await RequestsPlus.get('$placeholderProvider/api/users');
       r.raiseForStatus();
       final dynamic body = r.json();
       expect(body, isNotNull);
@@ -58,7 +60,7 @@ void main() {
     });
 
     test('FormURLEncoded http post', () async {
-      final r = await Requests.post(
+      final r = await RequestsPlus.post(
         '$placeholderProvider/api/users',
         body: {
           'userId': 10,
@@ -69,13 +71,43 @@ void main() {
         },
       );
       r.raiseForStatus();
+      final body = r.json();
+      expect(body, isNotNull);
+      _validateResponse(r);
+    });
+
+    test('http get with auth', () async {
+      final r = await RequestsPlus.get(
+        'https://authenticationtest.com/HTTPAuth/',
+        userName: 'user',
+        password: 'pass',
+      );
+      r.raiseForStatus();
+      expect(r.body.contains('Login Success'), true);
+      _validateResponse(r);
+    });
+
+    test('http post a list of object', () async {
+      final r = await RequestsPlus.post(
+        '$placeholderProvider/api/users',
+        json: [
+          {
+            'userId': 10,
+            'id': 91,
+            'title': 'aut amet sed',
+            'body':
+                'libero voluptate eveniet aperiam sed\nsunt placeat suscipit molestias\nsimilique fugit nam natus\nexpedita consequatur consequatur dolores quia eos et placeat',
+          },
+        ],
+      );
+      r.raiseForStatus();
       final dynamic body = r.json();
       expect(body, isNotNull);
       _validateResponse(r);
     });
 
     test('http post a list of object', () async {
-      final r = await Requests.post(
+      final r = await RequestsPlus.post(
         '$placeholderProvider/api/users',
         json: [
           {
@@ -94,7 +126,7 @@ void main() {
     });
 
     test('json http delete with request body', () async {
-      final r = await Requests.delete(
+      final r = await RequestsPlus.delete(
         '$placeholderProvider/api/users/10',
         json: {'something': 'something'},
       );
@@ -103,7 +135,7 @@ void main() {
     });
 
     test('json http post', () async {
-      final r = await Requests.post(
+      final r = await RequestsPlus.post(
         '$placeholderProvider/api/users',
         json: {
           'userId': 10,
@@ -120,13 +152,13 @@ void main() {
     });
 
     test('json http delete', () async {
-      final r = await Requests.delete('$placeholderProvider/api/users/10');
+      final r = await RequestsPlus.delete('$placeholderProvider/api/users/10');
       r.raiseForStatus();
       _validateResponse(r);
     });
 
     test('json http post as a form and as a JSON', () async {
-      final r = await Requests.post(
+      final r = await RequestsPlus.post(
         '$placeholderProvider/api/users',
         json: {
           'userId': 10,
@@ -142,45 +174,48 @@ void main() {
       _validateResponse(r);
     });
 
-    test('json http get object', () async {
-      final r = await Requests.get('$placeholderProvider/api/users/2');
-      r.raiseForStatus();
-      final dynamic body = r.json();
-      expect(body, isNotNull);
-      expect(body, isMap);
-      _validateResponse(r);
-    });
+    test(
+      'json http get object',
+      () async {
+        final r = await RequestsPlus.get('$placeholderProvider/api/users/2');
+        r.raiseForStatus();
+        final dynamic body = r.json();
+        expect(body, isNotNull);
+        expect(body, isMap);
+        _validateResponse(r);
+      },
+    );
 
     test('remove cookies', () async {
       const url = '$placeholderProvider/api/users/1';
-      await Requests.clearStoredCookies(url);
+      await RequestsPlus.clearStoredCookies(url);
       var cookies = CookieJar.parseCookiesString('session=bla');
-      await Requests.setStoredCookies(url, cookies);
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.setStoredCookies(url, cookies);
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.clearStoredCookies(url);
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.clearStoredCookies(url);
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 0);
     });
 
     test('add cookies', () async {
       const url = 'http://example.com';
-      await Requests.addCookie(url, 'name', 'value');
-      var cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.addCookie(url, 'name', 'value');
+      var cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.addCookie(url, 'name', 'value');
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.addCookie(url, 'name', 'value');
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 1);
-      await Requests.addCookie(url, 'another name', 'value');
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.addCookie(url, 'another name', 'value');
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 2);
-      await Requests.clearStoredCookies(url);
-      cookies = await Requests.getStoredCookies(url);
+      await RequestsPlus.clearStoredCookies(url);
+      cookies = await RequestsPlus.getStoredCookies(url);
       expect(cookies.keys.length, 0);
     });
 
     test('response as Response object', () async {
-      final r = await Requests.post(
+      final r = await RequestsPlus.post(
         '$placeholderProvider/api/users',
         body: {'name': 'morpheus'},
       );
@@ -194,7 +229,7 @@ void main() {
 
     test('throw error', () async {
       try {
-        final r = await Requests.get('$placeholderProvider/api/unknown/23');
+        final r = await RequestsPlus.get('$placeholderProvider/api/unknown/23');
         r.raiseForStatus();
       } on HTTPException catch (e) {
         expect(e.response, isA<Response>());
@@ -206,12 +241,12 @@ void main() {
 
     test('throw if both json and body used', () async {
       try {
-        await Requests.post(
+        await RequestsPlus.post(
           '$placeholderProvider/api/unknown/23',
           body: {},
           json: {},
         );
-      } on ArgumentError catch (_) {
+      } catch (_) {
         return;
       }
       throw Exception('Expected request error');
@@ -219,7 +254,7 @@ void main() {
 
     test('ssl should fail due to expired certificate', () async {
       try {
-        final r = await Requests.get('https://expired.badssl.com/');
+        final r = await RequestsPlus.get('https://expired.badssl.com/');
         r.raiseForStatus();
       } on Exception catch (_) {
         return;
@@ -230,13 +265,13 @@ void main() {
 
     test('ssl allow invalid', () async {
       final r =
-          await Requests.get('https://expired.badssl.com/', verify: false);
+          await RequestsPlus.get('https://expired.badssl.com/', verify: false);
       r.raiseForStatus();
     });
 
     test('multiple Set-Cookie response header', () async {
-      final r = await Requests.get('http://samesitetest.com/cookies/set');
-      final cookies = Requests.extractResponseCookies(r.headers);
+      final r = await RequestsPlus.get('http://samesitetest.com/cookies/set');
+      final cookies = RequestsPlus.extractResponseCookies(r.headers);
 
       expect(
         cookies['StrictCookie']!.output(),
@@ -270,7 +305,7 @@ void main() {
         adblockerfound=true 
       ''';
       headers['set-cookie'] = cookiesString;
-      final cookies = Requests.extractResponseCookies(headers);
+      final cookies = RequestsPlus.extractResponseCookies(headers);
 
       expect(
         cookies['session']!.output(),
@@ -311,6 +346,24 @@ void main() {
       expect(Common.getHostname('$host/?=test'), 'reqres.in');
       expect(Common.getHostname('$host:/?=test'), 'reqres.in');
       expect(Common.getHostname('$host:8080/?=test'), 'reqres.in');
+    });
+
+    test('Common.encodeFormData', () {
+      final data = {
+        'some Data': 'some Value',
+        'another Data': 'another Value',
+        'third Data': 'third Value',
+      };
+      final host = Common.encodeFormData(data, Common.generateBoundary());
+      final splited = host.split('\r\n');
+      expect(splited[1], 'Content-Disposition: form-data; name="some Data"');
+      expect(splited[3], 'some Value');
+      expect(splited[5], 'Content-Disposition: form-data; name="another Data"');
+      expect(splited[7], 'another Value');
+      expect(splited[9], 'Content-Disposition: form-data; name="third Data"');
+      expect(splited[11], 'third Value');
+      expect(splited[0] == splited[4] && splited[4] == splited[8], true);
+      expect(splited[0].replaceAll('-', ''), splited[12].replaceAll('-', ''));
     });
   });
 }

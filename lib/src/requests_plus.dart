@@ -1,30 +1,34 @@
-// ignore_for_file: constant_identifier_names
-
+import 'dart:convert';
 import 'dart:core';
 
 import 'package:http/http.dart';
-import 'package:requests/src/client/io_client.dart'
-    if (dart.library.html) 'package:requests/src/client/browser_client.dart';
-import 'package:requests/src/common.dart';
-import 'package:requests/src/cookie.dart';
-import 'package:requests/src/cookie_jar.dart';
-import 'package:requests/src/event.dart';
-import 'package:requests/src/response.dart';
-import 'package:requests/src/storage.dart';
+import 'package:requests_plus/src/client/io_client.dart'
+    if (dart.library.html) 'package:requests_plus/src/client/browser_client.dart';
+import 'package:requests_plus/src/common.dart';
+import 'package:requests_plus/src/cookie.dart';
+import 'package:requests_plus/src/cookie_jar.dart';
+import 'package:requests_plus/src/event.dart';
+import 'package:requests_plus/src/response.dart';
+import 'package:requests_plus/src/storage.dart';
 
-enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText }
+// ignore: constant_identifier_names
+enum RequestBodyEncoding { JSON, FormURLEncoded, PlainText, FormData }
 
+// ignore: constant_identifier_names
 enum HttpMethod { GET, PUT, PATCH, POST, DELETE, HEAD }
 
-class Requests {
-  const Requests();
+class RequestsPlus {
+  const RequestsPlus();
+
   static final Event onError = Event();
   static const int defaultTimeoutSeconds = 10;
   static const RequestBodyEncoding defaultBodyEncoding =
       RequestBodyEncoding.FormURLEncoded;
 
   /// Gets the cookies of a [Response.headers] in the form of a [CookieJar].
-  static CookieJar extractResponseCookies(Map<String, String> responseHeaders) {
+  static CookieJar extractResponseCookies(
+    Map<String, String> responseHeaders,
+  ) {
     var result = CookieJar();
     final keys = responseHeaders.keys.map((e) => e.toLowerCase());
 
@@ -83,6 +87,10 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    String corsProxyUrl = '',
+    bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.HEAD,
@@ -95,6 +103,10 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -110,6 +122,10 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    String corsProxyUrl = '',
+    bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.GET,
@@ -124,6 +140,10 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -139,6 +159,10 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    String corsProxyUrl = '',
+    bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.PATCH,
@@ -153,6 +177,10 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -168,6 +196,10 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    String corsProxyUrl = '',
+    bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.DELETE,
@@ -182,6 +214,10 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -197,6 +233,10 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    String corsProxyUrl = '',
+    bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.POST,
@@ -211,6 +251,10 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
@@ -226,6 +270,10 @@ class Requests {
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    String corsProxyUrl = '',
+    bool followRedirects = true,
+    String? userName,
+    String? password,
   }) {
     return _httpRequest(
       HttpMethod.PUT,
@@ -240,22 +288,38 @@ class Requests {
       persistCookies: persistCookies,
       verify: verify,
       withCredentials: withCredentials,
+      corsProxyUrl: corsProxyUrl,
+      followRedirects: followRedirects,
+      userName: userName,
+      password: password,
     );
   }
 
   static Future<Map<String, String>> _constructRequestHeaders(
     String url,
     Map<String, String>? customHeaders,
+    String corsProxyUrl,
+    String? username,
+    String? password,
   ) async {
     final requestHeaders = <String, String>{};
 
     final cookies = (await getStoredCookies(url)).values;
     final cookie = cookies.map((e) => '${e.name}=${e.value}').join('; ');
 
-    requestHeaders['cookie'] = cookie;
+    final cookieHeader =
+        (corsProxyUrl.isNotEmpty) ? 'cookie-proxied' : 'cookie';
+    requestHeaders[cookieHeader] = cookie;
 
     if (customHeaders != null) {
       requestHeaders.addAll(customHeaders);
+    }
+
+    if (!requestHeaders.containsKey('authorization') &&
+        username != null &&
+        password != null) {
+      requestHeaders['authorization'] =
+          "Basic ${base64Encode(utf8.encode('$username:$password'))}";
     }
 
     return requestHeaders;
@@ -265,7 +329,32 @@ class Requests {
     String url,
     Response response,
     bool persistCookies,
+    String corsProxyUrl,
+    bool followRedirects,
+    HttpMethod method,
+    dynamic json,
+    dynamic body,
+    RequestBodyEncoding bodyEncoding,
+    Map<String, dynamic>? queryParameters,
+    int? port,
+    Map<String, String> headers,
+    int timeoutSeconds,
+    bool verify,
+    bool withCredentials,
+    String? userName,
+    String? password,
   ) async {
+    if (response.headers.containsKey('set-cookie-proxied')) {
+      if (response.headers.containsKey('set-cookie')) {
+        response.headers['set-cookie'] =
+            "${response.headers["set-cookie"]!}; ${response.headers["set-cookie-proxied"]!}";
+      } else {
+        response.headers['set-cookie'] =
+            response.headers['set-cookie-proxied']!;
+      }
+      response.headers.remove('set-cookie-proxied');
+    }
+
     if (persistCookies) {
       final responseCookies = extractResponseCookies(response.headers);
       if (responseCookies.isNotEmpty) {
@@ -280,6 +369,32 @@ class Requests {
       onError.publish(errorEvent);
     }
 
+    //handle redirects
+    if (followRedirects && response.isRedirect) {
+      if (response.headers.containsKey('location-proxied')) {
+        response.headers['location'] = response.headers['location-proxied']!;
+        response.headers.remove('location-proxied');
+      }
+      var uri = Uri.parse(response.headers['location']!);
+      if (uri.scheme.isEmpty) uri = uri.replace(scheme: Uri.parse(url).scheme);
+      if (uri.host.isEmpty) uri = uri.replace(host: Uri.parse(url).host);
+      return _httpRequest(
+        method,
+        '${uri.scheme}://${uri.host}${uri.path}',
+        port: uri.port,
+        queryParameters: uri.queryParameters,
+        bodyEncoding: bodyEncoding,
+        timeoutSeconds: timeoutSeconds,
+        persistCookies: persistCookies,
+        verify: verify,
+        withCredentials: withCredentials,
+        corsProxyUrl: corsProxyUrl,
+        followRedirects: followRedirects,
+        userName: userName,
+        password: password,
+      );
+    }
+
     return response;
   }
 
@@ -291,14 +406,23 @@ class Requests {
     RequestBodyEncoding bodyEncoding = defaultBodyEncoding,
     Map<String, dynamic>? queryParameters,
     int? port,
-    Map<String, String>? headers,
+    Map<String, String> headers = const {},
     int timeoutSeconds = defaultTimeoutSeconds,
     bool persistCookies = true,
     bool verify = true,
     bool withCredentials = false,
+    String corsProxyUrl = '',
+    bool followRedirects = true,
+    String? userName,
+    String? password,
   }) async {
     Client client;
 
+    assert(
+      (userName == null && password == null) ||
+          (userName != null && password != null),
+      'username and password must be used together or none',
+    );
     if (!verify || withCredentials) {
       client = createClient(
         verify: verify,
@@ -309,7 +433,7 @@ class Requests {
       client = Client();
     }
 
-    var uri = Uri.parse(url);
+    var uri = Uri.parse(((corsProxyUrl.isNotEmpty) ? corsProxyUrl : '') + url);
 
     if (uri.scheme != 'http' && uri.scheme != 'https') {
       throw ArgumentError(
@@ -317,7 +441,16 @@ class Requests {
       );
     }
 
-    headers = await _constructRequestHeaders(url, headers);
+    if (corsProxyUrl.isNotEmpty) {
+      headers['follow-redirects'] = followRedirects.toString();
+    }
+    headers = await _constructRequestHeaders(
+      url,
+      headers,
+      corsProxyUrl,
+      userName,
+      password,
+    );
     String? requestBody;
 
     if (body != null && json != null) {
@@ -337,7 +470,12 @@ class Requests {
     }
 
     if (port != null) {
-      uri = uri.replace(port: port);
+      if (corsProxyUrl.isNotEmpty) {
+        final destination = Uri.parse(url)..replace(port: port);
+        uri = Uri.parse(corsProxyUrl + destination.toString());
+      } else {
+        uri = uri.replace(port: port);
+      }
     }
 
     if (json != null) {
@@ -361,6 +499,11 @@ class Requests {
           requestBody = body;
           contentTypeHeader = 'text/plain';
           break;
+        case RequestBodyEncoding.FormData:
+          final boundary = Common.generateBoundary();
+          requestBody = Common.encodeFormData(body, boundary);
+          contentTypeHeader = 'multipart/form-data; boundary=$boundary';
+          break;
       }
 
       if (!Common.hasKeyIgnoreCase(headers, 'content-type')) {
@@ -368,42 +511,40 @@ class Requests {
       }
     }
 
-    late Future future;
-
-    switch (method) {
-      case HttpMethod.GET:
-        future = client.get(uri, headers: headers);
-        break;
-      case HttpMethod.PUT:
-        future = client.put(uri, body: requestBody, headers: headers);
-        break;
-      case HttpMethod.DELETE:
-        final request = Request('DELETE', uri);
-        request.headers.addAll(headers);
-
-        if (requestBody != null) {
-          request.body = requestBody;
-        }
-
-        future = client.send(request);
-        break;
-      case HttpMethod.POST:
-        future = client.post(uri, body: requestBody, headers: headers);
-        break;
-      case HttpMethod.HEAD:
-        future = client.head(uri, headers: headers);
-        break;
-      case HttpMethod.PATCH:
-        future = client.patch(uri, body: requestBody, headers: headers);
-        break;
+    final request = Request(
+      method.toString().split('.').last,
+      uri,
+    )
+      ..followRedirects = false //followRedirects
+      ..headers.addAll(headers); //little hack to get rid of HttpMethod.
+    if ([HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE]
+            .contains(method) &&
+        requestBody != null) {
+      request.body = requestBody;
     }
 
-    var response = await future.timeout(Duration(seconds: timeoutSeconds));
+    final streamedResponse =
+        await client.send(request).timeout(Duration(seconds: timeoutSeconds));
+    final response = await Response.fromStream(streamedResponse);
 
-    if (response is StreamedResponse) {
-      response = await Response.fromStream(response);
-    }
-
-    return _handleHttpResponse(url, response, persistCookies);
+    return _handleHttpResponse(
+      url,
+      response,
+      persistCookies,
+      corsProxyUrl,
+      followRedirects,
+      method,
+      json,
+      body,
+      bodyEncoding,
+      queryParameters,
+      port,
+      headers,
+      timeoutSeconds,
+      verify,
+      withCredentials,
+      userName,
+      password,
+    );
   }
 }

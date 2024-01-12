@@ -1,9 +1,25 @@
 # Changelog
 
-## [4.8.1](https://github.com/jossef/requests/tree/4.8.1) (2023-08-18)
+## 4.8.6 
 
-- Migration to Dart 3
-- Update dependencies and analysis_options
+Now handle redirects manually inside the lib to be able to catch de cookies and other things during redirections.
+
+## 4.8.5
+
+update to 4.8.1 of requests
+
+## 4.8.4
+
+- add http authentification support
+
+## [4.8.0](https://github.com/onyx-lyon1/requests_plus/tree/4.8.0) (2022-10-14)
+
+[Full Changelog](https://github.com/onyx-lyon1/requests_plus/compare/4.8.0-alpha.0...4.8.0)
+
+**added new features:**
+
+- add the bodyEncoding Form Data
+- add the corsProxyUrl parameter to bypass CORS restrictions
 
 ## [4.8.0-alpha.0](https://github.com/jossef/requests/tree/4.8.0-alpha.0) (2022-10-14)
 

@@ -1,6 +1,6 @@
 import 'package:quiver/collection.dart';
 
-import 'package:requests/src/cookie.dart';
+import 'package:requests_plus/src/cookie.dart';
 
 /// A custom [Map] that will store a sort of [List] of unique [Cookie].
 class CookieJar extends DelegatingMap<String, Cookie> {
