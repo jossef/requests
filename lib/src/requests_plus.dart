@@ -331,21 +331,19 @@ class RequestsPlus {
     bool persistCookies,
     String corsProxyUrl,
     bool followRedirects,
+    HttpMethod method,
+    dynamic json,
+    dynamic body,
+    RequestBodyEncoding bodyEncoding,
+    Map<String, dynamic>? queryParameters,
+    int? port,
+    Map<String, String> headers,
+    int timeoutSeconds,
+    bool verify,
+    bool withCredentials,
+    String? userName,
+    String? password,
   ) async {
-    if (response.headers.containsKey('location-proxied')) {
-      if (followRedirects && response.isRedirect) {
-        final redirectUrl = response.headers['location-proxied']!;
-        return _httpRequest(
-          HttpMethod.GET,
-          redirectUrl,
-          persistCookies: persistCookies,
-          corsProxyUrl: corsProxyUrl,
-        );
-      } else {
-        response.headers['location'] = response.headers['location-proxied']!;
-        response.headers.remove('location-proxied');
-      }
-    }
     if (response.headers.containsKey('set-cookie-proxied')) {
       if (response.headers.containsKey('set-cookie')) {
         response.headers['set-cookie'] =
@@ -369,6 +367,32 @@ class RequestsPlus {
     if (response.hasError) {
       final errorEvent = {'response': response};
       onError.publish(errorEvent);
+    }
+
+    //handle redirects
+    if (followRedirects && response.isRedirect) {
+      if (response.headers.containsKey('location-proxied')) {
+        response.headers['location'] = response.headers['location-proxied']!;
+        response.headers.remove('location-proxied');
+      }
+      var uri = Uri.parse(response.headers['location']!);
+      if (uri.scheme.isEmpty) uri = uri.replace(scheme: Uri.parse(url).scheme);
+      if (uri.host.isEmpty) uri = uri.replace(host: Uri.parse(url).host);
+      return _httpRequest(
+        method,
+        '${uri.scheme}://${uri.host}${uri.path}',
+        port: uri.port,
+        queryParameters: uri.queryParameters,
+        bodyEncoding: bodyEncoding,
+        timeoutSeconds: timeoutSeconds,
+        persistCookies: persistCookies,
+        verify: verify,
+        withCredentials: withCredentials,
+        corsProxyUrl: corsProxyUrl,
+        followRedirects: followRedirects,
+        userName: userName,
+        password: password,
+      );
     }
 
     return response;
@@ -491,7 +515,7 @@ class RequestsPlus {
       method.toString().split('.').last,
       uri,
     )
-      ..followRedirects = followRedirects
+      ..followRedirects = false //followRedirects
       ..headers.addAll(headers); //little hack to get rid of HttpMethod.
     if ([HttpMethod.POST, HttpMethod.PUT, HttpMethod.PATCH, HttpMethod.DELETE]
             .contains(method) &&
@@ -509,6 +533,18 @@ class RequestsPlus {
       persistCookies,
       corsProxyUrl,
       followRedirects,
+      method,
+      json,
+      body,
+      bodyEncoding,
+      queryParameters,
+      port,
+      headers,
+      timeoutSeconds,
+      verify,
+      withCredentials,
+      userName,
+      password,
     );
   }
 }
