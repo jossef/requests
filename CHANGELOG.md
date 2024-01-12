@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.8.6 
+
+Now handle redirects manually inside the lib to be able to catch de cookies and other things during redirections.
+
 ## 4.8.5
 
 update to 4.8.1 of requests
